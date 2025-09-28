@@ -1,35 +1,162 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>SealMath</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            text-align: center;-->
+<!--            padding: 50px;-->
+<!--            background: #f9f9f9;-->
+<!--        }-->
+<!--        h1 {-->
+<!--            color: #2c3e50;-->
+<!--        }-->
+<!--        p {-->
+<!--            font-size: 18px;-->
+<!--        }-->
+<!--        a {-->
+<!--            color: #0066cc;-->
+<!--            text-decoration: none;-->
+<!--        }-->
+<!--        a:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>Welcome to SealMath!</h1>-->
+<!--<p>Your source for math, physics and other learning resources.</p>-->
+<!--<p>Contact me for more math and physics questions at:-->
+<!--    <a href="mailto:sealmathcom@gmail.com">sealmathcom@gmail.com</a>-->
+<!--</p>-->
+<!--</body>-->
+<!--</html>-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>SealMath</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Contact — SealMath</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background: #f9f9f9;
+        body { font-family: system-ui, Arial; padding: 28px; max-width: 720px; margin: auto; }
+        label { display:block; margin-top:12px; }
+        input, textarea { width:100%; padding:8px; box-sizing:border-box; }
+        .drop {
+            border: 2px dashed #888;
+            border-radius:8px;
+            padding:20px;
+            text-align:center;
+            margin-top:12px;
+            cursor: pointer;
         }
-        h1 {
-            color: #2c3e50;
-        }
-        p {
-            font-size: 18px;
-        }
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
+        .drop.dragover { border-color:#2c7; background:#f7fff7; }
+        .file-info { margin-top:8px; font-size:0.95rem; color:#333; }
+        button { margin-top:14px; padding:10px 16px; border-radius:6px; cursor:pointer; }
     </style>
 </head>
 <body>
-<h1>Welcome to SealMath!</h1>
-<p>Your source for math, physics and other learning resources.</p>
-<p>Contact me for more math and physics questions at:
-    <a href="mailto:sealmathcom@gmail.com">sealmathcom@gmail.com</a>
-</p>
+<h1>Contact — SealMath</h1>
+<form id="contact-form">
+    <label>
+        Your name
+        <input type="text" name="from_name" required />
+    </label>
+
+    <label>
+        Your email
+        <input type="email" name="reply_to" required />
+    </label>
+
+    <label>
+        Message
+        <textarea name="message" rows="6" required></textarea>
+    </label>
+
+<!--    <label>Attach a file (optional)</label>-->
+<!--    <div id="drop" class="drop">Drop a file here or click to choose</div>-->
+<!--    &lt;!&ndash; real file input (hidden) - EmailJS expects the input name used in template (e.g. "attachment") &ndash;&gt;-->
+<!--    <input id="file-input" type="file" name="attachment" style="display:none" />-->
+
+<!--    <div id="file-info" class="file-info">No file chosen</div>-->
+
+    <button type="submit">Send</button>
+</form>
+
+<div id="status" style="margin-top:12px;"></div>
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script>
+    // Replace these with your EmailJS IDs
+    const SERVICE_ID = 'service_lq91rap';
+    const TEMPLATE_ID = 'template_165y5dr';
+    const PUBLIC_KEY = '52VtQNv4lmH3Jg7fP';
+
+    // init EmailJS
+    (function(){
+        emailjs.init(PUBLIC_KEY);
+    })();
+
+    // Drag & drop + file selection
+    const drop = document.getElementById('drop');
+    const fileInput = document.getElementById('file-input');
+    const fileInfo = document.getElementById('file-info');
+    let chosenFile = null;
+
+    drop.addEventListener('click', ()=> fileInput.click());
+
+    ['dragenter','dragover'].forEach(evt => {
+        drop.addEventListener(evt, e => {
+            e.preventDefault(); e.stopPropagation();
+            drop.classList.add('dragover');
+        });
+    });
+    ['dragleave','drop'].forEach(evt => {
+        drop.addEventListener(evt, e => {
+            e.preventDefault(); e.stopPropagation();
+            drop.classList.remove('dragover');
+        });
+    });
+
+    drop.addEventListener('drop', e => {
+        const f = (e.dataTransfer.files && e.dataTransfer.files[0]) || null;
+        if (f) setFile(f);
+    });
+
+    fileInput.addEventListener('change', e => {
+        const f = fileInput.files && fileInput.files[0];
+        if (f) setFile(f);
+    });
+
+    function setFile(f){
+        chosenFile = f;
+        fileInfo.textContent = `${f.name} — ${Math.round(f.size/1024)} KB`;
+    }
+
+    // Sending the form using EmailJS
+    const form = document.getElementById('contact-form');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        status.textContent = 'Sending…';
+        // If there's a file, attach it to the formData that emailjs.sendForm will pick up
+        // emailjs.sendForm uses the real DOM <form> and file input with name 'attachment'
+        try {
+            // If using sendForm, make sure the input name in your template matches 'attachment'
+            await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form);
+            status.textContent = 'Message sent — check your email!';
+            form.reset();
+            fileInfo.textContent = 'No file chosen';
+            chosenFile = null;
+        } catch (err) {
+            console.error(err);
+            status.textContent = 'Send failed: ' + (err.text || err.message || 'check console');
+        }
+    });
+</script>
 </body>
 </html>
