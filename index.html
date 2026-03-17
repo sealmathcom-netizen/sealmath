@@ -31,124 +31,102 @@
         }
     </style>
     <style>
+        :root {
+            --pink: #FFD1DC; --green: #C1E1C1; --blue: #AEC6CF; --yellow: #FDFD96;
+            --dark: #2c3e50; --success: #27ae60; --error: #e74c3c;
+        }
         body {
-            font-family: sans-serif;
-            padding: 20px;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0;
         }
-
-        .input-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+        .container {
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 400px; text-align: center;
         }
+        h2 { color: var(--dark); margin-top: 0; }
+        .input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
 
         input[type="number"] {
-            width: 60px;
-            height: 40px;
-            text-align: center;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: 2px solid #333;
-            border-radius: 8px;
+            width: 60px; height: 50px; text-align: center; font-size: 1.4rem;
+            font-weight: bold; border: 2px solid #ddd; border-radius: 12px;
+            transition: transform 0.2s;
         }
+        #n1 { background-color: var(--pink); }
+        #n2 { background-color: var(--green); }
+        #n3 { background-color: var(--blue); }
+        #n4 { background-color: var(--yellow); }
 
-        /* Unique background colors */
-        #n1 {
-            background-color: #FFD1DC;
+        .solution-section {
+            background: #f9f9f9; padding: 20px; border-radius: 15px;
+            border: 2px dashed #ccc; margin-top: 20px;
         }
-
-        #n2 {
-            background-color: #C1E1C1;
+        #userExpr {
+            width: 90%; padding: 12px; font-size: 1.2rem; border-radius: 8px;
+            border: 2px solid #ddd; text-align: center; outline: none;
+            font-family: monospace; font-weight: bold;
         }
-
-        #n3 {
-            background-color: #AEC6CF;
-        }
-
-        #n4 {
-            background-color: #FDFD96;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
+        .controls { display: flex; gap: 10px; margin: 20px 0; justify-content: center; }
         button {
-            padding: 10px 15px;
-            font-size: 1rem;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            transition: 0.2s;
+            padding: 12px 20px; font-size: 1rem; cursor: pointer;
+            border: none; border-radius: 8px; color: white; font-weight: bold;
+            transition: all 0.2s;
         }
+        .btn-solve { background-color: var(--dark); }
+        .btn-generate { background-color: var(--success); }
+        .btn-check { background-color: #8e44ad; width: 100%; margin-top: 10px; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
 
-        .btn-solve {
-            background-color: #34495e;
+        #result, #feedback {
+            margin-top: 15px; font-weight: bold; font-size: 1.1rem; min-height: 1.5em;
         }
-
-        .btn-solve:hover {
-            background-color: #2c3e50;
-        }
-
-        .btn-generate {
-            background-color: #27ae60;
-        }
-
-        .btn-generate:hover {
-            background-color: #219150;
-        }
-
-        #result {
-            margin-top: 20px;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #2c3e50;
-            min-height: 1.5em;
-        }
+        .valid-nums { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-<h2>24 Game Solver</h2>
-<p>Enter four numbers (1-13) or generate a new puzzle:</p>
+<div class="container">
+    <h2>The 24 Challenge</h2>
+    <div class="input-row">
+        <input type="number" id="n1" min="1" max="13" value="4">
+        <input type="number" id="n2" min="1" max="13" value="7">
+        <input type="number" id="n3" min="1" max="13" value="8">
+        <input type="number" id="n4" min="1" max="13" value="8">
+    </div>
 
-<div class="input-row">
-    <input type="number" id="n1" min="1" max="13" value="4">
-    <input type="number" id="n2" min="1" max="13" value="7">
-    <input type="number" id="n3" min="1" max="13" value="8">
-    <input type="number" id="n4" min="1" max="13" value="8">
+    <div class="controls">
+        <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
+        <button class="btn-solve" onclick="runSolver()">Show Answer</button>
+    </div>
+
+    <div class="solution-section">
+        <div class="valid-nums">Use each number exactly once</div>
+        <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)">
+        <button class="btn-check" onclick="checkUserSolution()">Check My Solution</button>
+        <div id="feedback"></div>
+    </div>
+
+    <div id="result"></div>
 </div>
-
-<div class="controls">
-    <button class="btn-solve" onclick="runSolver()">Find Solution</button>
-    <button class="btn-generate" onclick="generateSolvable()">New Solvable Puzzle</button>
-</div>
-
-<div id="result"></div>
 
 <script>
+    // Logic for the computer solver
     function solve24(numbers) {
         const target = 24;
         const precision = 0.001;
-
         function backtrack(list) {
-            if (list.length === 1) {
-                return Math.abs(list[0].val - target) < precision ? list[0].expr : null;
-            }
+            if (list.length === 1) return Math.abs(list[0].val - target) < precision ? list[0].expr : null;
             for (let i = 0; i < list.length; i++) {
                 for (let j = 0; j < list.length; j++) {
                     if (i === j) continue;
                     const remaining = list.filter((_, idx) => idx !== i && idx !== j);
-                    const a = list[i];
-                    const b = list[j];
+                    const a = list[i], b = list[j];
                     const ops = [
                         { val: a.val + b.val, expr: `(${a.expr}+${b.expr})` },
                         { val: a.val - b.val, expr: `(${a.expr}-${b.expr})` },
                         { val: a.val * b.val, expr: `(${a.expr}*${b.expr})` },
-                        { val: Math.abs(b.val) > precision ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})` }
+                        { val: Math.abs(b.val) > 0.001 ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})` }
                     ];
                     for (let op of ops) {
                         if (op.val === null) continue;
@@ -163,43 +141,79 @@
     }
 
     function runSolver() {
-        const nums = [
+        const nums = getInputs();
+        const solution = solve24(nums);
+        document.getElementById('result').style.color = 'var(--dark)';
+        document.getElementById('result').innerText = solution ? `AI Solution: ${solution}` : "No solution found.";
+    }
+
+    function generateSolvable() {
+        let randomNums = [];
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('userExpr').value = "";
+        document.getElementById('result').innerText = "Generating...";
+        while (true) {
+            randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1);
+            if (solve24(randomNums)) break;
+        }
+        ['n1','n2','n3','n4'].forEach((id, i) => document.getElementById(id).value = randomNums[i]);
+        document.getElementById('result').innerText = "";
+    }
+
+    function getInputs() {
+        return [
             parseFloat(document.getElementById('n1').value),
             parseFloat(document.getElementById('n2').value),
             parseFloat(document.getElementById('n3').value),
             parseFloat(document.getElementById('n4').value)
         ];
+    }
 
-        if (nums.some(isNaN)) {
-            document.getElementById('result').innerText = "Please enter four valid numbers.";
+    // Checking user's logic
+    function checkUserSolution() {
+        const expr = document.getElementById('userExpr').value;
+        const feedback = document.getElementById('feedback');
+        const required = getInputs().sort((a, b) => a - b);
+
+        // 1. Extract numbers from expression
+        const used = expr.match(/\d+/g);
+        if (!used || used.length !== 4) {
+            showFeedback("Use exactly 4 numbers!", "var(--error)");
             return;
         }
 
-        const solution = solve24(nums);
-        document.getElementById('result').innerText = solution ? `Solution: ${solution}` : "No solution possible.";
-    }
+        const usedSorted = used.map(Number).sort((a, b) => a - b);
 
-    function generateSolvable() {
-        let found = false;
-        let randomNums = [];
-
-        // Clear result and show loading state
-        document.getElementById('result').innerText = "Generating...";
-
-        while (!found) {
-            randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1);
-            if (solve24(randomNums)) {
-                found = true;
-            }
+        // 2. Check if the numbers match the exercise
+        const matches = required.every((val, index) => val === usedSorted[index]);
+        if (!matches) {
+            showFeedback("Wrong numbers used!", "var(--error)");
+            return;
         }
 
-        // Update inputs
-        document.getElementById('n1').value = randomNums[0];
-        document.getElementById('n2').value = randomNums[1];
-        document.getElementById('n3').value = randomNums[2];
-        document.getElementById('n4').value = randomNums[3];
+        // 3. Check for illegal characters (security)
+        if (/[^0-9\+\-\*\/\(\)\s]/.test(expr)) {
+            showFeedback("Invalid characters used!", "var(--error)");
+            return;
+        }
 
-        document.getElementById('result').innerText = "New puzzle ready! Try to solve it.";
+        // 4. Evaluate the math
+        try {
+            const result = eval(expr);
+            if (Math.abs(result - 24) < 0.001) {
+                showFeedback("🎉 Correct! You got 24!", "var(--success)");
+            } else {
+                showFeedback(`Equals ${result}, try again!`, "var(--dark)");
+            }
+        } catch (e) {
+            showFeedback("Math Error! Check parentheses.", "var(--error)");
+        }
+    }
+
+    function showFeedback(text, color) {
+        const fb = document.getElementById('feedback');
+        fb.innerText = text;
+        fb.style.color = color;
     }
 </script>
 <h1>Contact — SealMath</h1>
