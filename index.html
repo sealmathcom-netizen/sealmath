@@ -129,13 +129,25 @@
     function updateAddButtonState() {
         const nums = getInputs();
         const btn = document.getElementById('btn-manual-add');
-        if (nums.some(isNaN)) { btn.disabled = true; btn.style.opacity = "0.5"; return; }
-        const key = [...nums].sort((a,b)=>a-b).join(',');
-        const list = solve24(nums) ? solvableHistory : unsolvableHistory;
+
+        // Hide if inputs are empty or invalid
+        if (nums.some(isNaN)) {
+            btn.style.display = "none";
+            return;
+        }
+
+        const key = [...nums].sort((a, b) => a - b).join(',');
+        const isSolvable = solve24(nums) !== null;
+        const list = isSolvable ? solvableHistory : unsolvableHistory;
+
+        // Logic: If the puzzle exists in history, hide the button. Otherwise, show it.
         if (list.includes(key)) {
-            btn.disabled = true; btn.style.opacity = "0.5"; btn.innerText = "In History";
+            btn.style.display = "none";
         } else {
-            btn.disabled = false; btn.style.opacity = "1"; btn.innerText = "Add to History";
+            btn.style.display = "inline-block"; // or 'block' depending on layout
+            btn.disabled = false;
+            btn.style.opacity = "1";
+            btn.innerText = "Add to History";
         }
     }
 
@@ -146,6 +158,7 @@
         const nums = getInputs();
         registerPuzzle(nums);
         updateFeedback("Saved!", "#27ae60");
+        // This will trigger the check and hide the button
         updateAddButtonState();
     }
 
