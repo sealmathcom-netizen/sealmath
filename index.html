@@ -251,6 +251,7 @@
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
             <button class="btn-solve" onclick="runSolver()">Show Answer</button>
+            <button class="btn-solve" style="background-color: var(--blue); color: var(--dark);" onclick="manualRegister()">Add to History</button>
         </div>
 
         <div class="nav-controls">
@@ -372,22 +373,6 @@
         nums.forEach((val, i) => document.getElementById('n' + (i + 1)).value = val);
     }
 
-    function registerPuzzle(nums) {
-        if (nums.some(isNaN)) return;
-        const key = [...nums].sort((a, b) => a - b).join(',');
-        const isSolvable = solve24(nums) !== null;
-        const targetList = isSolvable ? solvableHistory : unsolvableHistory;
-
-        if (!targetList.includes(key)) {
-            targetList.push(key);
-            saveToStorage();
-            if (isSolvable && !showingUnsolvable) {
-                currentHistoryIndex = solvableHistory.length - 1;
-            }
-        }
-        updateNavButtons();
-    }
-
     function updateNavButtons() {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         const unsolvableBtn = document.getElementById('btn-toggle-unsolvable');
@@ -474,6 +459,22 @@
         document.getElementById('result').innerText = solution ? `Solution: ${solution}` : "No solution found.";
     }
 
+    function clearSolutionArea() {
+        document.getElementById('userExpr').value = "";
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('result').innerText = "";
+    }
+
+    function manualRegister() {
+        const nums = getInputs();
+        if (nums.some(isNaN)) {
+            updateFeedback("Enter 4 numbers first!", var(--error));
+            return;
+        }
+        registerPuzzle(nums);
+        updateFeedback("Puzzle added to history!", var(--success));
+    }
+
     function generateSolvable() {
         showingUnsolvable = false;
         let randomNums = [];
@@ -483,9 +484,26 @@
         }
         setInputs(randomNums);
         registerPuzzle(randomNums);
-        document.getElementById('feedback').innerText = "";
-        document.getElementById('result').innerText = "";
-        document.getElementById('userExpr').value = "";
+
+        // Feature: Clear solution section on new puzzle
+        clearSolutionArea();
+    }
+
+    /* Updated Register Logic to include UI cleanup when needed */
+    function registerPuzzle(nums) {
+        if (nums.some(isNaN)) return;
+        const key = [...nums].sort((a, b) => a - b).join(',');
+        const isSolvable = solve24(nums) !== null;
+        const targetList = isSolvable ? solvableHistory : unsolvableHistory;
+
+        if (!targetList.includes(key)) {
+            targetList.push(key);
+            saveToStorage();
+            if (isSolvable && !showingUnsolvable) {
+                currentHistoryIndex = solvableHistory.length - 1;
+            }
+        }
+        updateNavButtons();
     }
 
     function checkUserSolution() {
