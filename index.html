@@ -295,6 +295,12 @@
         <div id="result" style="margin-top: 15px; font-weight: bold;"></div>
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0 15px 0;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <label style="margin: 0; font-size: 0.8rem; cursor: pointer;">
+                <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()">
+                Save history to this browser
+            </label>
+        </div>
         <button onclick="clearAllHistory()" class="btn-clear-minimal">Clear All History</button>
     </div>
 </section>
@@ -332,10 +338,50 @@
         updateNavButtons();
     };
 
-    function saveToStorage() {
-        localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
-        localStorage.setItem('unsolvableHistory', JSON.stringify(unsolvableHistory));
+    /* --- STORAGE CONTROL LOGIC --- */
+    // Check if user previously allowed storage
+    let storageAllowed = localStorage.getItem('storageAllowed') === 'true';
+
+    // Load lists ONLY if storage was allowed
+    let solvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('solvableHistory')) || []) : [];
+    let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
+
+    let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
+    let showingUnsolvable = false;
+
+    window.onload = () => {
+        // Sync the checkbox UI with the saved preference
+        document.getElementById('storage-toggle').checked = storageAllowed;
+
+        if (solvableHistory.length > 0) {
+            navigateHistory(0);
+        }
+        updateNavButtons();
+    };
+
+    function toggleStoragePreference() {
+        storageAllowed = document.getElementById('storage-toggle').checked;
+        localStorage.setItem('storageAllowed', storageAllowed);
+
+        if (storageAllowed) {
+            // If turned ON, save the current session immediately
+            saveToStorage();
+        } else {
+            // If turned OFF, remove the data from the browser (but keep it in the current session memory)
+            localStorage.removeItem('solvableHistory');
+            localStorage.removeItem('unsolvableHistory');
+        }
     }
+
+    function saveToStorage() {
+        // ONLY write to localStorage if the user has opted in
+        if (storageAllowed) {
+            localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
+            localStorage.setItem('unsolvableHistory', JSON.stringify(unsolvableHistory));
+        }
+    }
+
+
 
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -362,12 +408,13 @@
 
         if (!targetList.includes(key)) {
             targetList.push(key);
+            // saveToStorage handles the check for storageAllowed internally
             saveToStorage();
             if (isSolvable && !showingUnsolvable) {
                 currentHistoryIndex = solvableHistory.length - 1;
             }
         }
-        updateNavButtons(); // This will now show the button as soon as an unsolvable is added
+        updateNavButtons();
     }
 
     function updateNavButtons() {
