@@ -301,7 +301,7 @@
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
     /* --- GLOBAL STATE & PERSISTENCE --- */
-    let storageAllowed = localStorage.getItem('storageAllowed') === 'true';
+    let storageAllowed = localStorage.getItem('storageAllowed') === null ? true : localStorage.getItem('storageAllowed') === 'true';
 
     let solvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('solvableHistory')) || []) : [];
     let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
@@ -310,7 +310,13 @@
     let showingUnsolvable = false;
 
     window.onload = () => {
+        // Force set the preference if it's the user's first time
+        if (localStorage.getItem('storageAllowed') === null) {
+            localStorage.setItem('storageAllowed', 'true');
+        }
+
         document.getElementById('storage-toggle').checked = storageAllowed;
+
         if (solvableHistory.length > 0) {
             navigateHistory(0);
         }
