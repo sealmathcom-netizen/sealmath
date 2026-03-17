@@ -263,6 +263,7 @@
             <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)">&larr; Back</button>
             <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)">Next &rarr;</button>
             <button id="btn-toggle-unsolvable" onclick="toggleUnsolvableView()">View Unsolvable</button>
+            <button onclick="clearAllHistory()" style="background:#e74c3c; padding: 8px 12px; font-size: 0.8rem;">Clear All History</button>
         </div>
 
         <div class="solution-section">
@@ -485,6 +486,32 @@
         const fb = document.getElementById('feedback');
         fb.innerText = msg;
         fb.style.color = color;
+    }
+
+    /* --- DELETE ALL HISTORY --- */
+    function clearAllHistory() {
+        // Ask the user to confirm so they don't lose data by accident
+        if (confirm("Are you sure you want to delete all saved puzzles? This cannot be undone.")) {
+            // 1. Wipe the arrays
+            solvableHistory = [];
+            unsolvableHistory = [];
+            currentHistoryIndex = -1;
+            showingUnsolvable = false;
+
+            // 2. Clear from Local Storage
+            localStorage.removeItem('solvableHistory');
+            localStorage.removeItem('unsolvableHistory');
+
+            // 3. Reset the UI
+            [1, 2, 3, 4].forEach(i => document.getElementById('n' + i).value = "");
+            document.getElementById('userExpr').value = "";
+            document.getElementById('result').innerText = "";
+            document.getElementById('feedback').innerText = "";
+
+            // 4. Update the buttons and counter
+            updateNavButtons();
+            alert("History cleared!");
+        }
     }
 
     /* --- EMAILJS LOGIC --- */
