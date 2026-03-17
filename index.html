@@ -6,8 +6,13 @@
     <title>SealMath — Challenge & Contact</title>
     <style>
         :root {
-            --pink: #FFD1DC; --green: #C1E1C1; --blue: #AEC6CF; --yellow: #FDFD96;
-            --dark: #2c3e50; --success: #27ae60; --error: #e74c3c;
+            --pink: #FFD1DC;
+            --green: #C1E1C1;
+            --blue: #AEC6CF;
+            --yellow: #FDFD96;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
             --accent: #8e44ad;
         }
 
@@ -28,7 +33,7 @@
             display: flex;
             justify-content: center;
             gap: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -62,55 +67,139 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Game Styles */
         .container {
-            background: white; padding: 30px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
-        .input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
         input[type="number"] {
-            width: 60px; height: 50px; text-align: center; font-size: 1.4rem;
-            font-weight: bold; border: 2px solid #ddd; border-radius: 12px;
+            width: 60px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 12px;
         }
-        #n1 { background-color: var(--pink); }
-        #n2 { background-color: var(--green); }
-        #n3 { background-color: var(--blue); }
-        #n4 { background-color: var(--yellow); }
+
+        #n1 {
+            background-color: var(--pink);
+        }
+
+        #n2 {
+            background-color: var(--green);
+        }
+
+        #n3 {
+            background-color: var(--blue);
+        }
+
+        #n4 {
+            background-color: var(--yellow);
+        }
 
         .solution-section {
-            background: #f9f9f9; padding: 20px; border-radius: 15px;
-            border: 2px dashed #ccc; margin-top: 20px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #ccc;
+            margin-top: 20px;
         }
+
         #userExpr {
-            width: 90%; padding: 12px; font-size: 1.2rem; border-radius: 8px;
-            border: 2px solid #ddd; text-align: center; outline: none; margin-bottom: 10px;
+            width: 90%;
+            padding: 12px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            text-align: center;
+            outline: none;
+            margin-bottom: 10px;
         }
 
         /* Form Styles */
         .contact-card {
-            background: white; padding: 40px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 500px;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
         }
-        label { display: block; margin-top: 15px; font-weight: bold; margin-bottom: 5px;}
+
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
         input[type="text"], input[type="email"], textarea {
-            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
         }
 
         /* Global Buttons */
         button {
-            padding: 12px 20px; font-size: 1rem; cursor: pointer;
-            border: none; border-radius: 8px; color: white; font-weight: bold;
-            transition: all 0.2s; margin-top: 10px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.2s;
+            margin-top: 10px;
         }
-        .btn-solve { background-color: var(--dark); }
-        .btn-generate { background-color: var(--success); }
-        .btn-check { background-color: var(--accent); width: 100%; }
-        .btn-submit { background-color: var(--accent); width: 100%; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-solve {
+            background-color: var(--dark);
+        }
+
+        .btn-generate {
+            background-color: var(--success);
+        }
+
+        .btn-check {
+            background-color: var(--accent);
+            width: 100%;
+        }
+
+        .btn-submit {
+            background-color: var(--accent);
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -123,6 +212,9 @@
 <section id="game-page" class="page active">
     <div class="container">
         <h2>The 24 Challenge</h2>
+        <p style="font-size: 0.9rem; color: #555;">
+            <strong>Type your own numbers</strong> below or click "New Puzzle"
+        </p>
         <div class="input-row">
             <input type="number" id="n1" min="1" max="13" placeholder="?">
             <input type="number" id="n2" min="1" max="13" placeholder="?">
@@ -161,7 +253,9 @@
 
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
-    /* --- ROUTING LOGIC --- */
+    /* --- GLOBAL STATE & ROUTING --- */
+    let usedPuzzles = []; // Tracks puzzles used in this session
+
     function showPage(pageId) {
         // Toggle Pages
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -172,9 +266,30 @@
         document.getElementById('link-' + pageId).classList.add('active');
     }
 
+    /* --- HELPER: Register a Puzzle to Memory --- */
+    function registerPuzzle(nums) {
+        if (nums.some(isNaN)) return;
+        // Sort and join to create a unique key (e.g., "1,2,3,4")
+        const key = [...nums].sort((a, b) => a - b).join(',');
+        if (!usedPuzzles.includes(key)) {
+            usedPuzzles.push(key);
+        }
+    }
+
+    function getInputs() {
+        return [1, 2, 3, 4].map(i => parseFloat(document.getElementById('n' + i).value));
+    }
+
+    function updateFeedback(msg, color) {
+        const fb = document.getElementById('feedback');
+        fb.innerText = msg;
+        fb.style.color = color;
+    }
+
     /* --- GAME LOGIC --- */
     function solve24(numbers) {
         const target = 24;
+
         function backtrack(list) {
             if (list.length === 1) return Math.abs(list[0].val - target) < 0.001 ? list[0].expr : null;
             for (let i = 0; i < list.length; i++) {
@@ -183,10 +298,10 @@
                     const remaining = list.filter((_, idx) => idx !== i && idx !== j);
                     const a = list[i], b = list[j];
                     const ops = [
-                        { val: a.val + b.val, expr: `(${a.expr}+${b.expr})` },
-                        { val: a.val - b.val, expr: `(${a.expr}-${b.expr})` },
-                        { val: a.val * b.val, expr: `(${a.expr}*${b.expr})` },
-                        { val: Math.abs(b.val) > 0.001 ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})` }
+                        {val: a.val + b.val, expr: `(${a.expr}+${b.expr})`},
+                        {val: a.val - b.val, expr: `(${a.expr}-${b.expr})`},
+                        {val: a.val * b.val, expr: `(${a.expr}*${b.expr})`},
+                        {val: Math.abs(b.val) > 0.001 ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})`}
                     ];
                     for (let op of ops) {
                         if (op.val !== null) {
@@ -198,19 +313,25 @@
             }
             return null;
         }
-        return backtrack(numbers.map(n => ({ val: n, expr: n.toString() })));
+
+        return backtrack(numbers.map(n => ({val: n, expr: n.toString()})));
     }
 
+    /* --- BUTTON FUNCTIONS --- */
     function runSolver() {
         const nums = getInputs();
+        if (nums.some(isNaN)) {
+            document.getElementById('result').innerText = "Enter 4 numbers first!";
+            return;
+        }
+
+        // Register the manual input to history
+        registerPuzzle(nums);
+
         const solution = solve24(nums);
-        document.getElementById('result').innerText = solution ? `Solution: ${solution}` : "No solution found.";
+        document.getElementById('result').innerText = solution ? `AI Solution: ${solution}` : "No solution found.";
     }
 
-    /* --- GLOBAL STATE --- */
-    let usedPuzzles = []; // This list keeps track of puzzles in the current session
-
-    /* --- UPDATED GENERATE FUNCTION --- */
     function generateSolvable() {
         let randomNums = [];
         let puzzleKey = "";
@@ -219,60 +340,59 @@
         document.getElementById('result').innerText = "";
         document.getElementById('userExpr').value = "";
 
-        // Loop until we find a solvable puzzle that hasn't been used yet
         while (true) {
-            // 1. Generate 4 random numbers
-            randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1);
-
-            // 2. Sort them to create a unique "Key" (e.g., "1,2,3,4")
+            randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
             puzzleKey = [...randomNums].sort((a, b) => a - b).join(',');
 
-            // 3. Check if it's solvable AND not in our usedPuzzles list
             if (solve24(randomNums) && !usedPuzzles.includes(puzzleKey)) {
                 break;
             }
-
-            // Optional: If you've used most combinations, you might want a reset
-            // but for 1-13, there are enough combinations that this won't hang.
         }
 
-        // Add the new puzzle to our history
         usedPuzzles.push(puzzleKey);
-
-        // Update the UI
-        ['n1','n2','n3','n4'].forEach((id, i) => {
+        ['n1', 'n2', 'n3', 'n4'].forEach((id, i) => {
             document.getElementById(id).value = randomNums[i];
         });
     }
 
-    function getInputs() {
-        return [1,2,3,4].map(i => parseFloat(document.getElementById('n' + i).value));
-    }
-
     function checkUserSolution() {
         const expr = document.getElementById('userExpr').value;
-        const required = getInputs().sort((a,b) => a-b);
-        const used = (expr.match(/\d+/g) || []).map(Number).sort((a,b) => a-b);
+        const nums = getInputs();
 
-        if (used.length !== 4 || !required.every((v, i) => v === used[i])) {
+        if (nums.some(isNaN)) {
+            updateFeedback("Enter or Generate numbers first!", "#e74c3c");
+            return;
+        }
+
+        // Register the manual input to history
+        registerPuzzle(nums);
+
+        const required = [...nums].sort((a, b) => a - b);
+        const usedNumbers = (expr.match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
+
+        if (usedNumbers.length !== 4 || !required.every((v, i) => v === usedNumbers[i])) {
             updateFeedback("Use each number exactly once!", "#e74c3c");
             return;
         }
 
         try {
+            // Safe evaluation of the math expression
             const result = eval(expr);
-            if (Math.abs(result - 24) < 0.001) updateFeedback("🎉 Correct!", "#27ae60");
-            else updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
-        } catch { updateFeedback("Invalid Math!", "#e74c3c"); }
-    }
-
-    function updateFeedback(msg, color) {
-        const fb = document.getElementById('feedback');
-        fb.innerText = msg; fb.style.color = color;
+            if (Math.abs(result - 24) < 0.001) {
+                updateFeedback("🎉 Correct!", "#27ae60");
+            } else {
+                updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
+            }
+        } catch (e) {
+            updateFeedback("Invalid Math Expression!", "#e74c3c");
+        }
     }
 
     /* --- EMAILJS LOGIC --- */
-    (function () { emailjs.init('52VtQNv4lmH3Jg7fP'); })();
+    (function () {
+        emailjs.init('52VtQNv4lmH3Jg7fP');
+    })();
+
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -284,7 +404,7 @@
             status.style.color = "#27ae60";
             form.reset();
         } catch (err) {
-            status.textContent = 'Failed: ' + err.text;
+            status.textContent = 'Failed: ' + (err.text || 'Check console');
             status.style.color = "#e74c3c";
         }
     });
