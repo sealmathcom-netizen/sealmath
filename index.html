@@ -68,6 +68,16 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* --- New Rules Animation --- */
+        #rules-content {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .container {
             background: white;
             padding: 30px;
@@ -215,6 +225,20 @@
             <span id="puzzle-counter" style="font-size: 0.8rem; color: #7f8c8d; font-weight: bold;">Puzzle #0</span>
         </div>
 
+        <div style="margin-bottom: 15px;">
+            <button onclick="toggleRules()" id="rules-btn" style="background: none; color: var(--accent); border: 1px solid var(--accent); padding: 5px 15px; font-size: 0.8rem; border-radius: 15px; margin-top: 0;">
+                How to Play
+            </button>
+            <div id="rules-content" style="display: none; text-align: left; font-size: 0.85rem; background: #fdfdff; border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-top: 10px; line-height: 1.4; color: #444;">
+                <strong>Goal:</strong> Get exactly <strong>24</strong> using all four numbers.<br><br>
+                <ul style="padding-left: 20px; margin: 0;">
+                    <li>Use each number <strong>exactly once</strong>.</li>
+                    <li>Operations: Addition (+), Subtraction (-), Multiplication (*), Division (/).</li>
+                    <li>Parentheses ( ) are allowed.</li>
+                </ul>
+            </div>
+        </div>
+
         <p style="font-size: 0.9rem; color: #555;">Type numbers below or click "New Puzzle"</p>
 
         <div class="input-row">
@@ -292,6 +316,21 @@
         }
         updateNavButtons();
     };
+
+    /* --- UI: Rules Toggle --- */
+    function toggleRules() {
+        const content = document.getElementById('rules-content');
+        const btn = document.getElementById('rules-btn');
+        if (content.style.display === "none") {
+            content.style.display = "block";
+            btn.innerText = "Hide Rules";
+            btn.style.background = "#f4ecf7";
+        } else {
+            content.style.display = "none";
+            btn.innerText = "How to Play";
+            btn.style.background = "none";
+        }
+    }
 
     function toggleStoragePreference() {
         storageAllowed = document.getElementById('storage-toggle').checked;
@@ -448,16 +487,13 @@
         const nums = getInputs();
         if (nums.some(isNaN)) return;
 
-        // 1. Check for Balanced Parentheses
         if (!isParenthesesValid(expr)) {
             updateFeedback("Invalid parentheses order!", "#e74c3c");
             return;
         }
 
-        // 2. Register the puzzle (solvable or unsolvable)
         registerPuzzle(nums);
 
-        // 3. Verify Number Usage
         const required = [...nums].sort((a, b) => a - b);
         const usedNumbers = (expr.match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
 
@@ -466,11 +502,8 @@
             return;
         }
 
-        // 4. Validate Calculation
         try {
-            // Use Function instead of eval for slightly better security/scope
             const result = new Function(`return ${expr}`)();
-
             if (Math.abs(result - 24) < 0.001) {
                 updateFeedback("🎉 Correct!", "#27ae60");
             } else {
@@ -481,18 +514,16 @@
         }
     }
 
-    /* Helper Function: Parentheses Validator */
     function isParenthesesValid(str) {
         let stack = [];
         for (let char of str) {
-            if (char === '(') {
-                stack.push(char);
-            } else if (char === ')') {
-                if (stack.length === 0) return false; // Found a closing ')' without an opening '('
+            if (char === '(') stack.push(char);
+            else if (char === ')') {
+                if (stack.length === 0) return false;
                 stack.pop();
             }
         }
-        return stack.length === 0; // If stack is empty, they are balanced
+        return stack.length === 0;
     }
 
     function updateFeedback(msg, color) {
