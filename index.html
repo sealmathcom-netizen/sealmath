@@ -12,6 +12,63 @@
     </style>
 </head>
 <body>
+<h2>24 Game Solver</h2>
+<p>Enter four numbers (1-9):</p>
+<div>
+    <input type="number" id="n1" min="1" max="9" value="4">
+    <input type="number" id="n2" min="1" max="9" value="7">
+    <input type="number" id="n3" min="1" max="9" value="8">
+    <input type="number" id="n4" min="1" max="9" value="8">
+</div>
+<br>
+<button onclick="runSolver()">Find Solution</button>
+
+<div id="result"></div>
+
+<script>
+    function solve24(numbers) {
+        const target = 24;
+        const precision = 0.001;
+
+        function backtrack(list) {
+            if (list.length === 1) {
+                return Math.abs(list[0].val - target) < precision ? list[0].expr : null;
+            }
+            for (let i = 0; i < list.length; i++) {
+                for (let j = 0; j < list.length; j++) {
+                    if (i === j) continue;
+                    const remaining = list.filter((_, idx) => idx !== i && idx !== j);
+                    const a = list[i];
+                    const b = list[j];
+                    const ops = [
+                        { val: a.val + b.val, expr: `(${a.expr}+${b.expr})` },
+                        { val: a.val - b.val, expr: `(${a.expr}-${b.expr})` },
+                        { val: a.val * b.val, expr: `(${a.expr}*${b.expr})` },
+                        { val: Math.abs(b.val) > precision ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})` }
+                    ];
+                    for (let op of ops) {
+                        if (op.val === null) continue;
+                        const res = backtrack([...remaining, op]);
+                        if (res) return res;
+                    }
+                }
+            }
+            return null;
+        }
+        return backtrack(numbers.map(n => ({ val: n, expr: n.toString() })));
+    }
+
+    function runSolver() {
+        const nums = [
+            parseFloat(document.getElementById('n1').value),
+            parseFloat(document.getElementById('n2').value),
+            parseFloat(document.getElementById('n3').value),
+            parseFloat(document.getElementById('n4').value)
+        ];
+        const solution = solve24(nums);
+        document.getElementById('result').innerText = solution ? `Solution: ${solution}` : "No solution possible.";
+    }
+</script>
 <h1>Contact — SealMath</h1>
 <form id="contact-form">
     <label>
