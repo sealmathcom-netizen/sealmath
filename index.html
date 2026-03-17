@@ -68,7 +68,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- New Rules Animation --- */
         #rules-content {
             animation: slideDown 0.3s ease-out;
         }
@@ -311,11 +310,9 @@
     let showingUnsolvable = false;
 
     window.onload = () => {
-        // Force set the preference if it's the user's first time
         if (localStorage.getItem('storageAllowed') === null) {
             localStorage.setItem('storageAllowed', 'true');
         }
-
         document.getElementById('storage-toggle').checked = storageAllowed;
 
         if (solvableHistory.length > 0) {
@@ -324,7 +321,7 @@
         updateNavButtons();
     };
 
-    /* --- UI: Rules Toggle --- */
+    /* --- UI HELPERS --- */
     function toggleRules() {
         const content = document.getElementById('rules-content');
         const btn = document.getElementById('rules-btn');
@@ -339,6 +336,19 @@
         }
     }
 
+    function clearSolutionArea() {
+        document.getElementById('userExpr').value = "";
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('result').innerText = "";
+    }
+
+    function updateFeedback(msg, color) {
+        const fb = document.getElementById('feedback');
+        fb.innerText = msg;
+        fb.style.color = color;
+    }
+
+    /* --- STORAGE LOGIC --- */
     function toggleStoragePreference() {
         storageAllowed = document.getElementById('storage-toggle').checked;
         localStorage.setItem('storageAllowed', storageAllowed);
@@ -373,6 +383,32 @@
         nums.forEach((val, i) => document.getElementById('n' + (i + 1)).value = val);
     }
 
+    function registerPuzzle(nums) {
+        if (nums.some(isNaN)) return;
+        const key = [...nums].sort((a, b) => a - b).join(',');
+        const isSolvable = solve24(nums) !== null;
+        const targetList = isSolvable ? solvableHistory : unsolvableHistory;
+
+        if (!targetList.includes(key)) {
+            targetList.push(key);
+            saveToStorage();
+            if (isSolvable && !showingUnsolvable) {
+                currentHistoryIndex = solvableHistory.length - 1;
+            }
+        }
+        updateNavButtons();
+    }
+
+    function manualRegister() {
+        const nums = getInputs();
+        if (nums.some(isNaN)) {
+            updateFeedback("Enter 4 numbers first!", "#e74c3c");
+            return;
+        }
+        registerPuzzle(nums);
+        updateFeedback("Puzzle added to history!", "#27ae60");
+    }
+
     function updateNavButtons() {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         const unsolvableBtn = document.getElementById('btn-toggle-unsolvable');
@@ -405,8 +441,7 @@
 
         const nums = list[currentHistoryIndex].split(',').map(Number);
         setInputs(nums);
-        document.getElementById('result').innerText = "";
-        document.getElementById('feedback').innerText = "";
+        clearSolutionArea();
         updateNavButtons();
     }
 
@@ -459,22 +494,6 @@
         document.getElementById('result').innerText = solution ? `Solution: ${solution}` : "No solution found.";
     }
 
-    function clearSolutionArea() {
-        document.getElementById('userExpr').value = "";
-        document.getElementById('feedback').innerText = "";
-        document.getElementById('result').innerText = "";
-    }
-
-    function manualRegister() {
-        const nums = getInputs();
-        if (nums.some(isNaN)) {
-            updateFeedback("Enter 4 numbers first!", var(--error));
-            return;
-        }
-        registerPuzzle(nums);
-        updateFeedback("Puzzle added to history!", var(--success));
-    }
-
     function generateSolvable() {
         showingUnsolvable = false;
         let randomNums = [];
@@ -484,26 +503,7 @@
         }
         setInputs(randomNums);
         registerPuzzle(randomNums);
-
-        // Feature: Clear solution section on new puzzle
         clearSolutionArea();
-    }
-
-    /* Updated Register Logic to include UI cleanup when needed */
-    function registerPuzzle(nums) {
-        if (nums.some(isNaN)) return;
-        const key = [...nums].sort((a, b) => a - b).join(',');
-        const isSolvable = solve24(nums) !== null;
-        const targetList = isSolvable ? solvableHistory : unsolvableHistory;
-
-        if (!targetList.includes(key)) {
-            targetList.push(key);
-            saveToStorage();
-            if (isSolvable && !showingUnsolvable) {
-                currentHistoryIndex = solvableHistory.length - 1;
-            }
-        }
-        updateNavButtons();
     }
 
     function checkUserSolution() {
@@ -550,11 +550,6 @@
         return stack.length === 0;
     }
 
-    function updateFeedback(msg, color) {
-        const fb = document.getElementById('feedback');
-        fb.innerText = msg; fb.style.color = color;
-    }
-
     function clearAllHistory() {
         if (confirm("Delete all saved puzzles?")) {
             solvableHistory = []; unsolvableHistory = [];
@@ -562,9 +557,7 @@
             localStorage.removeItem('solvableHistory');
             localStorage.removeItem('unsolvableHistory');
             [1,2,3,4].forEach(i => document.getElementById('n'+i).value = "");
-            document.getElementById('userExpr').value = "";
-            document.getElementById('result').innerText = "";
-            document.getElementById('feedback').innerText = "";
+            clearSolutionArea();
             updateNavButtons();
         }
     }
