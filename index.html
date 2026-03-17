@@ -1,14 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>Contact — SealMath</title>
     <style>
-        body { font-family: system-ui, Arial; padding: 28px; max-width: 720px; margin: auto; }
-        label { display:block; margin-top:12px; }
-        input, textarea { width:100%; padding:8px; box-sizing:border-box; }
-        button { margin-top:14px; padding:10px 16px; border-radius:6px; cursor:pointer; }
+        body {
+            font-family: system-ui, Arial;
+            padding: 28px;
+            max-width: 720px;
+            margin: auto;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 14px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
     </style>
     <style>
         /* Container to keep inputs on the same row */
@@ -30,10 +50,26 @@
         }
 
         /* Unique background colors */
-        #n1 { background-color: #FFD1DC; } /* Pastel Pink */
-        #n2 { background-color: #C1E1C1; } /* Pastel Green */
-        #n3 { background-color: #AEC6CF; } /* Pastel Blue */
-        #n4 { background-color: #FDFD96; } /* Pastel Yellow */
+        #n1 {
+            background-color: #FFD1DC;
+        }
+
+        /* Pastel Pink */
+        #n2 {
+            background-color: #C1E1C1;
+        }
+
+        /* Pastel Green */
+        #n3 {
+            background-color: #AEC6CF;
+        }
+
+        /* Pastel Blue */
+        #n4 {
+            background-color: #FDFD96;
+        }
+
+        /* Pastel Yellow */
 
         #result {
             margin-top: 20px;
@@ -44,12 +80,13 @@
 </head>
 <body>
 <h2>24 Game Solver</h2>
-<p>Enter four numbers (1-9):</p>
+<p>Enter four numbers (1-13):</p>
+
 <div class="input-row">
-    <input type="number" id="n1" min="1" max="9" value="4">
-    <input type="number" id="n2" min="1" max="9" value="7">
-    <input type="number" id="n3" min="1" max="9" value="8">
-    <input type="number" id="n4" min="1" max="9" value="8">
+    <input type="number" id="n1" min="1" max="13" value="4">
+    <input type="number" id="n2" min="1" max="13" value="7">
+    <input type="number" id="n3" min="1" max="13" value="8">
+    <input type="number" id="n4" min="1" max="13" value="8">
 </div>
 <br>
 <button onclick="runSolver()">Find Solution</button>
@@ -72,10 +109,10 @@
                     const a = list[i];
                     const b = list[j];
                     const ops = [
-                        { val: a.val + b.val, expr: `(${a.expr}+${b.expr})` },
-                        { val: a.val - b.val, expr: `(${a.expr}-${b.expr})` },
-                        { val: a.val * b.val, expr: `(${a.expr}*${b.expr})` },
-                        { val: Math.abs(b.val) > precision ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})` }
+                        {val: a.val + b.val, expr: `(${a.expr}+${b.expr})`},
+                        {val: a.val - b.val, expr: `(${a.expr}-${b.expr})`},
+                        {val: a.val * b.val, expr: `(${a.expr}*${b.expr})`},
+                        {val: Math.abs(b.val) > precision ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})`}
                     ];
                     for (let op of ops) {
                         if (op.val === null) continue;
@@ -86,7 +123,8 @@
             }
             return null;
         }
-        return backtrack(numbers.map(n => ({ val: n, expr: n.toString() })));
+
+        return backtrack(numbers.map(n => ({val: n, expr: n.toString()})));
     }
 
     function runSolver() {
@@ -104,12 +142,12 @@
 <form id="contact-form">
     <label>
         Your name
-        <input type="text" name="from_name" required />
+        <input type="text" name="from_name" required/>
     </label>
 
     <label>
         Your email
-        <input type="email" name="reply_to" required />
+        <input type="email" name="reply_to" required/>
     </label>
 
     <label>
@@ -130,7 +168,7 @@
     const PUBLIC_KEY = '52VtQNv4lmH3Jg7fP';
 
     // init EmailJS
-    (function(){
+    (function () {
         emailjs.init(PUBLIC_KEY);
     })();
 
