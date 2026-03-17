@@ -211,20 +211,35 @@
 
 <section id="game-page" class="page active">
     <div class="container">
-        <h2>The 24 Challenge</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 style="margin:0;">The 24 Challenge</h2>
+            <span id="puzzle-counter" style="font-size: 0.8rem; color: #7f8c8d; font-weight: bold;">Puzzle #0</span>
+        </div>
+
         <p style="font-size: 0.9rem; color: #555;">
-            <strong>Type your own numbers</strong> below or click "New Puzzle"
+            Type numbers below or click "New Puzzle"
         </p>
+
         <div class="input-row">
             <input type="number" id="n1" min="1" max="13" placeholder="?">
             <input type="number" id="n2" min="1" max="13" placeholder="?">
             <input type="number" id="n3" min="1" max="13" placeholder="?">
             <input type="number" id="n4" min="1" max="13" placeholder="?">
         </div>
-        <div style="display: flex; gap: 10px; justify-content: center;">
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
             <button class="btn-solve" onclick="runSolver()">Show Answer</button>
         </div>
+
+        <div style="margin-top: 15px; display: flex; gap: 5px; justify-content: center;">
+            <button onclick="navigateHistory(-1)" style="background:#95a5a6; padding: 5px 15px;">&larr; Back</button>
+            <button onclick="navigateHistory(1)" style="background:#95a5a6; padding: 5px 15px;">Next &rarr;</button>
+            <button onclick="toggleUnsolvableView()" id="btn-toggle-unsolvable"
+                    style="background:#e67e22; padding: 5px 10px; font-size: 0.8rem;">View Unsolvable
+            </button>
+        </div>
+
         <div class="solution-section">
             <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px;">Use each number exactly once</div>
             <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)">
@@ -253,40 +268,82 @@
 
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
-    /* --- GLOBAL STATE & ROUTING --- */
-    let usedPuzzles = []; // Tracks puzzles used in this session
+    /* --- GLOBAL STATE --- */
+    let solvableHistory = [];   // List of solvable puzzle strings
+    let unsolvableHistory = []; // List of unsolvable puzzle strings
+    let currentHistoryIndex = -1;
+    let showingUnsolvable = false;
 
     function showPage(pageId) {
-        // Toggle Pages
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(pageId + '-page').classList.add('active');
-
-        // Toggle Nav Links
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById('link-' + pageId).classList.add('active');
     }
 
-    /* --- HELPER: Register a Puzzle to Memory --- */
-    function registerPuzzle(nums) {
-        if (nums.some(isNaN)) return;
-        // Sort and join to create a unique key (e.g., "1,2,3,4")
-        const key = [...nums].sort((a, b) => a - b).join(',');
-        if (!usedPuzzles.includes(key)) {
-            usedPuzzles.push(key);
-        }
-    }
-
+    /* --- LOGIC: Puzzle Management --- */
     function getInputs() {
         return [1, 2, 3, 4].map(i => parseFloat(document.getElementById('n' + i).value));
     }
 
-    function updateFeedback(msg, color) {
-        const fb = document.getElementById('feedback');
-        fb.innerText = msg;
-        fb.style.color = color;
+    function setInputs(nums) {
+        nums.forEach((val, i) => document.getElementById('n' + (i + 1)).value = val);
     }
 
-    /* --- GAME LOGIC --- */
+    function registerPuzzle(nums) {
+        if (nums.some(isNaN)) return;
+        const key = [...nums].sort((a, b) => a - b).join(',');
+
+        const isSolvable = solve24(nums) !== null;
+        const targetList = isSolvable ? solvableHistory : unsolvableHistory;
+
+        if (!targetList.includes(key)) {
+            targetList.push(key);
+            // If it's a new solvable puzzle, move index to it
+            if (isSolvable && !showingUnsolvable) {
+                currentHistoryIndex = solvableHistory.length - 1;
+                updateCounter();
+            }
+        }
+    }
+
+    function updateCounter() {
+        const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
+        const label = showingUnsolvable ? "Unsolvable #" : "Puzzle #";
+        const displayIndex = list.length === 0 ? 0 : currentHistoryIndex + 1;
+        document.getElementById('puzzle-counter').innerText = `${label}${displayIndex} of ${list.length}`;
+    }
+
+    /* --- NAVIGATION --- */
+    function navigateHistory(direction) {
+        const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
+        if (list.length === 0) return;
+
+        currentHistoryIndex += direction;
+        if (currentHistoryIndex < 0) currentHistoryIndex = 0;
+        if (currentHistoryIndex >= list.length) currentHistoryIndex = list.length - 1;
+
+        const nums = list[currentHistoryIndex].split(',').map(Number);
+        setInputs(nums);
+        document.getElementById('result').innerText = "";
+        document.getElementById('feedback').innerText = "";
+        updateCounter();
+    }
+
+    function toggleUnsolvableView() {
+        showingUnsolvable = !showingUnsolvable;
+        currentHistoryIndex = 0;
+        const btn = document.getElementById('btn-toggle-unsolvable');
+        btn.innerText = showingUnsolvable ? "View Solvable" : "View Unsolvable";
+
+        const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
+        if (list.length > 0) {
+            setInputs(list[0].split(',').map(Number));
+        }
+        updateCounter();
+    }
+
+    /* --- GAME CORE --- */
     function solve24(numbers) {
         const target = 24;
 
@@ -317,54 +374,40 @@
         return backtrack(numbers.map(n => ({val: n, expr: n.toString()})));
     }
 
-    /* --- BUTTON FUNCTIONS --- */
     function runSolver() {
         const nums = getInputs();
-        if (nums.some(isNaN)) {
-            document.getElementById('result').innerText = "Enter 4 numbers first!";
-            return;
-        }
-
-        // Register the manual input to history
+        if (nums.some(isNaN)) return;
         registerPuzzle(nums);
-
         const solution = solve24(nums);
         document.getElementById('result').innerText = solution ? `Solution: ${solution}` : "No solution found.";
     }
 
     function generateSolvable() {
-        let randomNums = [];
-        let puzzleKey = "";
+        showingUnsolvable = false;
+        document.getElementById('btn-toggle-unsolvable').innerText = "View Unsolvable";
 
+        let randomNums = [];
+        while (true) {
+            randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
+            const key = [...randomNums].sort((a, b) => a - b).join(',');
+            if (solve24(randomNums) && !solvableHistory.includes(key)) break;
+        }
+
+        solvableHistory.push([...randomNums].sort((a, b) => a - b).join(','));
+        currentHistoryIndex = solvableHistory.length - 1;
+
+        setInputs(randomNums);
         document.getElementById('feedback').innerText = "";
         document.getElementById('result').innerText = "";
         document.getElementById('userExpr').value = "";
-
-        while (true) {
-            randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
-            puzzleKey = [...randomNums].sort((a, b) => a - b).join(',');
-
-            if (solve24(randomNums) && !usedPuzzles.includes(puzzleKey)) {
-                break;
-            }
-        }
-
-        usedPuzzles.push(puzzleKey);
-        ['n1', 'n2', 'n3', 'n4'].forEach((id, i) => {
-            document.getElementById(id).value = randomNums[i];
-        });
+        updateCounter();
     }
 
     function checkUserSolution() {
         const expr = document.getElementById('userExpr').value;
         const nums = getInputs();
+        if (nums.some(isNaN)) return;
 
-        if (nums.some(isNaN)) {
-            updateFeedback("Enter or Generate numbers first!", "#e74c3c");
-            return;
-        }
-
-        // Register the manual input to history
         registerPuzzle(nums);
 
         const required = [...nums].sort((a, b) => a - b);
@@ -376,23 +419,24 @@
         }
 
         try {
-            // Safe evaluation of the math expression
             const result = eval(expr);
-            if (Math.abs(result - 24) < 0.001) {
-                updateFeedback("🎉 Correct!", "#27ae60");
-            } else {
-                updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
-            }
+            if (Math.abs(result - 24) < 0.001) updateFeedback("🎉 Correct!", "#27ae60");
+            else updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
         } catch (e) {
             updateFeedback("Invalid Math Expression!", "#e74c3c");
         }
+    }
+
+    function updateFeedback(msg, color) {
+        const fb = document.getElementById('feedback');
+        fb.innerText = msg;
+        fb.style.color = color;
     }
 
     /* --- EMAILJS LOGIC --- */
     (function () {
         emailjs.init('52VtQNv4lmH3Jg7fP');
     })();
-
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
