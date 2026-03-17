@@ -200,6 +200,33 @@
             opacity: 0.9;
             transform: translateY(-2px);
         }
+
+        /* Navigation Buttons Styling */
+        .nav-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .btn-nav {
+            background: #95a5a6;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+        }
+
+        .btn-nav:disabled {
+            background: #d5dbdb;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        #btn-toggle-unsolvable {
+            background: #e67e22;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -232,12 +259,10 @@
             <button class="btn-solve" onclick="runSolver()">Show Answer</button>
         </div>
 
-        <div style="margin-top: 15px; display: flex; gap: 5px; justify-content: center;">
-            <button onclick="navigateHistory(-1)" style="background:#95a5a6; padding: 5px 15px;">&larr; Back</button>
-            <button onclick="navigateHistory(1)" style="background:#95a5a6; padding: 5px 15px;">Next &rarr;</button>
-            <button onclick="toggleUnsolvableView()" id="btn-toggle-unsolvable"
-                    style="background:#e67e22; padding: 5px 10px; font-size: 0.8rem;">View Unsolvable
-            </button>
+        <div class="nav-controls">
+            <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)">&larr; Back</button>
+            <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)">Next &rarr;</button>
+            <button id="btn-toggle-unsolvable" onclick="toggleUnsolvableView()">View Unsolvable</button>
         </div>
 
         <div class="solution-section">
@@ -269,10 +294,24 @@
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
     /* --- GLOBAL STATE --- */
-    let solvableHistory = [];   // List of solvable puzzle strings
-    let unsolvableHistory = []; // List of unsolvable puzzle strings
-    let currentHistoryIndex = -1;
+    // Load from localStorage or start empty
+    let solvableHistory = JSON.parse(localStorage.getItem('solvableHistory')) || [];
+    let unsolvableHistory = JSON.parse(localStorage.getItem('unsolvableHistory')) || [];
+    let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
     let showingUnsolvable = false;
+
+    // Initialize the UI on load
+    window.onload = () => {
+        if (solvableHistory.length > 0) {
+            navigateHistory(0); // Load the last saved puzzle
+        }
+        updateNavButtons();
+    };
+
+    function saveToStorage() {
+        localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
+        localStorage.setItem('unsolvableHistory', JSON.stringify(unsolvableHistory));
+    }
 
     function showPage(pageId) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -299,16 +338,23 @@
 
         if (!targetList.includes(key)) {
             targetList.push(key);
-            // If it's a new solvable puzzle, move index to it
+            saveToStorage();
+            // If we just manually added a solvable puzzle, view it
             if (isSolvable && !showingUnsolvable) {
                 currentHistoryIndex = solvableHistory.length - 1;
-                updateCounter();
             }
         }
+        updateNavButtons();
     }
 
-    function updateCounter() {
+    function updateNavButtons() {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
+
+        // Handle Disabled States
+        document.getElementById('btn-back').disabled = (currentHistoryIndex <= 0);
+        document.getElementById('btn-next').disabled = (currentHistoryIndex >= list.length - 1 || list.length === 0);
+
+        // Update Counter text
         const label = showingUnsolvable ? "Unsolvable #" : "Puzzle #";
         const displayIndex = list.length === 0 ? 0 : currentHistoryIndex + 1;
         document.getElementById('puzzle-counter').innerText = `${label}${displayIndex} of ${list.length}`;
@@ -320,14 +366,18 @@
         if (list.length === 0) return;
 
         currentHistoryIndex += direction;
+
+        // Bound checks
         if (currentHistoryIndex < 0) currentHistoryIndex = 0;
         if (currentHistoryIndex >= list.length) currentHistoryIndex = list.length - 1;
 
         const nums = list[currentHistoryIndex].split(',').map(Number);
         setInputs(nums);
+
+        // Clear old results when moving
         document.getElementById('result').innerText = "";
         document.getElementById('feedback').innerText = "";
-        updateCounter();
+        updateNavButtons();
     }
 
     function toggleUnsolvableView() {
@@ -339,8 +389,11 @@
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         if (list.length > 0) {
             setInputs(list[0].split(',').map(Number));
+        } else {
+            // If switching to an empty list, clear the inputs
+            [1, 2, 3, 4].forEach(i => document.getElementById('n' + i).value = "");
         }
-        updateCounter();
+        updateNavButtons();
     }
 
     /* --- GAME CORE --- */
@@ -394,13 +447,14 @@
         }
 
         solvableHistory.push([...randomNums].sort((a, b) => a - b).join(','));
+        saveToStorage();
         currentHistoryIndex = solvableHistory.length - 1;
 
         setInputs(randomNums);
         document.getElementById('feedback').innerText = "";
         document.getElementById('result').innerText = "";
         document.getElementById('userExpr').value = "";
-        updateCounter();
+        updateNavButtons();
     }
 
     function checkUserSolution() {
