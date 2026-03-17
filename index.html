@@ -4,57 +4,200 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>SealMath – Online Math Challenges</title>
-    <meta name="description" content="Test your math skills with the 24 Challenge. Generate solvable puzzles, track your history, and find solutions using four numbers and basic operators.">
+    <meta name="description"
+          content="Test your math skills with the 24 Challenge. Generate solvable puzzles, track your history, and find solutions using four numbers and basic operators.">
     <style>
         :root {
-            --pink: #FFD1DC; --green: #C1E1C1; --blue: #AEC6CF; --yellow: #FDFD96;
-            --dark: #2c3e50; --success: #27ae60; --error: #e74c3c; --accent: #8e44ad;
+            --pink: #FFD1DC;
+            --green: #C1E1C1;
+            --blue: #AEC6CF;
+            --yellow: #FDFD96;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --error: #e74c3c;
+            --accent: #8e44ad;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh; color: var(--dark);
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
         }
 
         nav {
-            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px);
-            padding: 1rem; display: flex; justify-content: center; gap: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
-        nav a { text-decoration: none; color: var(--dark); font-weight: bold; padding: 8px 16px; border-radius: 20px; transition: 0.3s; }
-        nav a.active { background: var(--accent); color: white; }
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
 
-        .page { display: none; padding: 40px 20px; animation: fadeIn 0.4s ease-out; }
-        .page.active { display: flex; flex-direction: column; align-items: center; }
+        nav a.active {
+            background: var(--accent);
+            color: white;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .page {
+            display: none;
+            padding: 40px 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
 
-        .container { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); width: 100%; max-width: 400px; text-align: center; }
-        .input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        input[type="number"] { width: 60px; height: 50px; text-align: center; font-size: 1.4rem; font-weight: bold; border: 2px solid #ddd; border-radius: 12px; }
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-        #n1 { background-color: var(--pink); } #n2 { background-color: var(--green); }
-        #n3 { background-color: var(--blue); } #n4 { background-color: var(--yellow); }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        .solution-section { background: #f9f9f9; padding: 20px; border-radius: 15px; border: 2px dashed #ccc; margin-top: 20px; }
-        #userExpr { width: 90%; padding: 12px; font-size: 1.2rem; border-radius: 8px; border: 2px solid #ddd; text-align: center; margin-bottom: 10px; }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
 
-        button { padding: 12px 20px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px; color: white; font-weight: bold; transition: all 0.2s; margin-top: 10px; }
-        .btn-solve { background-color: var(--dark); }
-        .btn-generate { background-color: var(--success); }
-        .btn-check, .btn-submit { background-color: var(--accent); width: 100%; }
-        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        .input-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
 
-        .nav-controls { margin-top: 15px; display: flex; gap: 10px; justify-content: center; }
-        .btn-nav { background: #95a5a6; flex: 1; max-width: 120px; }
-        .btn-nav:disabled { background: #d5dbdb; cursor: not-allowed; opacity: 0.6; }
-        .btn-clear-minimal { background: transparent !important; color: #e74c3c !important; border: 1px solid #e74c3c !important; font-size: 0.75rem !important; opacity: 0.6; }
+        input[type="number"] {
+            width: 60px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+        }
 
+        #n1 {
+            background-color: var(--pink);
+        }
+
+        #n2 {
+            background-color: var(--green);
+        }
+
+        #n3 {
+            background-color: var(--blue);
+        }
+
+        #n4 {
+            background-color: var(--yellow);
+        }
+
+        .solution-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #ccc;
+            margin-top: 20px;
+        }
+
+        #userExpr {
+            width: 90%;
+            padding: 12px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-solve {
+            background-color: var(--dark);
+        }
+
+        .btn-generate {
+            background-color: var(--success);
+        }
+
+        .btn-check, .btn-submit {
+            background-color: var(--accent);
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .nav-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-nav {
+            background: #95a5a6;
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .btn-nav:disabled {
+            background: #d5dbdb;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-clear-minimal {
+            background: transparent !important;
+            color: #e74c3c !important;
+            border: 1px solid #e74c3c !important;
+            font-size: 0.75rem !important;
+            opacity: 0.6;
+        }
+
+        /* Fix for the Contact Form Layout */
         #contact-form label {
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
             margin-bottom: 5px;
             text-align: left;
             font-weight: bold;
@@ -62,10 +205,11 @@
 
         #contact-form input, #contact-form textarea {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-sizing: border-box; /* Ensures padding doesn't break width */
+            box-sizing: border-box;
+            font-family: inherit;
         }
     </style>
 </head>
@@ -93,7 +237,10 @@
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
             <button class="btn-solve" onclick="runSolver()">Show Answer</button>
-            <button id="btn-manual-add" class="btn-solve" style="background-color: var(--blue); color: var(--dark); opacity: 0.5;" onclick="manualRegister()" disabled>Add to History</button>
+            <button id="btn-manual-add" class="btn-solve"
+                    style="background-color: var(--blue); color: var(--dark); opacity: 0.5;" onclick="manualRegister()"
+                    disabled>Add to History
+            </button>
         </div>
 
         <div class="nav-controls">
@@ -102,7 +249,8 @@
         </div>
 
         <div class="solution-section">
-            <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)" oninput="this.value = this.value.replace(/[^0-9+\-*/().\s]/g, '')">
+            <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)"
+                   oninput="this.value = this.value.replace(/[^0-9+\-*/().\s]/g, '')">
             <button class="btn-check" onclick="checkUserSolution()">Check My Solution</button>
             <div id="feedback" style="margin-top: 10px; font-weight: bold;"></div>
         </div>
@@ -117,7 +265,7 @@
 </section>
 
 <section id="contact-page" class="page">
-    <div class="contact-card">
+    <div class="container" style="max-width: 500px;">
         <h2 style="text-align: center;">Contact SealMath</h2>
         <form id="contact-form">
             <label>Name</label><input type="text" name="from_name" required/>
@@ -131,16 +279,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
-    // Replace these with your EmailJS IDs
     const SERVICE_ID = 'service_lq91rap';
     const TEMPLATE_ID = 'template_n4ns66m';
     const PUBLIC_KEY = '52VtQNv4lmH3Jg7fP';
 
-    // --- EmailJS Initialization ---
-    (function() {
-        emailjs.init({
-            publicKey: PUBLIC_KEY,
-        });
+    (function () {
+        emailjs.init({publicKey: PUBLIC_KEY});
     })();
 
     let storageAllowed = localStorage.getItem('storageAllowed') === null ? true : localStorage.getItem('storageAllowed') === 'true';
@@ -148,7 +292,6 @@
     let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
     let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
     let showingUnsolvable = false;
-    // Third list: Tracks every combination checked during this session (solvable or not)
     let checkedCombinations = new Set();
 
     window.onload = () => {
@@ -160,42 +303,41 @@
     function updateAddButtonState() {
         const nums = getInputs();
         const btn = document.getElementById('btn-manual-add');
-
-        // Hide if inputs are empty or invalid
         if (nums.some(isNaN)) {
             btn.style.display = "none";
             return;
         }
-
         const key = [...nums].sort((a, b) => a - b).join(',');
         const isSolvable = solve24(nums) !== null;
         const list = isSolvable ? solvableHistory : unsolvableHistory;
-
-        // Logic: If the puzzle exists in history, hide the button. Otherwise, show it.
         if (list.includes(key)) {
             btn.style.display = "none";
         } else {
-            btn.style.display = "inline-block"; // or 'block' depending on layout
+            btn.style.display = "inline-block";
             btn.disabled = false;
             btn.style.opacity = "1";
             btn.innerText = "Add to History";
         }
     }
 
-    function getInputs() { return [1,2,3,4].map(i => parseFloat(document.getElementById('n'+i).value)); }
-    function setInputs(nums) { nums.forEach((val, i) => document.getElementById('n' + (i + 1)).value = val); }
+    function getInputs() {
+        return [1, 2, 3, 4].map(i => parseFloat(document.getElementById('n' + i).value));
+    }
+
+    function setInputs(nums) {
+        nums.forEach((val, i) => document.getElementById('n' + (i + 1)).value = val);
+    }
 
     function manualRegister() {
         const nums = getInputs();
         registerPuzzle(nums);
         updateFeedback("Saved!", "#27ae60");
-        // This will trigger the check and hide the button
         updateAddButtonState();
     }
 
     function registerPuzzle(nums) {
         if (nums.some(isNaN)) return;
-        const key = [...nums].sort((a,b)=>a-b).join(',');
+        const key = [...nums].sort((a, b) => a - b).join(',');
         const isSolvable = solve24(nums) !== null;
         const targetList = isSolvable ? solvableHistory : unsolvableHistory;
         if (!targetList.includes(key)) {
@@ -211,6 +353,7 @@
 
     function solve24(numbers) {
         const target = 24;
+
         function backtrack(list) {
             if (list.length === 1) return Math.abs(list[0].val - target) < 0.001 ? list[0].expr : null;
             for (let i = 0; i < list.length; i++) {
@@ -218,70 +361,80 @@
                     if (i === j) continue;
                     const a = list[i], b = list[j], rem = list.filter((_, idx) => idx !== i && idx !== j);
                     const ops = [
-                        {val: a.val+b.val, expr: `(${a.expr}+${b.expr})`},
-                        {val: a.val-b.val, expr: `(${a.expr}-${b.expr})`},
-                        {val: a.val*b.val, expr: `(${a.expr}*${b.expr})`},
-                        {val: Math.abs(b.val)>0.001 ? a.val/b.val : null, expr: `(${a.expr}/${b.expr})`}
+                        {val: a.val + b.val, expr: `(${a.expr}+${b.expr})`},
+                        {val: a.val - b.val, expr: `(${a.expr}-${b.expr})`},
+                        {val: a.val * b.val, expr: `(${a.expr}*${b.expr})`},
+                        {val: Math.abs(b.val) > 0.001 ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})`}
                     ];
-                    for (let op of ops) if (op.val !== null) { const res = backtrack([...rem, op]); if (res) return res; }
+                    for (let op of ops) if (op.val !== null) {
+                        const res = backtrack([...rem, op]);
+                        if (res) return res;
+                    }
                 }
             }
             return null;
         }
+
         return backtrack(numbers.map(n => ({val: n, expr: n.toString()})));
     }
 
-    function generateSolvable() {
-        const TOTAL_POSSIBLE_COMBINATIONS = 1820; // Total unique combinations of 4 numbers (1-13)
-        let attempts = 0;
-        const maxAttempts = 5000;
-
-        // 1. Check if we've exhausted all physical possibilities
-        if (checkedCombinations.size >= TOTAL_POSSIBLE_COMBINATIONS) {
-            updateFeedback("All possible combinations have been checked!", "#e74c3c");
-            return;
-        }
-
-        let randomNums;
-        let key;
-        let isSolvable = false;
-
-        do {
-            // Generate random numbers
-            randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
-            key = [...randomNums].sort((a, b) => a - b).join(',');
-
-            // 2. Only run the solver if we haven't checked this specific key before
-            if (!checkedCombinations.has(key)) {
-                const solution = solve24(randomNums);
-
-                // Add to our "third list" (checked combinations)
-                checkedCombinations.add(key);
-
-                if (solution) {
-                    isSolvable = true;
+    function checkUserSolution() {
+        const expr = document.getElementById('userExpr').value;
+        const nums = getInputs();
+        if (nums.some(isNaN) || !expr.trim()) return;
+        try {
+            if (/[^0-9+\-*/().\s]/.test(expr)) {
+                updateFeedback("Invalid characters!", "#e74c3c");
+                return;
+            }
+            let tempExpr = expr;
+            let allNumsUsed = true;
+            const sortedInputs = [...nums].sort((a, b) => b - a);
+            for (let n of sortedInputs) {
+                if (tempExpr.includes(n.toString())) {
+                    tempExpr = tempExpr.replace(n.toString(), "");
                 } else {
-                    // Optional: Store in unsolvableHistory if you want to track them
-                    if (!unsolvableHistory.includes(key)) {
-                        unsolvableHistory.push(key);
-                    }
+                    allNumsUsed = false;
+                    break;
                 }
             }
+            const result = eval(expr);
+            if (!allNumsUsed) {
+                updateFeedback("Use all four numbers!", "#e74c3c");
+            } else if (Math.abs(result - 24) < 0.001) {
+                updateFeedback("Correct!", "var(--success)");
+            } else {
+                updateFeedback(`Incorrect: ${result}`, "#e74c3c");
+            }
+        } catch (e) {
+            updateFeedback("Invalid expression", "#e74c3c");
+        }
+    }
 
+    function generateSolvable() {
+        const TOTAL_POSSIBLE = 1820;
+        if (checkedCombinations.size >= TOTAL_POSSIBLE) {
+            updateFeedback("All combinations checked!", "#e74c3c");
+            return;
+        }
+        let randomNums, key, isSolvable = false;
+        let attempts = 0;
+        do {
+            randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
+            key = [...randomNums].sort((a, b) => a - b).join(',');
+            if (!checkedCombinations.has(key)) {
+                const solution = solve24(randomNums);
+                checkedCombinations.add(key);
+                if (solution) isSolvable = true;
+                else if (!unsolvableHistory.includes(key)) unsolvableHistory.push(key);
+            }
             attempts++;
-            if (attempts > maxAttempts) break;
-
-            // Continue looping if we haven't found a solvable one OR if this one was already in history
-        } while (!isSolvable || solvableHistory.includes(key));
-
-        // 3. Finalize UI
+        } while ((!isSolvable || solvableHistory.includes(key)) && attempts < 5000);
         if (isSolvable) {
             setInputs(randomNums);
             registerPuzzle(randomNums);
             clearSolutionArea();
             updateAddButtonState();
-        } else {
-            updateFeedback("Searching... try again.", "#7f8c8d");
         }
     }
 
@@ -290,7 +443,9 @@
         if (list.length === 0) return;
         currentHistoryIndex = Math.max(0, Math.min(list.length - 1, currentHistoryIndex + direction));
         setInputs(list[currentHistoryIndex].split(',').map(Number));
-        clearSolutionArea(); updateNavButtons(); updateAddButtonState();
+        clearSolutionArea();
+        updateNavButtons();
+        updateAddButtonState();
     }
 
     function updateNavButtons() {
@@ -302,42 +457,48 @@
 
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-        document.getElementById(p+'-page').classList.add('active');
-
-        // Add these lines to update the nav link colors:
+        document.getElementById(p + '-page').classList.add('active');
         document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
         document.getElementById('link-' + p).classList.add('active');
     }
 
-    function updateFeedback(m, c) { const f = document.getElementById('feedback'); f.innerText = m; f.style.color = c; }
-    function clearSolutionArea() { document.getElementById('userExpr').value = ""; document.getElementById('feedback').innerText = ""; document.getElementById('result').innerText = ""; }
-
-    function runSolver() {
-        const nums = getInputs(); if (nums.some(isNaN)) return;
-        const sol = solve24(nums);
-        document.getElementById('result').innerText = sol ? `Solution: ${sol}` : "No solution found.";
-        registerPuzzle(nums); updateAddButtonState();
+    function updateFeedback(m, c) {
+        const f = document.getElementById('feedback');
+        f.innerText = m;
+        f.style.color = c;
     }
 
-    // --- Contact Form Submission Handler ---
-    document.getElementById('contact-form').addEventListener('submit', function(event) {
+    function clearSolutionArea() {
+        document.getElementById('userExpr').value = "";
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('result').innerText = "";
+    }
+
+    function runSolver() {
+        const nums = getInputs();
+        if (nums.some(isNaN)) return;
+        const sol = solve24(nums);
+        document.getElementById('result').innerText = sol ? `Solution: ${sol}` : "No solution found.";
+        registerPuzzle(nums);
+        updateAddButtonState();
+    }
+
+    document.getElementById('contact-form').addEventListener('submit', function (event) {
         event.preventDefault();
         const btn = this.querySelector('button');
         const status = document.getElementById('status');
-
         btn.innerText = 'Sending...';
         btn.disabled = true;
-
         emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, this)
             .then(() => {
-                status.innerText = 'Message sent successfully!';
-                status.style.color = 'var(--success)';
-                this.reset();
-            }, (error) => {
-                status.innerText = 'Failed to send. Please try again.';
-                status.style.color = 'var(--error)';
-                console.error('EmailJS Error:', error);
-            })
+                    status.innerText = 'Message sent!';
+                    status.style.color = 'var(--success)';
+                    this.reset();
+                },
+                (error) => {
+                    status.innerText = 'Failed to send.';
+                    status.style.color = 'var(--error)';
+                })
             .finally(() => {
                 btn.innerText = 'Send Message';
                 btn.disabled = false;
@@ -345,17 +506,15 @@
     });
 
     function clearAllHistory() {
-        if (confirm("Are you sure you want to delete all saved puzzles? This cannot be undone.")) {
+        if (confirm("Delete all saved puzzles?")) {
             solvableHistory = [];
             unsolvableHistory = [];
             checkedCombinations.clear();
             currentHistoryIndex = -1;
-
             if (storageAllowed) {
                 localStorage.removeItem('solvableHistory');
                 localStorage.removeItem('unsolvableHistory');
             }
-
             setInputs(["", "", "", ""]);
             clearSolutionArea();
             updateNavButtons();
@@ -364,7 +523,6 @@
         }
     }
 
-    // Also ensure this helper function is present for the checkbox logic:
     function toggleStoragePreference() {
         storageAllowed = document.getElementById('storage-toggle').checked;
         localStorage.setItem('storageAllowed', storageAllowed);
@@ -373,7 +531,6 @@
             localStorage.removeItem('unsolvableHistory');
         }
     }
-
 </script>
 </body>
 </html>
