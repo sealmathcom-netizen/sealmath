@@ -10,11 +10,42 @@
         input, textarea { width:100%; padding:8px; box-sizing:border-box; }
         button { margin-top:14px; padding:10px 16px; border-radius:6px; cursor:pointer; }
     </style>
+    <style>
+        /* Container to keep inputs on the same row */
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Styling for the inputs */
+        input[type="number"] {
+            width: 60px;
+            height: 40px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+
+        /* Unique background colors */
+        #n1 { background-color: #FFD1DC; } /* Pastel Pink */
+        #n2 { background-color: #C1E1C1; } /* Pastel Green */
+        #n3 { background-color: #AEC6CF; } /* Pastel Blue */
+        #n4 { background-color: #FDFD96; } /* Pastel Yellow */
+
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
 </head>
 <body>
 <h2>24 Game Solver</h2>
 <p>Enter four numbers (1-9):</p>
-<div>
+<div class="input-row">
     <input type="number" id="n1" min="1" max="9" value="4">
     <input type="number" id="n2" min="1" max="9" value="7">
     <input type="number" id="n3" min="1" max="9" value="8">
