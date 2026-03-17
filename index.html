@@ -262,7 +262,7 @@
         <div class="nav-controls">
             <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)">&larr; Back</button>
             <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)">Next &rarr;</button>
-            <button id="btn-toggle-unsolvable" onclick="toggleUnsolvableView()">View Unsolvable</button>
+            <button id="btn-toggle-unsolvable" onclick="toggleUnsolvableView()" style="display: none;">View User-Entered Unsolvable</button>
             <button onclick="clearAllHistory()" style="background:#e74c3c; padding: 8px 12px; font-size: 0.8rem;">Clear All History</button>
         </div>
 
@@ -340,23 +340,35 @@
         if (!targetList.includes(key)) {
             targetList.push(key);
             saveToStorage();
-            // If we just manually added a solvable puzzle, view it
             if (isSolvable && !showingUnsolvable) {
                 currentHistoryIndex = solvableHistory.length - 1;
             }
         }
-        updateNavButtons();
+        updateNavButtons(); // This will now show the button as soon as an unsolvable is added
     }
 
     function updateNavButtons() {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
+        const unsolvableBtn = document.getElementById('btn-toggle-unsolvable');
 
-        // Handle Disabled States
+        // 1. Only show the "View Unsolvable" button if there are actually unsolvable puzzles
+        if (unsolvableHistory.length > 0) {
+            unsolvableBtn.style.display = "inline-block";
+        } else {
+            unsolvableBtn.style.display = "none";
+            // If we were viewing unsolvables and the last one was deleted/cleared, switch back
+            if (showingUnsolvable) {
+                showingUnsolvable = false;
+                currentHistoryIndex = solvableHistory.length - 1;
+            }
+        }
+
+        // 2. Update Button Disabled States
         document.getElementById('btn-back').disabled = (currentHistoryIndex <= 0);
         document.getElementById('btn-next').disabled = (currentHistoryIndex >= list.length - 1 || list.length === 0);
 
-        // Update Counter text
-        const label = showingUnsolvable ? "Unsolvable #" : "Puzzle #";
+        // 3. Update Counter text with "User-Entered" clarification
+        const label = showingUnsolvable ? "User-Entered Unsolvable #" : "Puzzle #";
         const displayIndex = list.length === 0 ? 0 : currentHistoryIndex + 1;
         document.getElementById('puzzle-counter').innerText = `${label}${displayIndex} of ${list.length}`;
     }
@@ -384,16 +396,16 @@
     function toggleUnsolvableView() {
         showingUnsolvable = !showingUnsolvable;
         currentHistoryIndex = 0;
+
         const btn = document.getElementById('btn-toggle-unsolvable');
-        btn.innerText = showingUnsolvable ? "View Solvable" : "View Unsolvable";
+        // Change button text based on what you are currently looking at
+        btn.innerText = showingUnsolvable ? "Return to Solvable Puzzles" : "View User-Entered Unsolvable";
 
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         if (list.length > 0) {
             setInputs(list[0].split(',').map(Number));
-        } else {
-            // If switching to an empty list, clear the inputs
-            [1, 2, 3, 4].forEach(i => document.getElementById('n' + i).value = "");
         }
+
         updateNavButtons();
     }
 
