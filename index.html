@@ -3,55 +3,78 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>Contact — SealMath</title>
-    <style>
-        body {
-            font-family: system-ui, Arial;
-            padding: 28px;
-            max-width: 720px;
-            margin: auto;
-        }
-
-        label {
-            display: block;
-            margin-top: 12px;
-        }
-
-        input, textarea {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            margin-top: 14px;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-    </style>
+    <title>SealMath — Challenge & Contact</title>
     <style>
         :root {
             --pink: #FFD1DC; --green: #C1E1C1; --blue: #AEC6CF; --yellow: #FDFD96;
             --dark: #2c3e50; --success: #27ae60; --error: #e74c3c;
+            --accent: #8e44ad;
         }
+
+        /* Base Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; margin: 0;
+            min-height: 100vh;
+            color: var(--dark);
         }
+
+        /* Navigation */
+        nav {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: bold;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        nav a.active {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Page Handling */
+        .page {
+            display: none; /* Hidden by default */
+            padding: 40px 20px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Game Styles */
         .container {
             background: white; padding: 30px; border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 400px; text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center;
         }
-        h2 { color: var(--dark); margin-top: 0; }
         .input-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-
         input[type="number"] {
             width: 60px; height: 50px; text-align: center; font-size: 1.4rem;
             font-weight: bold; border: 2px solid #ddd; border-radius: 12px;
-            transition: transform 0.2s;
         }
         #n1 { background-color: var(--pink); }
         #n2 { background-color: var(--green); }
@@ -64,59 +87,96 @@
         }
         #userExpr {
             width: 90%; padding: 12px; font-size: 1.2rem; border-radius: 8px;
-            border: 2px solid #ddd; text-align: center; outline: none;
-            font-family: monospace; font-weight: bold;
+            border: 2px solid #ddd; text-align: center; outline: none; margin-bottom: 10px;
         }
-        .controls { display: flex; gap: 10px; margin: 20px 0; justify-content: center; }
+
+        /* Form Styles */
+        .contact-card {
+            background: white; padding: 40px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; max-width: 500px;
+        }
+        label { display: block; margin-top: 15px; font-weight: bold; margin-bottom: 5px;}
+        input[type="text"], input[type="email"], textarea {
+            width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;
+        }
+
+        /* Global Buttons */
         button {
             padding: 12px 20px; font-size: 1rem; cursor: pointer;
             border: none; border-radius: 8px; color: white; font-weight: bold;
-            transition: all 0.2s;
+            transition: all 0.2s; margin-top: 10px;
         }
         .btn-solve { background-color: var(--dark); }
         .btn-generate { background-color: var(--success); }
-        .btn-check { background-color: #8e44ad; width: 100%; margin-top: 10px; }
+        .btn-check { background-color: var(--accent); width: 100%; }
+        .btn-submit { background-color: var(--accent); width: 100%; }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
-        button:active { transform: translateY(0); }
-
-        #result, #feedback {
-            margin-top: 15px; font-weight: bold; font-size: 1.1rem; min-height: 1.5em;
-        }
-        .valid-nums { font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-<div class="container">
-    <h2>The 24 Challenge</h2>
-    <div class="input-row">
-        <input type="number" id="n1" min="1" max="13" value="4">
-        <input type="number" id="n2" min="1" max="13" value="7">
-        <input type="number" id="n3" min="1" max="13" value="8">
-        <input type="number" id="n4" min="1" max="13" value="8">
+
+<nav>
+    <a href="#" id="link-game" class="active" onclick="showPage('game')">24 Challenge</a>
+    <a href="#" id="link-contact" onclick="showPage('contact')">Contact</a>
+</nav>
+
+<section id="game-page" class="page active">
+    <div class="container">
+        <h2>The 24 Challenge</h2>
+        <div class="input-row">
+            <input type="number" id="n1" min="1" max="13" value="4">
+            <input type="number" id="n2" min="1" max="13" value="7">
+            <input type="number" id="n3" min="1" max="13" value="8">
+            <input type="number" id="n4" min="1" max="13" value="8">
+        </div>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
+            <button class="btn-solve" onclick="runSolver()">Show Answer</button>
+        </div>
+        <div class="solution-section">
+            <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px;">Use each number exactly once</div>
+            <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)">
+            <button class="btn-check" onclick="checkUserSolution()">Check My Solution</button>
+            <div id="feedback" style="margin-top: 10px; font-weight: bold;"></div>
+        </div>
+        <div id="result" style="margin-top: 15px; font-weight: bold;"></div>
     </div>
+</section>
 
-    <div class="controls">
-        <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
-        <button class="btn-solve" onclick="runSolver()">Show Answer</button>
+<section id="contact-page" class="page">
+    <div class="contact-card">
+        <h2 style="text-align: center;">Contact SealMath</h2>
+        <form id="contact-form">
+            <label>Your name</label>
+            <input type="text" name="from_name" required/>
+            <label>Your email</label>
+            <input type="email" name="reply_to" required/>
+            <label>Message</label>
+            <textarea name="message" rows="6" required></textarea>
+            <button type="submit" class="btn-submit">Send Message</button>
+        </form>
+        <div id="status" style="margin-top:12px; text-align: center; font-weight: bold;"></div>
     </div>
+</section>
 
-    <div class="solution-section">
-        <div class="valid-nums">Use each number exactly once</div>
-        <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)">
-        <button class="btn-check" onclick="checkUserSolution()">Check My Solution</button>
-        <div id="feedback"></div>
-    </div>
-
-    <div id="result"></div>
-</div>
-
+<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
-    // Logic for the computer solver
+    /* --- ROUTING LOGIC --- */
+    function showPage(pageId) {
+        // Toggle Pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId + '-page').classList.add('active');
+
+        // Toggle Nav Links
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById('link-' + pageId).classList.add('active');
+    }
+
+    /* --- GAME LOGIC --- */
     function solve24(numbers) {
         const target = 24;
-        const precision = 0.001;
         function backtrack(list) {
-            if (list.length === 1) return Math.abs(list[0].val - target) < precision ? list[0].expr : null;
+            if (list.length === 1) return Math.abs(list[0].val - target) < 0.001 ? list[0].expr : null;
             for (let i = 0; i < list.length; i++) {
                 for (let j = 0; j < list.length; j++) {
                     if (i === j) continue;
@@ -129,9 +189,10 @@
                         { val: Math.abs(b.val) > 0.001 ? a.val / b.val : null, expr: `(${a.expr}/${b.expr})` }
                     ];
                     for (let op of ops) {
-                        if (op.val === null) continue;
-                        const res = backtrack([...remaining, op]);
-                        if (res) return res;
+                        if (op.val !== null) {
+                            const res = backtrack([...remaining, op]);
+                            if (res) return res;
+                        }
                     }
                 }
             }
@@ -143,7 +204,6 @@
     function runSolver() {
         const nums = getInputs();
         const solution = solve24(nums);
-        document.getElementById('result').style.color = 'var(--dark)';
         document.getElementById('result').innerText = solution ? `AI Solution: ${solution}` : "No solution found.";
     }
 
@@ -151,122 +211,54 @@
         let randomNums = [];
         document.getElementById('feedback').innerText = "";
         document.getElementById('userExpr').value = "";
-        document.getElementById('result').innerText = "Generating...";
         while (true) {
             randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1);
             if (solve24(randomNums)) break;
         }
         ['n1','n2','n3','n4'].forEach((id, i) => document.getElementById(id).value = randomNums[i]);
-        document.getElementById('result').innerText = "";
     }
 
     function getInputs() {
-        return [
-            parseFloat(document.getElementById('n1').value),
-            parseFloat(document.getElementById('n2').value),
-            parseFloat(document.getElementById('n3').value),
-            parseFloat(document.getElementById('n4').value)
-        ];
+        return [1,2,3,4].map(i => parseFloat(document.getElementById('n' + i).value));
     }
 
-    // Checking user's logic
     function checkUserSolution() {
         const expr = document.getElementById('userExpr').value;
-        const feedback = document.getElementById('feedback');
-        const required = getInputs().sort((a, b) => a - b);
+        const required = getInputs().sort((a,b) => a-b);
+        const used = (expr.match(/\d+/g) || []).map(Number).sort((a,b) => a-b);
 
-        // 1. Extract numbers from expression
-        const used = expr.match(/\d+/g);
-        if (!used || used.length !== 4) {
-            showFeedback("Use exactly 4 numbers!", "var(--error)");
+        if (used.length !== 4 || !required.every((v, i) => v === used[i])) {
+            updateFeedback("Use each number exactly once!", "#e74c3c");
             return;
         }
 
-        const usedSorted = used.map(Number).sort((a, b) => a - b);
-
-        // 2. Check if the numbers match the exercise
-        const matches = required.every((val, index) => val === usedSorted[index]);
-        if (!matches) {
-            showFeedback("Wrong numbers used!", "var(--error)");
-            return;
-        }
-
-        // 3. Check for illegal characters (security)
-        if (/[^0-9\+\-\*\/\(\)\s]/.test(expr)) {
-            showFeedback("Invalid characters used!", "var(--error)");
-            return;
-        }
-
-        // 4. Evaluate the math
         try {
             const result = eval(expr);
-            if (Math.abs(result - 24) < 0.001) {
-                showFeedback("🎉 Correct! You got 24!", "var(--success)");
-            } else {
-                showFeedback(`Equals ${result}, try again!`, "var(--dark)");
-            }
-        } catch (e) {
-            showFeedback("Math Error! Check parentheses.", "var(--error)");
-        }
+            if (Math.abs(result - 24) < 0.001) updateFeedback("🎉 Correct!", "#27ae60");
+            else updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
+        } catch { updateFeedback("Invalid Math!", "#e74c3c"); }
     }
 
-    function showFeedback(text, color) {
+    function updateFeedback(msg, color) {
         const fb = document.getElementById('feedback');
-        fb.innerText = text;
-        fb.style.color = color;
+        fb.innerText = msg; fb.style.color = color;
     }
-</script>
-<h1>Contact — SealMath</h1>
-<form id="contact-form">
-    <label>
-        Your name
-        <input type="text" name="from_name" required/>
-    </label>
 
-    <label>
-        Your email
-        <input type="email" name="reply_to" required/>
-    </label>
-
-    <label>
-        Message
-        <textarea name="message" rows="6" required></textarea>
-    </label>
-
-    <button type="submit">Send here</button>
-</form>
-
-<div id="status" style="margin-top:12px;"></div>
-
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
-<script>
-    // Replace these with your EmailJS IDs
-    const SERVICE_ID = 'service_lq91rap';
-    const TEMPLATE_ID = 'template_n4ns66m';
-    const PUBLIC_KEY = '52VtQNv4lmH3Jg7fP';
-
-    // init EmailJS
-    (function () {
-        emailjs.init(PUBLIC_KEY);
-    })();
-
-    // Sending the form using EmailJS (Simplified, no attachment logic needed)
+    /* --- EMAILJS LOGIC --- */
+    (function () { emailjs.init('52VtQNv4lmH3Jg7fP'); })();
     const form = document.getElementById('contact-form');
-    const status = document.getElementById('status');
-
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const status = document.getElementById('status');
         status.textContent = 'Sending…';
-
         try {
-            // emailjs.sendForm sends the data without needing any file handling
-            await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form);
-
-            status.textContent = 'Message sent — check your email!';
+            await emailjs.sendForm('service_lq91rap', 'template_n4ns66m', form);
+            status.textContent = 'Message sent!';
+            status.style.color = "#27ae60";
             form.reset();
         } catch (err) {
-            console.error(err);
-            status.textContent = 'Send failed: ' + (err.text || err.message || 'check console');
+            status.textContent = 'Failed: ' + err.text;
+            status.style.color = "#e74c3c";
         }
     });
 </script>
