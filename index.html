@@ -238,7 +238,9 @@
 
         <div class="solution-section">
             <div style="font-size: 0.8rem; color: #7f8c8d; margin-bottom: 5px;">Use each number exactly once</div>
-            <input type="text" id="userExpr" placeholder="(4 + 8) * (8 - 6)">
+            <input type="text" id="userExpr"
+                   placeholder="(4 + 8) * (8 - 6)"
+                   oninput="this.value = this.value.replace(/[^0-9+\-*/().\s]/g, '')">
             <button class="btn-check" onclick="checkUserSolution()">Check My Solution</button>
             <div id="feedback" style="margin-top: 10px; font-weight: bold;"></div>
         </div>
@@ -445,18 +447,52 @@
         const expr = document.getElementById('userExpr').value;
         const nums = getInputs();
         if (nums.some(isNaN)) return;
+
+        // 1. Check for Balanced Parentheses
+        if (!isParenthesesValid(expr)) {
+            updateFeedback("Invalid parentheses order!", "#e74c3c");
+            return;
+        }
+
+        // 2. Register the puzzle (solvable or unsolvable)
         registerPuzzle(nums);
-        const req = [...nums].sort((a,b)=>a-b);
-        const used = (expr.match(/\d+/g) || []).map(Number).sort((a,b)=>a-b);
-        if (used.length !== 4 || !req.every((v,i)=>v===used[i])) {
+
+        // 3. Verify Number Usage
+        const required = [...nums].sort((a, b) => a - b);
+        const usedNumbers = (expr.match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
+
+        if (usedNumbers.length !== 4 || !required.every((v, i) => v === usedNumbers[i])) {
             updateFeedback("Use each number exactly once!", "#e74c3c");
             return;
         }
+
+        // 4. Validate Calculation
         try {
-            const res = eval(expr);
-            if (Math.abs(res - 24) < 0.001) updateFeedback("🎉 Correct!", "#27ae60");
-            else updateFeedback(`Equals ${res}, try again!`, "#2c3e50");
-        } catch (e) { updateFeedback("Invalid Math Expression!", "#e74c3c"); }
+            // Use Function instead of eval for slightly better security/scope
+            const result = new Function(`return ${expr}`)();
+
+            if (Math.abs(result - 24) < 0.001) {
+                updateFeedback("🎉 Correct!", "#27ae60");
+            } else {
+                updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
+            }
+        } catch (e) {
+            updateFeedback("Invalid Math Syntax!", "#e74c3c");
+        }
+    }
+
+    /* Helper Function: Parentheses Validator */
+    function isParenthesesValid(str) {
+        let stack = [];
+        for (let char of str) {
+            if (char === '(') {
+                stack.push(char);
+            } else if (char === ')') {
+                if (stack.length === 0) return false; // Found a closing ')' without an opening '('
+                stack.pop();
+            }
+        }
+        return stack.length === 0; // If stack is empty, they are balanced
     }
 
     function updateFeedback(msg, color) {
