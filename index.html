@@ -119,6 +119,8 @@
     let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
     let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
     let showingUnsolvable = false;
+    // Third list: Tracks every combination checked during this session (solvable or not)
+    let checkedCombinations = new Set();
 
     window.onload = () => {
         document.getElementById('storage-toggle').checked = storageAllowed;
@@ -201,9 +203,57 @@
     }
 
     function generateSolvable() {
+        const TOTAL_POSSIBLE_COMBINATIONS = 1820; // Total unique combinations of 4 numbers (1-13)
+        let attempts = 0;
+        const maxAttempts = 5000;
+
+        // 1. Check if we've exhausted all physical possibilities
+        if (checkedCombinations.size >= TOTAL_POSSIBLE_COMBINATIONS) {
+            updateFeedback("All possible combinations have been checked!", "#e74c3c");
+            return;
+        }
+
         let randomNums;
-        do { randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1); } while (!solve24(randomNums));
-        setInputs(randomNums); registerPuzzle(randomNums); clearSolutionArea(); updateAddButtonState();
+        let key;
+        let isSolvable = false;
+
+        do {
+            // Generate random numbers
+            randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
+            key = [...randomNums].sort((a, b) => a - b).join(',');
+
+            // 2. Only run the solver if we haven't checked this specific key before
+            if (!checkedCombinations.has(key)) {
+                const solution = solve24(randomNums);
+
+                // Add to our "third list" (checked combinations)
+                checkedCombinations.add(key);
+
+                if (solution) {
+                    isSolvable = true;
+                } else {
+                    // Optional: Store in unsolvableHistory if you want to track them
+                    if (!unsolvableHistory.includes(key)) {
+                        unsolvableHistory.push(key);
+                    }
+                }
+            }
+
+            attempts++;
+            if (attempts > maxAttempts) break;
+
+            // Continue looping if we haven't found a solvable one OR if this one was already in history
+        } while (!isSolvable || solvableHistory.includes(key));
+
+        // 3. Finalize UI
+        if (isSolvable) {
+            setInputs(randomNums);
+            registerPuzzle(randomNums);
+            clearSolutionArea();
+            updateAddButtonState();
+        } else {
+            updateFeedback("Searching... try again.", "#7f8c8d");
+        }
     }
 
     function navigateHistory(direction) {
