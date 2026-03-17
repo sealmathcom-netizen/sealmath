@@ -405,8 +405,17 @@
             updateFeedback("Enter 4 numbers first!", "#e74c3c");
             return;
         }
-        registerPuzzle(nums);
-        updateFeedback("Puzzle added to history!", "#27ae60");
+
+        const key = [...nums].sort((a, b) => a - b).join(',');
+        const isSolvable = solve24(nums) !== null;
+        const targetList = isSolvable ? solvableHistory : unsolvableHistory;
+
+        if (targetList.includes(key)) {
+            updateFeedback("This puzzle is already in your history!", "#e67e22"); // Orange alert
+        } else {
+            registerPuzzle(nums);
+            updateFeedback("Puzzle saved to history!", "#27ae60"); // Green success
+        }
     }
 
     function updateNavButtons() {
