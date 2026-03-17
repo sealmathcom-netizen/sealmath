@@ -16,7 +16,6 @@
             --accent: #8e44ad;
         }
 
-        /* Base Styles */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
@@ -25,7 +24,6 @@
             color: var(--dark);
         }
 
-        /* Navigation */
         nav {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(10px);
@@ -53,9 +51,8 @@
             color: white;
         }
 
-        /* Page Handling */
         .page {
-            display: none; /* Hidden by default */
+            display: none;
             padding: 40px 20px;
             animation: fadeIn 0.4s ease-out;
         }
@@ -67,17 +64,10 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Game Styles */
         .container {
             background: white;
             padding: 30px;
@@ -105,21 +95,10 @@
             border-radius: 12px;
         }
 
-        #n1 {
-            background-color: var(--pink);
-        }
-
-        #n2 {
-            background-color: var(--green);
-        }
-
-        #n3 {
-            background-color: var(--blue);
-        }
-
-        #n4 {
-            background-color: var(--yellow);
-        }
+        #n1 { background-color: var(--pink); }
+        #n2 { background-color: var(--green); }
+        #n3 { background-color: var(--blue); }
+        #n4 { background-color: var(--yellow); }
 
         .solution-section {
             background: #f9f9f9;
@@ -140,7 +119,6 @@
             margin-bottom: 10px;
         }
 
-        /* Form Styles */
         .contact-card {
             background: white;
             padding: 40px;
@@ -165,7 +143,6 @@
             box-sizing: border-box;
         }
 
-        /* Global Buttons */
         button {
             padding: 12px 20px;
             font-size: 1rem;
@@ -178,45 +155,34 @@
             margin-top: 10px;
         }
 
-        .btn-solve {
-            background-color: var(--dark);
-        }
+        .btn-solve { background-color: var(--dark); }
+        .btn-generate { background-color: var(--success); }
+        .btn-check { background-color: var(--accent); width: 100%; }
+        .btn-submit { background-color: var(--accent); width: 100%; }
 
-        .btn-generate {
-            background-color: var(--success);
-        }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        .btn-check {
-            background-color: var(--accent);
-            width: 100%;
-        }
-
-        .btn-submit {
-            background-color: var(--accent);
-            width: 100%;
-        }
-
-        button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-
-        /* Navigation Buttons Styling */
         .nav-controls {
             margin-top: 15px;
             display: flex;
-            gap: 10px; /* More space */
+            gap: 10px;
             justify-content: center;
         }
 
         .btn-nav {
             background: #95a5a6;
-            flex: 1; /* Make back/next equal width */
+            flex: 1;
             max-width: 120px;
             padding: 10px;
         }
 
-        /* New Minimalist Clear Button */
+        .btn-nav:disabled {
+            background: #d5dbdb;
+            cursor: not-allowed;
+            transform: none;
+            opacity: 0.6;
+        }
+
         .btn-clear-minimal {
             background: transparent !important;
             color: #e74c3c !important;
@@ -225,21 +191,6 @@
             font-size: 0.75rem !important;
             font-weight: normal !important;
             margin-top: 0 !important;
-            opacity: 0.6;
-        }
-
-        .btn-clear-minimal:hover {
-            opacity: 1;
-            background: #fff5f5 !important;
-            transform: none !important;
-        }
-
-
-
-        .btn-nav:disabled {
-            background: #d5dbdb;
-            cursor: not-allowed;
-            transform: none;
             opacity: 0.6;
         }
 
@@ -323,29 +274,17 @@
 
 <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
 <script>
-    /* --- GLOBAL STATE --- */
-    // Load from localStorage or start empty
-    let solvableHistory = JSON.parse(localStorage.getItem('solvableHistory')) || [];
-    let unsolvableHistory = JSON.parse(localStorage.getItem('unsolvableHistory')) || [];
-    let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
-    let showingUnsolvable = false;
-
-    /* --- GLOBAL STATE --- */
-    // 1. First, check if the user has allowed storage (default to false)
+    /* --- GLOBAL STATE & PERSISTENCE --- */
     let storageAllowed = localStorage.getItem('storageAllowed') === 'true';
 
-    // 2. Load lists ONLY if allowed, otherwise start empty arrays for the session
     let solvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('solvableHistory')) || []) : [];
     let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
 
     let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
     let showingUnsolvable = false;
 
-    // Initialize the UI on load
     window.onload = () => {
-        // Set the checkbox state based on saved preference
         document.getElementById('storage-toggle').checked = storageAllowed;
-
         if (solvableHistory.length > 0) {
             navigateHistory(0);
         }
@@ -353,24 +292,17 @@
     };
 
     function toggleStoragePreference() {
-        const checkbox = document.getElementById('storage-toggle');
-        storageAllowed = checkbox.checked;
-
-        // Save the toggle state itself
+        storageAllowed = document.getElementById('storage-toggle').checked;
         localStorage.setItem('storageAllowed', storageAllowed);
-
         if (storageAllowed) {
-            // Save current session puzzles to storage immediately
             saveToStorage();
         } else {
-            // Remove puzzles from storage (privacy mode)
             localStorage.removeItem('solvableHistory');
             localStorage.removeItem('unsolvableHistory');
         }
     }
 
     function saveToStorage() {
-        // Only write puzzles to localStorage if the toggle is ON
         if (storageAllowed) {
             localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
             localStorage.setItem('unsolvableHistory', JSON.stringify(unsolvableHistory));
@@ -384,7 +316,7 @@
         document.getElementById('link-' + pageId).classList.add('active');
     }
 
-    /* --- LOGIC: Puzzle Management --- */
+    /* --- PUZZLE LOGIC --- */
     function getInputs() {
         return [1, 2, 3, 4].map(i => parseFloat(document.getElementById('n' + i).value));
     }
@@ -396,7 +328,6 @@
     function registerPuzzle(nums) {
         if (nums.some(isNaN)) return;
         const key = [...nums].sort((a, b) => a - b).join(',');
-
         const isSolvable = solve24(nums) !== null;
         const targetList = isSolvable ? solvableHistory : unsolvableHistory;
 
@@ -407,50 +338,41 @@
                 currentHistoryIndex = solvableHistory.length - 1;
             }
         }
-        updateNavButtons(); // This will now show the button as soon as an unsolvable is added
+        updateNavButtons();
     }
 
     function updateNavButtons() {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         const unsolvableBtn = document.getElementById('btn-toggle-unsolvable');
 
-        // 1. Only show the "View Unsolvable" button if there are actually unsolvable puzzles
         if (unsolvableHistory.length > 0) {
             unsolvableBtn.style.display = "inline-block";
         } else {
             unsolvableBtn.style.display = "none";
-            // If we were viewing unsolvables and the last one was deleted/cleared, switch back
             if (showingUnsolvable) {
                 showingUnsolvable = false;
                 currentHistoryIndex = solvableHistory.length - 1;
             }
         }
 
-        // 2. Update Button Disabled States
         document.getElementById('btn-back').disabled = (currentHistoryIndex <= 0);
         document.getElementById('btn-next').disabled = (currentHistoryIndex >= list.length - 1 || list.length === 0);
 
-        // 3. Update Counter text with "User-Entered" clarification
-        const label = showingUnsolvable ? "User-Entered Unsolvable #" : "Puzzle #";
+        const label = showingUnsolvable ? "User Unsolvable #" : "Puzzle #";
         const displayIndex = list.length === 0 ? 0 : currentHistoryIndex + 1;
         document.getElementById('puzzle-counter').innerText = `${label}${displayIndex} of ${list.length}`;
     }
 
-    /* --- NAVIGATION --- */
     function navigateHistory(direction) {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         if (list.length === 0) return;
 
         currentHistoryIndex += direction;
-
-        // Bound checks
         if (currentHistoryIndex < 0) currentHistoryIndex = 0;
         if (currentHistoryIndex >= list.length) currentHistoryIndex = list.length - 1;
 
         const nums = list[currentHistoryIndex].split(',').map(Number);
         setInputs(nums);
-
-        // Clear old results when moving
         document.getElementById('result').innerText = "";
         document.getElementById('feedback').innerText = "";
         updateNavButtons();
@@ -459,23 +381,18 @@
     function toggleUnsolvableView() {
         showingUnsolvable = !showingUnsolvable;
         currentHistoryIndex = 0;
-
         const btn = document.getElementById('btn-toggle-unsolvable');
-        // Change button text based on what you are currently looking at
-        btn.innerText = showingUnsolvable ? "Return to Solvable Puzzles" : "View User-Entered Unsolvable";
-
+        btn.innerText = showingUnsolvable ? "Return to Solvable" : "View User-Entered Unsolvable";
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         if (list.length > 0) {
             setInputs(list[0].split(',').map(Number));
         }
-
         updateNavButtons();
     }
 
-    /* --- GAME CORE --- */
+    /* --- SOLVER ENGINE --- */
     function solve24(numbers) {
         const target = 24;
-
         function backtrack(list) {
             if (list.length === 1) return Math.abs(list[0].val - target) < 0.001 ? list[0].expr : null;
             for (let i = 0; i < list.length; i++) {
@@ -499,7 +416,6 @@
             }
             return null;
         }
-
         return backtrack(numbers.map(n => ({val: n, expr: n.toString()})));
     }
 
@@ -513,86 +429,57 @@
 
     function generateSolvable() {
         showingUnsolvable = false;
-        document.getElementById('btn-toggle-unsolvable').innerText = "View Unsolvable";
-
         let randomNums = [];
         while (true) {
             randomNums = Array.from({length: 4}, () => Math.floor(Math.random() * 13) + 1);
-            const key = [...randomNums].sort((a, b) => a - b).join(',');
-            if (solve24(randomNums) && !solvableHistory.includes(key)) break;
+            if (solve24(randomNums)) break;
         }
-
-        solvableHistory.push([...randomNums].sort((a, b) => a - b).join(','));
-        saveToStorage();
-        currentHistoryIndex = solvableHistory.length - 1;
-
         setInputs(randomNums);
+        registerPuzzle(randomNums);
         document.getElementById('feedback').innerText = "";
         document.getElementById('result').innerText = "";
         document.getElementById('userExpr').value = "";
-        updateNavButtons();
     }
 
     function checkUserSolution() {
         const expr = document.getElementById('userExpr').value;
         const nums = getInputs();
         if (nums.some(isNaN)) return;
-
         registerPuzzle(nums);
-
-        const required = [...nums].sort((a, b) => a - b);
-        const usedNumbers = (expr.match(/\d+/g) || []).map(Number).sort((a, b) => a - b);
-
-        if (usedNumbers.length !== 4 || !required.every((v, i) => v === usedNumbers[i])) {
+        const req = [...nums].sort((a,b)=>a-b);
+        const used = (expr.match(/\d+/g) || []).map(Number).sort((a,b)=>a-b);
+        if (used.length !== 4 || !req.every((v,i)=>v===used[i])) {
             updateFeedback("Use each number exactly once!", "#e74c3c");
             return;
         }
-
         try {
-            const result = eval(expr);
-            if (Math.abs(result - 24) < 0.001) updateFeedback("🎉 Correct!", "#27ae60");
-            else updateFeedback(`Equals ${result}, try again!`, "#2c3e50");
-        } catch (e) {
-            updateFeedback("Invalid Math Expression!", "#e74c3c");
-        }
+            const res = eval(expr);
+            if (Math.abs(res - 24) < 0.001) updateFeedback("🎉 Correct!", "#27ae60");
+            else updateFeedback(`Equals ${res}, try again!`, "#2c3e50");
+        } catch (e) { updateFeedback("Invalid Math Expression!", "#e74c3c"); }
     }
 
     function updateFeedback(msg, color) {
         const fb = document.getElementById('feedback');
-        fb.innerText = msg;
-        fb.style.color = color;
+        fb.innerText = msg; fb.style.color = color;
     }
 
-    /* --- DELETE ALL HISTORY --- */
     function clearAllHistory() {
-        // Ask the user to confirm so they don't lose data by accident
-        if (confirm("Are you sure you want to delete all saved puzzles? This cannot be undone.")) {
-            // 1. Wipe the arrays
-            solvableHistory = [];
-            unsolvableHistory = [];
-            currentHistoryIndex = -1;
-            showingUnsolvable = false;
-
-            // 2. Clear from Local Storage
+        if (confirm("Delete all saved puzzles?")) {
+            solvableHistory = []; unsolvableHistory = [];
+            currentHistoryIndex = -1; showingUnsolvable = false;
             localStorage.removeItem('solvableHistory');
             localStorage.removeItem('unsolvableHistory');
-
-            // 3. Reset the UI
-            [1, 2, 3, 4].forEach(i => document.getElementById('n' + i).value = "");
+            [1,2,3,4].forEach(i => document.getElementById('n'+i).value = "");
             document.getElementById('userExpr').value = "";
             document.getElementById('result').innerText = "";
             document.getElementById('feedback').innerText = "";
-
-            // 4. Update the buttons and counter
             updateNavButtons();
-            alert("History cleared!");
         }
     }
 
-    /* --- EMAILJS LOGIC --- */
-    (function () {
-        emailjs.init('52VtQNv4lmH3Jg7fP');
-    })();
+    /* --- EMAIL JS --- */
+    (function(){ emailjs.init('52VtQNv4lmH3Jg7fP'); })();
     const form = document.getElementById('contact-form');
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -604,7 +491,7 @@
             status.style.color = "#27ae60";
             form.reset();
         } catch (err) {
-            status.textContent = 'Failed: ' + (err.text || 'Check console');
+            status.textContent = 'Failed: ' + (err.text || 'Error');
             status.style.color = "#e74c3c";
         }
     });
