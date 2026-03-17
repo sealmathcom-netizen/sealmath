@@ -295,6 +295,12 @@
         <div id="result" style="margin-top: 15px; font-weight: bold;"></div>
 
         <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0 15px 0;">
+        <div style="margin-bottom: 15px;">
+            <label style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()">
+                Save history to this browser
+            </label>
+        </div>
         <button onclick="clearAllHistory()" class="btn-clear-minimal">Clear All History</button>
     </div>
 </section>
@@ -324,17 +330,51 @@
     let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
     let showingUnsolvable = false;
 
+    /* --- GLOBAL STATE --- */
+    // 1. First, check if the user has allowed storage (default to false)
+    let storageAllowed = localStorage.getItem('storageAllowed') === 'true';
+
+    // 2. Load lists ONLY if allowed, otherwise start empty arrays for the session
+    let solvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('solvableHistory')) || []) : [];
+    let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
+
+    let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
+    let showingUnsolvable = false;
+
     // Initialize the UI on load
     window.onload = () => {
+        // Set the checkbox state based on saved preference
+        document.getElementById('storage-toggle').checked = storageAllowed;
+
         if (solvableHistory.length > 0) {
-            navigateHistory(0); // Load the last saved puzzle
+            navigateHistory(0);
         }
         updateNavButtons();
     };
 
+    function toggleStoragePreference() {
+        const checkbox = document.getElementById('storage-toggle');
+        storageAllowed = checkbox.checked;
+
+        // Save the toggle state itself
+        localStorage.setItem('storageAllowed', storageAllowed);
+
+        if (storageAllowed) {
+            // Save current session puzzles to storage immediately
+            saveToStorage();
+        } else {
+            // Remove puzzles from storage (privacy mode)
+            localStorage.removeItem('solvableHistory');
+            localStorage.removeItem('unsolvableHistory');
+        }
+    }
+
     function saveToStorage() {
-        localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
-        localStorage.setItem('unsolvableHistory', JSON.stringify(unsolvableHistory));
+        // Only write puzzles to localStorage if the toggle is ON
+        if (storageAllowed) {
+            localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
+            localStorage.setItem('unsolvableHistory', JSON.stringify(unsolvableHistory));
+        }
     }
 
     function showPage(pageId) {
