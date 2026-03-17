@@ -113,8 +113,20 @@
     </div>
 </section>
 
-<script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script>
+    // Replace these with your EmailJS IDs
+    const SERVICE_ID = 'service_lq91rap';
+    const TEMPLATE_ID = 'template_n4ns66m';
+    const PUBLIC_KEY = '52VtQNv4lmH3Jg7fP';
+
+    // --- EmailJS Initialization ---
+    (function() {
+        emailjs.init({
+            publicKey: PUBLIC_KEY,
+        });
+    })();
+
     let storageAllowed = localStorage.getItem('storageAllowed') === null ? true : localStorage.getItem('storageAllowed') === 'true';
     let solvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('solvableHistory')) || []) : [];
     let unsolvableHistory = storageAllowed ? (JSON.parse(localStorage.getItem('unsolvableHistory')) || []) : [];
@@ -275,6 +287,10 @@
     function showPage(p) {
         document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
         document.getElementById(p+'-page').classList.add('active');
+
+        // Add these lines to update the nav link colors:
+        document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+        document.getElementById('link-' + p).classList.add('active');
     }
 
     function updateFeedback(m, c) { const f = document.getElementById('feedback'); f.innerText = m; f.style.color = c; }
@@ -286,6 +302,31 @@
         document.getElementById('result').innerText = sol ? `Solution: ${sol}` : "No solution found.";
         registerPuzzle(nums); updateAddButtonState();
     }
+
+    // --- Contact Form Submission Handler ---
+    document.getElementById('contact-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const btn = this.querySelector('button');
+        const status = document.getElementById('status');
+
+        btn.innerText = 'Sending...';
+        btn.disabled = true;
+
+        emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, this)
+            .then(() => {
+                status.innerText = 'Message sent successfully!';
+                status.style.color = 'var(--success)';
+                this.reset();
+            }, (error) => {
+                status.innerText = 'Failed to send. Please try again.';
+                status.style.color = 'var(--error)';
+                console.error('EmailJS Error:', error);
+            })
+            .finally(() => {
+                btn.innerText = 'Send Message';
+                btn.disabled = false;
+            });
+    });
 </script>
 </body>
 </html>
