@@ -428,7 +428,9 @@ function initFractionCapture() {
     console.log("Target Generated:", captureTarget);
     renderTarget();
     renderIngredients();
+    updateCapturePreview(); // Clear preview on new game
 }
+
 
 function saveFractionState() {
     if (!storageAllowed) return;
