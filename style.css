@@ -93,6 +93,14 @@ input[type="number"] {
     font-weight: bold;
     border: 2px solid #ddd;
     border-radius: 12px;
+    -moz-appearance: textfield; /* Hides persistent spinner in Firefox */
+}
+
+/* Chrome, Safari, Edge, Opera spinner hiding */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 #n1 {

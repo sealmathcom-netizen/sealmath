@@ -16,7 +16,18 @@ const TOTAL_POSSIBLE = 1820;
 
 window.onload = () => {
     document.getElementById('storage-toggle').checked = storageAllowed;
-    if (solvableHistory.length > 0) navigateHistory(0);
+    if (solvableHistory.length > 0) {
+        // Retrieve last viewed index or default to the most recent puzzle
+        const savedIndex = localStorage.getItem('lastViewedIndex');
+        if (savedIndex !== null && !isNaN(savedIndex) && savedIndex >= 0 && savedIndex < solvableHistory.length) {
+            currentHistoryIndex = parseInt(savedIndex);
+        } else {
+            currentHistoryIndex = solvableHistory.length - 1;
+        }
+        
+        // Pass 0 to avoid moving the newly set index, just update the board
+        navigateHistory(0);
+    }
     updateNavButtons();
 };
 
@@ -187,6 +198,9 @@ function navigateHistory(direction) {
     if (list.length === 0) return;
     currentHistoryIndex = Math.max(0, Math.min(list.length - 1, currentHistoryIndex + direction));
     setInputs(list[currentHistoryIndex].split(',').map(Number));
+    if (storageAllowed && !showingUnsolvable) {
+        localStorage.setItem('lastViewedIndex', currentHistoryIndex);
+    }
     clearSolutionArea();
     updateNavButtons();
     updateAddButtonState();
@@ -232,6 +246,9 @@ function goToPuzzle() {
         return;
     }
     currentHistoryIndex = inputVal - 1;
+    if (storageAllowed && !showingUnsolvable) {
+        localStorage.setItem('lastViewedIndex', currentHistoryIndex);
+    }
     setInputs(list[currentHistoryIndex].split(',').map(Number));
     clearSolutionArea();
     updateNavButtons();
@@ -300,6 +317,7 @@ function clearAllHistory() {
         if (storageAllowed) {
             localStorage.removeItem('solvableHistory');
             localStorage.removeItem('unsolvableHistory');
+            localStorage.removeItem('lastViewedIndex');
         }
         setInputs(["", "", "", ""]);
         clearSolutionArea();
@@ -315,5 +333,6 @@ function toggleStoragePreference() {
     if (!storageAllowed) {
         localStorage.removeItem('solvableHistory');
         localStorage.removeItem('unsolvableHistory');
+        localStorage.removeItem('lastViewedIndex');
     }
 }
