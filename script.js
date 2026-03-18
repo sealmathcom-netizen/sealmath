@@ -36,7 +36,7 @@ function updateAddButtonState() {
         btn.style.display = "inline-block";
         btn.disabled = false;
         btn.style.opacity = "1";
-        btn.innerText = "Add to History";
+        btn.innerText = t("btn_add_hist");
     }
 }
 
@@ -51,7 +51,7 @@ function setInputs(nums) {
 function manualRegister() {
     const nums = getInputs();
     registerPuzzle(nums);
-    updateFeedback("Saved!", "#27ae60");
+    updateFeedback(t("msg_saved"), "#27ae60");
     updateAddButtonState();
 }
 
@@ -104,7 +104,7 @@ function checkUserSolution() {
     if (nums.some(isNaN) || !expr.trim()) return;
     try {
         if (/[^0-9+\-*/().\s]/.test(expr)) {
-            updateFeedback("Invalid characters!", "#e74c3c");
+            updateFeedback(t("msg_invalid_char"), "#e74c3c");
             return;
         }
         let tempExpr = expr;
@@ -120,20 +120,20 @@ function checkUserSolution() {
         }
         const result = eval(expr);
         if (!allNumsUsed) {
-            updateFeedback("Use all four numbers!", "#e74c3c");
+            updateFeedback(t("msg_use_all"), "#e74c3c");
         } else if (Math.abs(result - 24) < 0.001) {
-            updateFeedback("Correct!", "var(--success)");
+            updateFeedback(t("msg_correct"), "var(--success)");
         } else {
-            updateFeedback(`Incorrect: ${result}`, "#e74c3c");
+            updateFeedback(t("msg_incorrect", { result }), "#e74c3c");
         }
     } catch (e) {
-        updateFeedback("Invalid expression", "#e74c3c");
+        updateFeedback(t("msg_invalid_expr"), "#e74c3c");
     }
 }
 
 function generateSolvable(updateUI = true) {
     if (checkedCombinations.size >= TOTAL_POSSIBLE) {
-        if (updateUI) updateFeedback("All combinations checked!", "#e74c3c");
+        if (updateUI) updateFeedback(t("msg_all_checked"), "#e74c3c");
         return;
     }
     let randomNums, key, isSolvable = false;
@@ -167,7 +167,7 @@ function generateSolvable(updateUI = true) {
         }
     } else {
         if (updateUI) {
-            updateFeedback("Could not find a new puzzle. Try again!", "#e74c3c");
+            updateFeedback(t("msg_not_found"), "#e74c3c");
         }
     }
 }
@@ -178,7 +178,7 @@ function generateAll() {
         generateSolvable(false); // Pass false to not update UI
     }
     const generatedCount = solvableHistory.length - initialCount;
-    updateFeedback(`Generated ${generatedCount} new puzzles!`, "var(--success)");
+    updateFeedback(t("msg_gen_success", { count: generatedCount }), "var(--success)");
     updateNavButtons();
 }
 
@@ -196,7 +196,10 @@ function updateNavButtons() {
     const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
     document.getElementById('btn-back').disabled = (currentHistoryIndex <= 0);
     document.getElementById('btn-next').disabled = (currentHistoryIndex >= list.length - 1 || list.length === 0);
-    document.getElementById('puzzle-counter').innerText = `Puzzle #${list.length === 0 ? 0 : currentHistoryIndex + 1} of ${list.length}`;
+    
+    // Update Puzzle Counter String dynamically
+    const currentNum = list.length === 0 ? 0 : currentHistoryIndex + 1;
+    document.getElementById('puzzle-counter').innerText = t("puzzle_counter", { current: currentNum, total: list.length });
 
     const gotoSection = document.getElementById('goto-section');
     if (list.length >= 5) {
@@ -225,7 +228,7 @@ function goToPuzzle() {
     const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
     const inputVal = parseInt(document.getElementById('goto-input').value);
     if (isNaN(inputVal) || inputVal < 1 || inputVal > list.length) {
-        updateFeedback(`Please enter a number between 1 and ${list.length}`, "#e74c3c");
+        updateFeedback(t("msg_enter_between", { max: list.length }), "#e74c3c");
         return;
     }
     currentHistoryIndex = inputVal - 1;
@@ -260,7 +263,7 @@ function runSolver() {
     const nums = getInputs();
     if (nums.some(isNaN)) return;
     const sol = solve24(nums);
-    document.getElementById('result').innerText = sol ? `Solution: ${sol}` : "No solution found.";
+    document.getElementById('result').innerText = sol ? t("msg_solution_found", { sol }) : t("msg_no_solution");
     registerPuzzle(nums);
     updateAddButtonState();
 }
@@ -269,26 +272,27 @@ document.getElementById('contact-form').addEventListener('submit', function (eve
     event.preventDefault();
     const btn = this.querySelector('button');
     const status = document.getElementById('status');
-    btn.innerText = 'Sending...';
+    btn.innerText = t("msg_sending");
     btn.disabled = true;
     emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, this)
         .then(() => {
-            status.innerText = 'Message sent!';
+            status.innerText = t("msg_sent_success");
             status.style.color = 'var(--success)';
             this.reset();
         },
             (error) => {
-                status.innerText = 'Failed to send.';
+                status.innerText = t("msg_sent_fail");
                 status.style.color = 'var(--error)';
             })
         .finally(() => {
-            btn.innerText = 'Send Message';
+            // Need to set button text back to original localized string, not hardcoded english
+            btn.innerText = t("btn_send");
             btn.disabled = false;
         });
 });
 
 function clearAllHistory() {
-    if (confirm("Delete all saved puzzles?")) {
+    if (confirm(t("msg_del_confirm"))) {
         solvableHistory = [];
         unsolvableHistory = [];
         checkedCombinations.clear();
@@ -301,7 +305,7 @@ function clearAllHistory() {
         clearSolutionArea();
         updateNavButtons();
         updateAddButtonState();
-        updateFeedback("History Cleared", "#e74c3c");
+        updateFeedback(t("msg_hist_cleared"), "#e74c3c");
     }
 }
 
