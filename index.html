@@ -216,6 +216,13 @@
             box-sizing: border-box;
             font-family: inherit;
         }
+
+        .btn-goto-highlight {
+            background-color: var(--success) !important;
+            transform: scale(1.08);
+            box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+            color: #fff !important;
+        }
     </style>
 </head>
 
@@ -258,8 +265,9 @@
 
             <div id="goto-section" style="display: none; margin-top: 15px; justify-content: center; gap: 10px; align-items: center;">
                 <input type="number" id="goto-input" min="1" placeholder="#"
-                    style="width: 70px; height: 35px; font-size: 1rem; text-align: center;">
-                <button class="btn-nav" onclick="goToPuzzle()" style="padding: 8px 12px; white-space: nowrap;">Go to puzzle</button>
+                    style="width: 90px; height: 35px; font-size: 1.1rem; text-align: left; padding: 0 10px;"
+                    oninput="document.getElementById('btn-goto').classList.toggle('btn-goto-highlight', this.value.length > 0)">
+                <button id="btn-goto" class="btn-nav" onclick="goToPuzzle()" style="padding: 8px 12px; white-space: nowrap; transition: 0.2s;">Go to puzzle</button>
             </div>
 
             <div class="solution-section">
@@ -510,6 +518,7 @@
             updateNavButtons();
             updateAddButtonState();
             document.getElementById('goto-input').value = '';
+            document.getElementById('btn-goto').classList.remove('btn-goto-highlight');
         }
 
         function showPage(p) {
