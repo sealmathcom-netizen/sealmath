@@ -223,6 +223,46 @@
             box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
             color: #fff !important;
         }
+
+        .input-with-prefix {
+            display: flex;
+            align-items: center;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            padding: 0 10px;
+            width: 80px;
+            height: 35px;
+            box-sizing: border-box;
+        }
+
+        .input-with-prefix span {
+            color: #7f8c8d;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-right: 2px;
+        }
+
+        .input-with-prefix input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 1.1rem;
+            width: 100%;
+            padding: 0;
+            text-align: left;
+        }
+        
+        /* Remove default number input spinners */
+        .input-with-prefix input[type="number"]::-webkit-inner-spin-button,
+        .input-with-prefix input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .input-with-prefix input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
     </style>
 </head>
 
@@ -264,9 +304,10 @@
             </div>
 
             <div id="goto-section" style="display: none; margin-top: 15px; justify-content: center; gap: 10px; align-items: center;">
-                <input type="number" id="goto-input" min="1" placeholder="#"
-                    style="width: 90px; height: 35px; font-size: 1.1rem; text-align: left; padding: 0 10px;"
-                    oninput="validateGoToInput()">
+                <div class="input-with-prefix">
+                    <span>#</span>
+                    <input type="number" id="goto-input" min="1" placeholder="" oninput="validateGoToInput()">
+                </div>
                 <button id="btn-goto" class="btn-nav" onclick="goToPuzzle()" style="padding: 8px 12px; white-space: nowrap; transition: 0.2s;" disabled>Go to puzzle</button>
             </div>
 
