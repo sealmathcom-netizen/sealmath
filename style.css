@@ -49,15 +49,23 @@ nav a.active {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .page {
     display: none;
-    padding: 30px 15px;
+    padding: 100px 15px 30px;
     animation: fadeIn 0.3s ease-out;
 }
+
 
 .page.active {
     display: flex;
@@ -82,6 +90,7 @@ nav a.active {
         padding: 20px 15px;
         border-radius: 12px;
     }
+
     input[type="number"] {
         width: 50px;
         height: 40px;
@@ -96,6 +105,56 @@ nav a.active {
     justify-content: center;
     margin-bottom: 20px;
 }
+
+/* Global History Controls (Linked Sticky) */
+.global-controls {
+    position: sticky;
+    top: 64px;
+    left: 20px;
+    z-index: 999;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 8px 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin: 10px 0 10px 20px;
+}
+
+.storage-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    color: var(--dark);
+}
+
+.btn-clear-minimal {
+    background: transparent;
+    border: none;
+    color: var(--error);
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    opacity: 0.7;
+    transition: 0.2s;
+}
+
+.btn-clear-minimal:hover {
+    opacity: 1;
+    color: darkred;
+}
+
 
 input[type="number"] {
     width: 60px;
@@ -340,8 +399,8 @@ button:hover {
     background: #a67c52;
     border-radius: 10px;
     z-index: 6;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    border: 1px solid rgba(0,0,0,0.2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .pot-neck {
@@ -351,7 +410,7 @@ button:hover {
     margin-top: -4px;
     z-index: 4;
     clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
-    box-shadow: inset 0 -4px 8px rgba(0,0,0,0.2);
+    box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pot-body {
@@ -360,13 +419,13 @@ button:hover {
     background: radial-gradient(circle at 30% 30%, #cd925b 0%, #bf814b 30%, #8a4a1a 100%);
     border-radius: 50% 50% 35% 35% / 25% 25% 75% 75%;
     position: relative;
-    box-shadow: 
-        inset -18px -18px 40px rgba(0,0,0,0.6),
-        inset 12px 12px 30px rgba(255,255,255,0.2),
-        0 25px 60px rgba(0,0,0,0.5);
+    box-shadow:
+        inset -18px -18px 40px rgba(0, 0, 0, 0.6),
+        inset 12px 12px 30px rgba(255, 255, 255, 0.2),
+        0 25px 60px rgba(0, 0, 0, 0.5);
     margin-top: -12px;
     z-index: 3;
-    border: 1px solid rgba(0,0,0,0.25);
+    border: 1px solid rgba(0, 0, 0, 0.25);
     transition: transform 0.3s ease;
 }
 
@@ -397,7 +456,8 @@ button:hover {
 
 /* Victory Seal Cork Animation */
 .victory-cork {
-    display: none; /* Persistent Invisibility */
+    display: none;
+    /* Persistent Invisibility */
     width: 75px;
     height: 48px;
     background: radial-gradient(circle at 40% 40%, #c29970, #5d4037);
@@ -417,8 +477,15 @@ button:hover {
 }
 
 @keyframes dropIn {
-    0% { transform: translate(-50%, -150px); opacity: 0; }
-    100% { transform: translate(-50%, 0); opacity: 1; }
+    0% {
+        transform: translate(-50%, -150px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
 }
 
 
@@ -452,7 +519,7 @@ button:hover {
     padding: 15px 20px;
     margin: 15px 0;
     text-align: left;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
     animation: slideDown 0.3s ease-out;
 }
 
@@ -471,8 +538,15 @@ button:hover {
 }
 
 @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 

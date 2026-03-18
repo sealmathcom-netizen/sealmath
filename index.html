@@ -16,7 +16,8 @@
 
     <nav>
         <a href="#" id="link-game" class="active" onclick="showPage('game')" data-i18n="nav_game">24 Challenge</a>
-        <a href="#" id="link-capture" onclick="showPage('capture')" data-i18n="nav_fraction_capture">Fraction Capture</a>
+        <a href="#" id="link-capture" onclick="showPage('capture')" data-i18n="nav_fraction_capture">Fraction
+            Capture</a>
         <a href="#" id="link-contact" onclick="showPage('contact')" data-i18n="nav_contact">Contact</a>
         <select id="lang-switcher" onchange="setLanguage(this.value)"
             style="margin-left: auto; padding: 4px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 2px solid var(--dark); background: transparent;">
@@ -25,6 +26,15 @@
             <option value="nl">🇳🇱 NL</option>
         </select>
     </nav>
+
+    <div class="global-controls">
+        <label class="storage-label">
+            <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()">
+            <span data-i18n="chk_remember">Remember my puzzle history</span>
+        </label>
+        <button onclick="clearAllHistory()" class="btn-clear-minimal" data-i18n="btn_clear_hist">Clear All History</button>
+    </div>
+
 
     <section id="game-page" class="page">
         <div class="container">
@@ -49,7 +59,8 @@
                     style="background-color: var(--blue); color: var(--dark); opacity: 0.5;" onclick="manualRegister()"
                     disabled data-i18n="btn_add_hist">Add to History
                 </button>
-                <button class="btn-solve btn-rules" onclick="toggleRules('24')" data-i18n="btn_rules">How to Play</button>
+                <button class="btn-solve btn-rules" onclick="toggleRules('24')" data-i18n="btn_rules">How to
+                    Play</button>
             </div>
 
             <div id="rules-24" class="rules-box" style="display: none;">
@@ -92,7 +103,7 @@
         <div class="container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h1 style="margin: 0; font-size: 1.8rem;" data-i18n="capture_title">Fraction Capture</h1>
-                <button class="btn-solve btn-rules" style="margin: 0; padding: 6px 12px; font-size: 0.85rem;" 
+                <button class="btn-solve btn-rules" style="margin: 0; padding: 6px 12px; font-size: 0.85rem;"
                     onclick="toggleRules('capture')" data-i18n="btn_rules">How to Play</button>
             </div>
 
@@ -110,7 +121,8 @@
                 </div>
             </div>
 
-            <div id="expr-preview" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 15px 0; font-size: 1.4rem; min-height: 48px; font-weight: bold; color: var(--accent);">
+            <div id="expr-preview"
+                style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 15px 0; font-size: 1.4rem; min-height: 48px; font-weight: bold; color: var(--accent);">
                 <!-- Expression like 1/2 + 1/4 will appear here -->
             </div>
 
@@ -128,20 +140,16 @@
             <div id="capture-feedback" style="margin-top: 20px; font-weight: bold; min-height: 24px;"></div>
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                <button class="btn-generate" onclick="initFractionCapture()" style="flex: 2; background-color: var(--success);"
-                    data-i18n="btn_new_capture">New Capture</button>
-                <button class="btn-solve" onclick="showFractionSolution()" style="flex: 1; border: 2px solid var(--accent); background: transparent; color: var(--accent);"
+                <button class="btn-generate" onclick="initFractionCapture()"
+                    style="flex: 2; background-color: var(--success);" data-i18n="btn_new_capture">New Capture</button>
+                <button class="btn-solve" onclick="showFractionSolution()"
+                    style="flex: 1; border: 2px solid var(--accent); background: transparent; color: var(--accent);"
                     data-i18n="btn_show_sol">Show Logic</button>
             </div>
         </div>
     </section>
 
-    <footer style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid #eee;">
-        <label style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
-            <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()"> <span data-i18n="chk_remember">Remember my puzzle history</span>
-        </label>
-        <button onclick="clearAllHistory()" class="btn-clear-minimal" data-i18n="btn_clear_hist">Clear All History</button>
-    </footer>
+
 
     </footer>
 
