@@ -418,7 +418,7 @@
         }
     }
 
-    function generateSolvable() {
+    function generateSolvable(updateUI = true) {
         const TOTAL_POSSIBLE = 1820;
         if (checkedCombinations.size >= TOTAL_POSSIBLE) {
             updateFeedback("All combinations checked!", "#e74c3c");
@@ -438,17 +438,29 @@
             attempts++;
         } while ((!isSolvable || solvableHistory.includes(key)) && attempts < 5000);
         if (isSolvable) {
-            setInputs(randomNums);
-            registerPuzzle(randomNums);
-            clearSolutionArea();
-            updateAddButtonState();
+            if (updateUI) {
+                setInputs(randomNums);
+                registerPuzzle(randomNums);
+                clearSolutionArea();
+                updateAddButtonState();
+            } else {
+                // Register in history silently without navigating to it or changing the board
+                solvableHistory.push(key);
+                if (storageAllowed) {
+                    localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
+                }
+                updateNavButtons();
+            }
         }
     }
 
     function generateAll() {
+        const initialCount = solvableHistory.length;
         for (let i = 0; i < 2000; i++) {
-            generateSolvable();
+            generateSolvable(false); // Pass false to not update UI
         }
+        const generatedCount = solvableHistory.length - initialCount;
+        updateFeedback(`Generated ${generatedCount} new puzzles!`, "var(--success)");
     }
 
     function navigateHistory(direction) {
