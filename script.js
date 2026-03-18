@@ -14,7 +14,7 @@ let showingUnsolvable = false;
 let checkedCombinations = new Set();
 const TOTAL_POSSIBLE = 1820;
 
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('storage-toggle').checked = storageAllowed;
     if (solvableHistory.length > 0) {
         const savedIndex = localStorage.getItem('lastViewedIndex');
@@ -27,9 +27,13 @@ window.onload = () => {
     }
     updateNavButtons();
 
+    // Restore fraction state before showing page
+    restoreFractionState();
+
     // Restore active tab as early as possible after elements are present
     restoreActiveTab();
-};
+});
+
 
 function restoreActiveTab() {
     const savedTab = localStorage.getItem('activeTab');
@@ -273,8 +277,9 @@ function showPage(p) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     if (document.getElementById('link-' + p)) document.getElementById('link-' + p).classList.add('active');
     if (storageAllowed) localStorage.setItem('activeTab', p);
-    if (p === 'capture') initFractionCapture();
+    if (p === 'capture' && captureIngredients.length === 0) initFractionCapture();
 }
+
 
 function updateFeedback(m, c) {
     const f = document.getElementById('feedback');
@@ -395,11 +400,39 @@ function initFractionCapture() {
     if (res.n <= 0 || res.d > 20 || res.n > 50) return initFractionCapture();
     captureTarget = simplify(res.n, res.d);
     captureIngredients = shuffle(ingredients);
+    captureGameOver = false;
+
+    saveFractionState();
 
     console.log("Target Generated:", captureTarget);
     renderTarget();
     renderIngredients();
 }
+
+function saveFractionState() {
+    if (!storageAllowed) return;
+    localStorage.setItem('captureIngredients', JSON.stringify(captureIngredients));
+    localStorage.setItem('captureTarget', JSON.stringify(captureTarget));
+    localStorage.setItem('captureGameOver', captureGameOver);
+}
+
+function restoreFractionState() {
+    const ing = localStorage.getItem('captureIngredients');
+    const tar = localStorage.getItem('captureTarget');
+    if (ing && tar && storageAllowed) {
+        captureIngredients = JSON.parse(ing);
+        captureTarget = JSON.parse(tar);
+        captureGameOver = localStorage.getItem('captureGameOver') === 'true';
+        renderTarget();
+        renderIngredients();
+        if (captureGameOver) {
+            document.getElementById('pot-display').classList.add('sealed');
+        }
+    } else {
+        initFractionCapture();
+    }
+}
+
 
 function calculateFrac(f1, f2, op) {
     let n, d;
@@ -476,9 +509,10 @@ function checkCaptureWin() {
         
         captureGameOver = true;
         document.getElementById('pot-display').classList.add('sealed');
-        document.getElementById('capture-feedback').innerText = t("msg_win_capture");
+        document.getElementById('capture-feedback').innerText = t("msg_correct");
         document.getElementById('capture-feedback').style.color = "var(--success)";
         updateCapturePreview();
+        saveFractionState();
     } else {
         document.getElementById('capture-feedback').innerText = t("msg_incorrect", { result: "" }).replace("{result}", "");
         document.getElementById('capture-feedback').style.color = "var(--error)";
