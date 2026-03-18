@@ -93,14 +93,28 @@ input[type="number"] {
     font-weight: bold;
     border: 2px solid #ddd;
     border-radius: 12px;
+    appearance: textfield; /* Standard */
     -moz-appearance: textfield; /* Hides persistent spinner in Firefox */
 }
 
-/* Chrome, Safari, Edge, Opera spinner hiding */
+/* Hide separators by default in Chrome/Safari/Edge/Opera */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Show spinners on hover/focus */
+input[type="number"]:hover,
+input[type="number"]:focus {
+    appearance: auto;
+    -moz-appearance: number-input;
+}
+input[type="number"]:hover::-webkit-outer-spin-button,
+input[type="number"]:hover::-webkit-inner-spin-button,
+input[type="number"]:focus::-webkit-outer-spin-button,
+input[type="number"]:focus::-webkit-inner-spin-button {
+    -webkit-appearance: auto;
 }
 
 #n1 {
@@ -250,13 +264,7 @@ button:hover {
     text-align: left;
 }
 
-/* Remove default number input spinners */
-.input-with-prefix input[type="number"]::-webkit-inner-spin-button,
-.input-with-prefix input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
+/* Use the shared rule above for all [type="number"] */
 .input-with-prefix input[type="number"] {
-    -moz-appearance: textfield;
-    appearance: textfield;
+    /* No additional appearance overrides needed here */
 }
