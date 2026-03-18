@@ -30,7 +30,9 @@ nav {
     position: sticky;
     top: 0;
     z-index: 1000;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -62,8 +64,13 @@ nav a.active {
 
 .page {
     display: none;
-    padding: 100px 15px 30px;
+    padding: 60px 15px 30px;
     animation: fadeIn 0.3s ease-out;
+}
+
+
+.page#capture-page {
+    padding-top: 30px;
 }
 
 
@@ -111,7 +118,7 @@ nav a.active {
     position: sticky;
     top: 64px;
     left: 20px;
-    z-index: 999;
+    z-index: 1001;
     width: fit-content;
     display: flex;
     flex-direction: column;
@@ -123,8 +130,10 @@ nav a.active {
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin: 10px 0 10px 20px;
+    margin: 10px 0 0 20px;
+    float: left;
 }
+
 
 .storage-label {
     font-size: 0.8rem;
@@ -347,11 +356,6 @@ button:hover {
     width: 100%;
     padding: 0;
     text-align: left;
-}
-
-/* Use the shared rule above for all [type="number"] */
-.input-with-prefix input[type="number"] {
-    /* No additional appearance overrides needed here */
 }
 
 .cork-tile {
