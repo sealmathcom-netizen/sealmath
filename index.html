@@ -251,17 +251,15 @@
                 </button>
             </div>
 
-            <div class="nav-controls" style="align-items: center; flex-wrap: wrap; justify-content: center;">
-                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" style="margin-top: 0;">&larr;
-                    Back</button>
-                <div id="goto-section" style="display: none; gap: 5px; align-items: center;">
-                    <input type="number" id="goto-input" min="1" placeholder="#"
-                        style="width: 50px; height: 44px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; text-align: center; box-sizing: border-box; margin: 0; padding: 0;">
-                    <button class="btn-nav" onclick="goToPuzzle()"
-                        style="min-width: 40px; height: 44px; padding: 0 5px; margin: 0;">Go</button>
-                </div>
-                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" style="margin-top: 0;">Next
-                    &rarr;</button>
+            <div class="nav-controls">
+                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)">&larr; Back</button>
+                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)">Next &rarr;</button>
+            </div>
+
+            <div id="goto-section" style="display: none; margin-top: 15px; justify-content: center; gap: 10px; align-items: center;">
+                <input type="number" id="goto-input" min="1" placeholder="#"
+                    style="width: 70px; height: 35px; font-size: 1rem; text-align: center;">
+                <button class="btn-nav" onclick="goToPuzzle()" style="padding: 8px 12px; white-space: nowrap;">Go to puzzle</button>
             </div>
 
             <div class="solution-section">
