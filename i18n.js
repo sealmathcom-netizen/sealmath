@@ -1,12 +1,14 @@
 const translations = {
     "en": {
         "nav_game": "24 Challenge",
+        "nav_fraction_capture": "Fraction Capture",
         "nav_contact": "Contact",
         "game_title": "The 24 Challenge",
+        "capture_title": "Fraction Capture",
         "puzzle_counter": "Puzzle #{current} of {total}",
         "btn_new": "New Puzzle",
         "btn_gen_all": "Generate All",
-        "btn_show_ans": "Show Answer",
+        "btn_show_ans": "Show Solution",
         "btn_add_hist": "Add to History",
         "btn_back": "&larr; Back",
         "btn_next": "Next &rarr;",
@@ -14,13 +16,15 @@ const translations = {
         "btn_check": "Check My Solution",
         "chk_remember": "Remember my puzzle history",
         "btn_clear_hist": "Clear All History",
+        "btn_rules": "How to Play",
+        "btn_show_sol": "Show Solution",
         "contact_title": "Contact SealMath",
         "lbl_name": "Name",
         "lbl_email": "Email",
         "lbl_message": "Message",
         "btn_send": "Send Message",
         "ph_expr": "(4 + 8) * (8 - 6)",
-        
+
         // JS Feedback Messages
         "msg_saved": "Saved!",
         "msg_invalid_char": "Invalid characters!",
@@ -38,23 +42,36 @@ const translations = {
         "msg_sent_fail": "Failed to send.",
         "msg_del_confirm": "Delete all saved puzzles?",
         "msg_hist_cleared": "History Cleared",
-        "msg_not_found": "Could not find a new puzzle. Try again!"
+        "msg_not_found": "Could not find a new puzzle. Try again!",
+        "msg_win_capture": "Victory! The pot is sealed!",
+        "lbl_target": "Target Pot",
+        "lbl_ingredients": "Cork Ingredients",
+        "btn_new_capture": "New Capture",
+        "rules_title_24": "How to Play: 24 Challenge",
+        "rules_text_24": "• Use each number exactly once.\n• Operations: Addition (+), Subtraction (-), Multiplication (*), Division (/).\n• Parentheses ( ) are allowed.",
+        "rules_title_capture": "How to Play: Fraction Capture",
+        "rules_text_capture": "• Pick exactly 2 ingredient fractions.\n• Select an operator (+, -, *, /).\n• The goal is to reach the Target Fraction in the Pot.\n• Example: 1/2 + 1/4 = 3/4.\n• Order matters for Subtraction and Division!",
+        "msg_sol_is": "Solution: {sol}"
     },
     "he": {
         "nav_game": "אתגר ה-24",
+        "nav_fraction_capture": "לכידת שברים",
         "nav_contact": "צור קשר",
         "game_title": "אתגר ה-24",
+        "capture_title": "לכידת שברים",
         "puzzle_counter": "חידה #{current} מתוך {total}",
         "btn_new": "חידה חדשה",
         "btn_gen_all": "צור הכל",
-        "btn_show_ans": "הראה תשובה",
+        "btn_show_ans": "הצג פתרון",
         "btn_add_hist": "הוסף להיסטוריה",
-        "btn_back": "&rarr; חזור",
-        "btn_next": "הבא &larr;",
+        "btn_back": "&larr; הקודם",
+        "btn_next": "הבא &rarr;",
         "btn_go": "עבור לחידה",
-        "btn_check": "בדוק את התשובה שלי",
+        "btn_check": "בדוק פתרון",
         "chk_remember": "זכור את היסטוריית החידות שלי",
         "btn_clear_hist": "נקה היסטוריה",
+        "btn_rules": "איך משחקים",
+        "btn_show_sol": "הצג פתרון",
         "contact_title": "צור קשר עם SealMath",
         "lbl_name": "שם",
         "lbl_email": "אימייל",
@@ -79,23 +96,36 @@ const translations = {
         "msg_sent_fail": "השליחה נכשלה.",
         "msg_del_confirm": "האם למחוק את כל החידות השמורות?",
         "msg_hist_cleared": "היסטוריה נוקתה",
-        "msg_not_found": "לא הצלחנו למצוא חידה חדשה. נסה שוב!"
+        "msg_not_found": "לא הצלחנו למצוא חידה חדשה. נסה שוב!",
+        "msg_win_capture": "ניצחון! הכד נחתם!",
+        "lbl_target": "כד המטרה",
+        "lbl_ingredients": "מרכיבי השעם",
+        "btn_new_capture": "לכידה חדשה",
+        "rules_title_24": "איך משחקים: אתגר ה-24",
+        "rules_text_24": "• השתמש בכל מספר פעם אחת בדיוק.\n• פעולות: חיבור (+), חיסור (-), כפל (*), חילוק (/).\n• ניתן להשתמש בסוגריים ( ).",
+        "rules_title_capture": "איך משחקים: לכידת שברים",
+        "rules_text_capture": "• בחר בדיוק 2 מרכיבי שברים.\n• בחר פעולת חשבון (+, -, *, /).\n• המטרה היא להגיע לשבר המטרה המוצג בכד.\n• דוגמה: 1/2 + 1/4 = 3/4.\n• הסדר משנה בחיסור ובחילוק!",
+        "msg_sol_is": "פתרון: {sol}"
     },
     "nl": {
         "nav_game": "24 Uitdaging",
+        "nav_fraction_capture": "Breuken Vangen",
         "nav_contact": "Contact",
         "game_title": "De 24 Uitdaging",
+        "capture_title": "Breuken Vangen",
         "puzzle_counter": "Puzzel #{current} van {total}",
         "btn_new": "Nieuwe Puzzel",
         "btn_gen_all": "Genereer Alles",
-        "btn_show_ans": "Toon Antwoord",
-        "btn_add_hist": "Voeg toe aan Geschiedenis",
+        "btn_show_ans": "Oplossing Tonen",
+        "btn_add_hist": "Toevoegen",
         "btn_back": "&larr; Terug",
         "btn_next": "Volgende &rarr;",
-        "btn_go": "Ga naar puzzel",
-        "btn_check": "Controleer Mijn Oplossing",
+        "btn_go": "Ga naar",
+        "btn_check": "Controleer",
         "chk_remember": "Onthoud mijn puzzelgeschiedenis",
-        "btn_clear_hist": "Wis Alle Geschiedenis",
+        "btn_clear_hist": "Geschiedenis Wissen",
+        "btn_rules": "Hoe te Spelen",
+        "btn_show_sol": "Oplossing Tonen",
         "contact_title": "Neem Contact op met SealMath",
         "lbl_name": "Naam",
         "lbl_email": "E-mail",
@@ -120,7 +150,16 @@ const translations = {
         "msg_sent_fail": "Verzenden mislukt.",
         "msg_del_confirm": "Alle opgeslagen puzzels verwijderen?",
         "msg_hist_cleared": "Geschiedenis Gewist",
-        "msg_not_found": "Kon geen nieuwe puzzel vinden. Probeer het opnieuw!"
+        "msg_not_found": "Kon geen nieuwe puzzel vinden. Probeer het opnieuw!",
+        "msg_win_capture": "Overwinning! De pot is verzegeld!",
+        "lbl_target": "Doelpot",
+        "lbl_ingredients": "Kurkingrediënten",
+        "btn_new_capture": "Nieuwe Vangst",
+        "rules_title_24": "Hoe te Spelen: 24 Uitdaging",
+        "rules_text_24": "• Gebruik elk getal precies één keer.\n• Bewerkingen: Optellen (+), Aftrekken (-), Vermenigvuldigen (*), Delen (/).\n• Haakjes ( ) zijn toegestaan.",
+        "rules_title_capture": "Hoe te Spelen: Breuken Vangen",
+        "rules_text_capture": "• Kies precies 2 breuken.\n• Selecteer een bewerking (+, -, *, /).\n• Het doel is de Doelbreuk in de Pot te bereiken.\n• Voorbeeld: 1/2 + 1/4 = 3/4.\n• De volgorde telt bij Aftrekken en Delen!",
+        "msg_sol_is": "Oplossing: {sol}"
     }
 };
 
@@ -130,7 +169,7 @@ function setLanguage(lang) {
     if (!translations[lang]) lang = 'en';
     currentLang = lang;
     localStorage.setItem('preferredLang', lang);
-    
+
     // Update directionality for Hebrew
     document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr';
     document.title = translations[lang]["game_title"];
@@ -143,16 +182,23 @@ function setLanguage(lang) {
         const key = el.getAttribute('data-i18n');
         if (translations[lang][key]) {
             if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-                if(key === 'ph_expr') el.placeholder = translations[lang][key];
+                if (key === 'ph_expr') el.placeholder = translations[lang][key];
             } else {
-                el.innerHTML = translations[lang][key]; // innerHTML for entities like &rarr;
+                el.innerHTML = translations[lang][key];
             }
         }
     });
 
-    // We manually trigger any JS UI updates required that have variables inside strings
+    // Populate inline rule boxes
+    const r24 = document.getElementById('rules-text-24');
+    if (r24) r24.innerHTML = (translations[lang]["rules_text_24"] || "").replace(/\n/g, '<br>');
+    
+    const rc = document.getElementById('rules-text-capture');
+    if (rc) rc.innerHTML = (translations[lang]["rules_text_capture"] || "").replace(/\n/g, '<br>');
+
     if (typeof updateNavButtons === 'function') updateNavButtons();
 }
+
 
 function detectDefaultLanguage() {
     const saved = localStorage.getItem('preferredLang');

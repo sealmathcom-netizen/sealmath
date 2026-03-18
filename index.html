@@ -16,15 +16,17 @@
 
     <nav>
         <a href="#" id="link-game" class="active" onclick="showPage('game')" data-i18n="nav_game">24 Challenge</a>
+        <a href="#" id="link-capture" onclick="showPage('capture')" data-i18n="nav_fraction_capture">Fraction Capture</a>
         <a href="#" id="link-contact" onclick="showPage('contact')" data-i18n="nav_contact">Contact</a>
-        <select id="lang-switcher" onchange="setLanguage(this.value)" style="margin-left: auto; padding: 4px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 2px solid var(--dark); background: transparent;">
+        <select id="lang-switcher" onchange="setLanguage(this.value)"
+            style="margin-left: auto; padding: 4px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 2px solid var(--dark); background: transparent;">
             <option value="en">🇺🇸 EN</option>
             <option value="he">🇮🇱 HE</option>
             <option value="nl">🇳🇱 NL</option>
         </select>
     </nav>
 
-    <section id="game-page" class="page active">
+    <section id="game-page" class="page">
         <div class="container">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h1 style="margin:0; font-size: 1.8rem;" data-i18n="game_title">The 24 Challenge</h1>
@@ -40,25 +42,37 @@
 
             <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
                 <button class="btn-generate" onclick="generateSolvable()" data-i18n="btn_new">New Puzzle</button>
-                <button class="btn-generate" onclick="generateAll()" style="background-color: var(--accent);" data-i18n="btn_gen_all">Generate All</button>
+                <button class="btn-generate" onclick="generateAll()" style="background-color: var(--accent);"
+                    data-i18n="btn_gen_all">Generate All</button>
                 <button class="btn-solve" onclick="runSolver()" data-i18n="btn_show_ans">Show Answer</button>
                 <button id="btn-manual-add" class="btn-solve"
                     style="background-color: var(--blue); color: var(--dark); opacity: 0.5;" onclick="manualRegister()"
                     disabled data-i18n="btn_add_hist">Add to History
                 </button>
+                <button class="btn-solve btn-rules" onclick="toggleRules('24')" data-i18n="btn_rules">How to Play</button>
+            </div>
+
+            <div id="rules-24" class="rules-box" style="display: none;">
+                <h3 data-i18n="rules_title_24">How to Play: 24 Challenge</h3>
+                <div id="rules-text-24" class="rules-content"></div>
             </div>
 
             <div class="nav-controls">
-                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" data-i18n="btn_back">&larr; Back</button>
-                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" data-i18n="btn_next">Next &rarr;</button>
+                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" data-i18n="btn_back">&larr;
+                    Back</button>
+                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" data-i18n="btn_next">Next
+                    &rarr;</button>
             </div>
 
-            <div id="goto-section" style="display: none; margin-top: 15px; justify-content: center; gap: 10px; align-items: center;">
+            <div id="goto-section"
+                style="display: none; margin-top: 15px; justify-content: center; gap: 10px; align-items: center;">
                 <div class="input-with-prefix" style="width: 120px; height: 40px; border-radius: 8px;">
                     <span>#</span>
                     <input type="number" id="goto-input" min="1" placeholder="" oninput="validateGoToInput()">
                 </div>
-                <button id="btn-goto" class="btn-nav" onclick="goToPuzzle()" style="width: 120px; height: 40px; padding: 0; margin: 0; white-space: nowrap; transition: 0.2s;" disabled data-i18n="btn_go">Go to puzzle</button>
+                <button id="btn-goto" class="btn-nav" onclick="goToPuzzle()"
+                    style="width: 120px; height: 40px; padding: 0; margin: 0; white-space: nowrap; transition: 0.2s;"
+                    disabled data-i18n="btn_go">Go to puzzle</button>
             </div>
 
             <div class="solution-section">
@@ -69,14 +83,70 @@
             </div>
             <div id="result" style="margin-top: 15px; font-weight: bold;"></div>
 
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 25px 0 15px 0;">
-            <label
-                style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()"> <span data-i18n="chk_remember">Remember my puzzle history</span>
-            </label>
-            <button onclick="clearAllHistory()" class="btn-clear-minimal" data-i18n="btn_clear_hist">Clear All History</button>
         </div>
     </section>
+
+
+
+    <section id="capture-page" class="page">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="margin: 0; font-size: 1.8rem;" data-i18n="capture_title">Fraction Capture</h1>
+                <button class="btn-solve btn-rules" style="margin: 0; padding: 6px 12px; font-size: 0.85rem;" 
+                    onclick="toggleRules('capture')" data-i18n="btn_rules">How to Play</button>
+            </div>
+
+            <div id="rules-capture" class="rules-box" style="display: none;">
+                <h3 data-i18n="rules_title_capture">How to Play: Fraction Capture</h3>
+                <div id="rules-text-capture" class="rules-content"></div>
+            </div>
+
+            <div id="pot-display" class="pot-container">
+                <div class="victory-cork"></div>
+                <div class="pot-rim"></div>
+                <div class="pot-neck"></div>
+                <div class="pot-body">
+                    <div id="target-fraction" class="pot-label"></div>
+                </div>
+            </div>
+
+            <div id="expr-preview" style="text-align: center; margin: 15px 0; font-size: 1.4rem; min-height: 40px; font-weight: bold; color: var(--accent);">
+                <!-- Expression like 1/2 + 1/4 will appear here -->
+            </div>
+
+            <div class="op-row">
+                <button id="op-add" class="op-btn" onclick="selectOp('+')">+</button>
+                <button id="op-sub" class="op-btn" onclick="selectOp('-')">-</button>
+                <button id="op-mul" class="op-btn" onclick="selectOp('*')">&times;</button>
+                <button id="op-div" class="op-btn" onclick="selectOp('/')">&divide;</button>
+            </div>
+
+            <div id="ingredients-grid" class="capture-grid">
+                <!-- Cork tiles will be injected here via JS -->
+            </div>
+
+            <div id="capture-feedback" style="margin-top: 20px; font-weight: bold; min-height: 24px;"></div>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn-generate" onclick="initFractionCapture()" style="flex: 2; background-color: var(--success);"
+                    data-i18n="btn_new_capture">New Capture</button>
+                <button class="btn-solve" onclick="showFractionSolution()" style="flex: 1; border: 2px solid var(--accent); background: transparent; color: var(--accent);"
+                    data-i18n="btn_show_sol">Show Logic</button>
+            </div>
+        </div>
+    </section>
+
+    <footer style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid #eee;">
+        <label style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px;">
+            <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()"> <span data-i18n="chk_remember">Remember my puzzle history</span>
+        </label>
+        <button onclick="clearAllHistory()" class="btn-clear-minimal" data-i18n="btn_clear_hist">Clear All History</button>
+    </footer>
+
+    </footer>
+
+    <!-- No more Modal -->
+
 
     <section id="contact-page" class="page">
         <div class="container" style="max-width: 500px;">
