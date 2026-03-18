@@ -232,9 +232,12 @@ input[type="number"]:focus::-webkit-inner-spin-button {
     font-size: 1.2rem;
     border-radius: 8px;
     border: 2px solid #ddd;
-    text-align: center;
+    text-align: left !important;
     margin-bottom: 10px;
+    direction: ltr !important;
+    unicode-bidi: embed;
 }
+
 
 button {
     padding: 12px 20px;
@@ -631,4 +634,18 @@ button:hover {
     color: white;
     border-color: var(--accent);
     transform: scale(1.1);
+}
+
+#expr-preview {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 15px 0;
+    font-size: 1.4rem;
+    min-height: 48px;
+    font-weight: bold;
+    color: var(--accent);
+    direction: ltr !important;
+    unicode-bidi: embed;
 }
