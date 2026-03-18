@@ -252,12 +252,16 @@
             </div>
 
             <div class="nav-controls" style="align-items: center; flex-wrap: wrap; justify-content: center;">
-                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" style="margin-top: 0;">&larr; Back</button>
+                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" style="margin-top: 0;">&larr;
+                    Back</button>
                 <div id="goto-section" style="display: none; gap: 5px; align-items: center;">
-                    <input type="number" id="goto-input" min="1" placeholder="#" style="width: 50px; height: 44px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; text-align: center; box-sizing: border-box; margin: 0; padding: 0;">
-                    <button class="btn-nav" onclick="goToPuzzle()" style="min-width: 40px; height: 44px; padding: 0 5px; margin: 0;">Go</button>
+                    <input type="number" id="goto-input" min="1" placeholder="#"
+                        style="width: 50px; height: 44px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; text-align: center; box-sizing: border-box; margin: 0; padding: 0;">
+                    <button class="btn-nav" onclick="goToPuzzle()"
+                        style="min-width: 40px; height: 44px; padding: 0 5px; margin: 0;">Go</button>
                 </div>
-                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" style="margin-top: 0;">Next &rarr;</button>
+                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" style="margin-top: 0;">Next
+                    &rarr;</button>
             </div>
 
             <div class="solution-section">
@@ -307,6 +311,7 @@
         let currentHistoryIndex = solvableHistory.length > 0 ? solvableHistory.length - 1 : -1;
         let showingUnsolvable = false;
         let checkedCombinations = new Set();
+        const TOTAL_POSSIBLE = 1820;
 
         window.onload = () => {
             document.getElementById('storage-toggle').checked = storageAllowed;
@@ -426,7 +431,6 @@
         }
 
         function generateSolvable(updateUI = true) {
-            const TOTAL_POSSIBLE = 1820;
             if (checkedCombinations.size >= TOTAL_POSSIBLE) {
                 updateFeedback("All combinations checked!", "#e74c3c");
                 return;
