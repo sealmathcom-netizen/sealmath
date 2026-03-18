@@ -317,7 +317,14 @@ function runSolver() {
     const nums = getInputs();
     if (nums.some(isNaN)) return;
     const sol = solve24(nums);
-    document.getElementById('result').innerText = sol ? t("msg_solution_found", { sol }) : t("msg_no_solution");
+    const resultEl = document.getElementById('result');
+    if (!resultEl) return;
+    if (sol) {
+        const solForDisplay = (typeof currentLang !== 'undefined' && currentLang === 'he') ? `\u2066${sol}\u2069` : sol;
+        resultEl.innerText = t("msg_solution_found", { sol: solForDisplay });
+    } else {
+        resultEl.innerText = t("msg_no_solution");
+    }
     registerPuzzle(nums);
     updateAddButtonState();
 }
@@ -592,8 +599,11 @@ function showFractionSolution() {
                     const f1 = captureIngredients[i];
                     const f2 = captureIngredients[j];
                     const solStr = `${f1.n}/${f1.d} ${op === '*' ? '×' : op === '/' ? '÷' : op} ${f2.n}/${f2.d}`;
-                    document.getElementById('capture-feedback').innerText = t("msg_sol_is", { sol: solStr });
-                    document.getElementById('capture-feedback').style.color = "var(--accent)";
+                    const feedbackEl = document.getElementById('capture-feedback');
+                    if (!feedbackEl) return;
+                    const solForDisplay = (typeof currentLang !== 'undefined' && currentLang === 'he') ? `\u2066${solStr}\u2069` : solStr;
+                    feedbackEl.innerText = t("msg_sol_is", { sol: solForDisplay });
+                    feedbackEl.style.color = "var(--accent)";
                     return;
                 }
             }
