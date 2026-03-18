@@ -15,7 +15,11 @@ let checkedCombinations = new Set();
 const TOTAL_POSSIBLE = 1820;
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('storage-toggle').checked = storageAllowed;
+    try {
+        const toggle = document.getElementById('storage-toggle');
+        if (toggle) toggle.checked = storageAllowed;
+    } catch (e) { console.error("Toggle init fail:", e); }
+
     if (solvableHistory.length > 0) {
         const savedIndex = localStorage.getItem('lastViewedIndex');
         if (savedIndex !== null && !isNaN(savedIndex) && savedIndex >= 0 && savedIndex < solvableHistory.length) {
@@ -27,12 +31,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateNavButtons();
 
-    // Restore fraction state before showing page
-    restoreFractionState();
+    // 1. Restore fraction state FIRST (so captureIngredients is populated)
+    try {
+        restoreFractionState();
+    } catch (e) {
+        console.error("Fraction restore fail:", e);
+        initFractionCapture();
+    }
 
-    // Restore active tab as early as possible after elements are present
+    // 2. Restore active tab AFTER state is ready
     restoreActiveTab();
 });
+
+
 
 
 function restoreActiveTab() {
@@ -277,8 +288,17 @@ function showPage(p) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     if (document.getElementById('link-' + p)) document.getElementById('link-' + p).classList.add('active');
     if (storageAllowed) localStorage.setItem('activeTab', p);
-    if (p === 'capture' && captureIngredients.length === 0) initFractionCapture();
+    
+    if (p === 'capture') {
+        if (captureIngredients.length === 0) initFractionCapture();
+        else {
+            renderTarget();
+            renderIngredients(); // Ensure slots are filled on tab switch
+        }
+    }
 }
+
+
 
 
 function updateFeedback(m, c) {
@@ -397,7 +417,8 @@ function initFractionCapture() {
     const op = ops[Math.floor(Math.random() * ops.length)];
     let res = calculateFrac(ingredients[idx1], ingredients[idx2], op);
 
-    if (res.n <= 0 || res.d > 20 || res.n > 50) return initFractionCapture();
+    if (res.n <= 0 || res.d > 100 || res.n > 200) return initFractionCapture();
+
     captureTarget = simplify(res.n, res.d);
     captureIngredients = shuffle(ingredients);
     captureGameOver = false;
@@ -452,17 +473,31 @@ function renderTarget() {
 }
 
 function renderIngredients() {
-    const grid = document.getElementById('ingredients-grid');
-    grid.innerHTML = "";
+    // Clear all slots first
+    for (let i = 0; i < 4; i++) {
+        const slot = document.getElementById(`ing-slot-${i}`);
+        if (slot) slot.innerHTML = "";
+    }
+
     captureIngredients.forEach((f, i) => {
+        const slot = document.getElementById(`ing-slot-${i}`);
+        if (!slot) return;
+
         const tile = document.createElement('div');
         tile.className = 'cork-tile';
         if (selectedIngIndices.includes(i)) tile.classList.add('selected');
+
+        tile.innerHTML = `
+            <div class="frac">
+                <span class="n">${f.n}</span>
+                <span class="d">${f.d}</span>
+            </div>
+        `;
         tile.onclick = () => selectIng(i);
-        tile.innerHTML = `<div class="frac"><span class="n">${f.n}</span><span class="d">${f.d}</span></div>`;
-        grid.appendChild(tile);
+        slot.appendChild(tile);
     });
 }
+
 
 function selectIng(index) {
     if (captureGameOver) return;

@@ -126,18 +126,20 @@
                 <!-- Expression like 1/2 + 1/4 will appear here -->
             </div>
 
-            <div class="op-row">
+            <div id="fraction-board" class="fraction-board">
+                <div id="ing-slot-0"></div>
                 <button id="op-add" class="op-btn" onclick="selectOp('+')">+</button>
                 <button id="op-sub" class="op-btn" onclick="selectOp('-')">-</button>
+                <div id="ing-slot-2"></div>
+                <div id="ing-slot-1"></div>
                 <button id="op-mul" class="op-btn" onclick="selectOp('*')">&times;</button>
                 <button id="op-div" class="op-btn" onclick="selectOp('/')">&divide;</button>
+                <div id="ing-slot-3"></div>
             </div>
 
-            <div id="ingredients-grid" class="capture-grid">
-                <!-- Cork tiles will be injected here via JS -->
-            </div>
 
             <div id="capture-feedback" style="margin-top: 20px; font-weight: bold; min-height: 24px;"></div>
+
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn-generate" onclick="initFractionCapture()"
@@ -149,14 +151,10 @@
         </div>
     </section>
 
-
-
-    </footer>
-
     <!-- No more Modal -->
 
-
     <section id="contact-page" class="page">
+
         <div class="container" style="max-width: 500px;">
             <h2 style="text-align: center;" data-i18n="contact_title">Contact SealMath</h2>
             <form id="contact-form">
