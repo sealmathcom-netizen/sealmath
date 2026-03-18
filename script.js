@@ -133,12 +133,13 @@ function checkUserSolution() {
 
 function generateSolvable(updateUI = true) {
     if (checkedCombinations.size >= TOTAL_POSSIBLE) {
-        updateFeedback("All combinations checked!", "#e74c3c");
+        if (updateUI) updateFeedback("All combinations checked!", "#e74c3c");
         return;
     }
     let randomNums, key, isSolvable = false;
     let attempts = 0;
     do {
+        isSolvable = false;
         randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1);
         key = [...randomNums].sort((a, b) => a - b).join(',');
         if (!checkedCombinations.has(key)) {
@@ -146,22 +147,27 @@ function generateSolvable(updateUI = true) {
             checkedCombinations.add(key);
             if (solution) isSolvable = true;
             else if (!unsolvableHistory.includes(key)) unsolvableHistory.push(key);
+        } else {
+            isSolvable = solvableHistory.includes(key);
         }
         attempts++;
     } while ((!isSolvable || solvableHistory.includes(key)) && attempts < 5000);
-    if (isSolvable) {
+    
+    if (isSolvable && !solvableHistory.includes(key)) {
         if (updateUI) {
             setInputs(randomNums);
             registerPuzzle(randomNums);
             clearSolutionArea();
             updateAddButtonState();
         } else {
-            // Register in history silently without navigating to it or changing the board
             solvableHistory.push(key);
             if (storageAllowed) {
                 localStorage.setItem('solvableHistory', JSON.stringify(solvableHistory));
             }
-            updateNavButtons();
+        }
+    } else {
+        if (updateUI) {
+            updateFeedback("Could not find a new puzzle. Try again!", "#e74c3c");
         }
     }
 }
@@ -173,6 +179,7 @@ function generateAll() {
     }
     const generatedCount = solvableHistory.length - initialCount;
     updateFeedback(`Generated ${generatedCount} new puzzles!`, "var(--success)");
+    updateNavButtons();
 }
 
 function navigateHistory(direction) {
