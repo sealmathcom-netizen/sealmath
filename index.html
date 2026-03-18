@@ -237,6 +237,7 @@
 
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
             <button class="btn-generate" onclick="generateSolvable()">New Puzzle</button>
+            <button class="btn-generate" onclick="generateAll()" style="background-color: var(--accent);">Generate All</button>
             <button class="btn-solve" onclick="runSolver()">Show Answer</button>
             <button id="btn-manual-add" class="btn-solve"
                     style="background-color: var(--blue); color: var(--dark); opacity: 0.5;" onclick="manualRegister()"
@@ -247,6 +248,11 @@
         <div class="nav-controls">
             <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)">&larr; Back</button>
             <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)">Next &rarr;</button>
+        </div>
+
+        <div id="goto-section" style="display: none; margin-top: 15px; justify-content: center; gap: 10px; align-items: center;">
+            <input type="number" id="goto-input" min="1" placeholder="#" style="width: 50px; height: 35px; font-size: 1rem;">
+            <button class="btn-nav" onclick="goToPuzzle()" style="max-width: 80px; padding: 8px;">Go</button>
         </div>
 
         <div class="solution-section">
@@ -439,6 +445,12 @@
         }
     }
 
+    function generateAll() {
+        for (let i = 0; i < 2000; i++) {
+            generateSolvable();
+        }
+    }
+
     function navigateHistory(direction) {
         const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
         if (list.length === 0) return;
@@ -454,6 +466,29 @@
         document.getElementById('btn-back').disabled = (currentHistoryIndex <= 0);
         document.getElementById('btn-next').disabled = (currentHistoryIndex >= list.length - 1 || list.length === 0);
         document.getElementById('puzzle-counter').innerText = `Puzzle #${list.length === 0 ? 0 : currentHistoryIndex + 1} of ${list.length}`;
+        
+        const gotoSection = document.getElementById('goto-section');
+        if (list.length >= 5) {
+            gotoSection.style.display = 'flex';
+            document.getElementById('goto-input').max = list.length;
+        } else {
+            gotoSection.style.display = 'none';
+        }
+    }
+
+    function goToPuzzle() {
+        const list = showingUnsolvable ? unsolvableHistory : solvableHistory;
+        const inputVal = parseInt(document.getElementById('goto-input').value);
+        if (isNaN(inputVal) || inputVal < 1 || inputVal > list.length) {
+            updateFeedback(`Please enter a number between 1 and ${list.length}`, "#e74c3c");
+            return;
+        }
+        currentHistoryIndex = inputVal - 1;
+        setInputs(list[currentHistoryIndex].split(',').map(Number));
+        clearSolutionArea();
+        updateNavButtons();
+        updateAddButtonState();
+        document.getElementById('goto-input').value = '';
     }
 
     function showPage(p) {
