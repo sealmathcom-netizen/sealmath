@@ -2,8 +2,8 @@ const translations = {
     "en": {
         "nav_game": "24 Challenge",
         "nav_fraction_capture": "Fraction Capture",
-        "nav_contact": "Contact",
-        "game_title": "The 24 Challenge",
+        "nav_contact": "Math Tutoring",
+        "game_title": "Math Tutoring",
         "capture_title": "Fraction Capture",
         "puzzle_counter": "Puzzle #{current} of {total}",
         "btn_new": "New Puzzle",
@@ -18,11 +18,26 @@ const translations = {
         "btn_clear_hist": "Clear All History",
         "btn_rules": "How to Play",
         "btn_show_sol": "Show Solution",
-        "contact_title": "Contact SealMath",
+        "contact_title": "Math Lessons",
+        "tutoring_desc": "I offer personalized math tutoring for students of all ages. Whether you need help with algebra, geometry or anything else — I'm here to help. Send me a message and let's get started!",
+
+        "contact_subtitle": "Interested in personalized math lessons? Fill in the form and I'll get back to you!",
         "lbl_name": "Name",
         "lbl_email": "Email",
-        "lbl_message": "Message",
-        "btn_send": "Send Message",
+        "lbl_grade": "Grade / Age",
+        "lbl_grade_placeholder": "Select grade or age…",
+        "lbl_topics": "Topics of interest",
+        "topic_fractions": "Fractions",
+        "topic_mental": "Mental Math",
+        "topic_algebra": "Algebra",
+        "topic_geometry": "Geometry",
+        "topic_other": "Other",
+        "lbl_format": "Preferred format",
+        "format_online": "Online",
+        "format_inperson": "In-Person",
+        "format_either": "Either",
+        "lbl_message": "Any extra info",
+        "btn_send": "Send Request",
         "ph_expr": "(4 + 8) * (8 - 6)",
 
         // JS Feedback Messages
@@ -38,7 +53,7 @@ const translations = {
         "msg_no_solution": "No solution found.",
         "msg_solution_found": "Solution: {sol}",
         "msg_sending": "Sending...",
-        "msg_sent_success": "Message sent!",
+        "msg_sent_success": "Request sent!",
         "msg_sent_fail": "Failed to send.",
         "msg_del_confirm": "Delete all saved puzzles?",
         "msg_hist_cleared": "History Cleared",
@@ -53,11 +68,12 @@ const translations = {
         "rules_text_capture": "• Pick exactly 2 ingredient fractions.\n• Select an operator (+, -, *, /).\n• The goal is to reach the Target Fraction in the Pot.\n• Example: 1/2 + 1/4 = 3/4.\n• Order matters for Subtraction and Division!",
         "msg_sol_is": "Solution: {sol}"
     },
+
     "he": {
         "nav_game": "אתגר ה-24",
         "nav_fraction_capture": "לכידת שברים",
-        "nav_contact": "צור קשר",
-        "game_title": "אתגר ה-24",
+        "nav_contact": "שיעורים פרטיים",
+        "game_title": "שיעורים פרטיים (Private Lessons)",
         "capture_title": "לכידת שברים",
         "puzzle_counter": "חידה #{current} מתוך {total}",
         "btn_new": "חידה חדשה",
@@ -72,11 +88,26 @@ const translations = {
         "btn_clear_hist": "נקה היסטוריה",
         "btn_rules": "איך משחקים",
         "btn_show_sol": "הצג פתרון",
-        "contact_title": "צור קשר עם SealMath",
+        "contact_title": "שיעורי מתמטיקה",
+        "tutoring_desc": "אני מציע שיעורי מתמטיקה פרטיים לתלמידים בכל הגילאות. בין אם אתה/י צריך/צריכה עזרה באלגברה, גיאומטריה או כל דבר אחר — אני פה לעזור. שלח/י הודעה ונתחיל!",
+
+        "contact_subtitle": "מעוניין/ת בשיעורים פרטיים במתמטיקה? מלא/י את הטופס ואחזור אליך!",
         "lbl_name": "שם",
         "lbl_email": "אימייל",
-        "lbl_message": "הודעה",
-        "btn_send": "שלח הודעה",
+        "lbl_grade": "כיתה / גיל",
+        "lbl_grade_placeholder": "בחר כיתה או גיל…",
+        "lbl_topics": "נושאים מעניינים",
+        "topic_fractions": "שברים",
+        "topic_mental": "חשבון בראש",
+        "topic_algebra": "אלגברה",
+        "topic_geometry": "גיאומטריה",
+        "topic_other": "אחר",
+        "lbl_format": "פורמט מועדף",
+        "format_online": "אונליין",
+        "format_inperson": "פיזי",
+        "format_either": "כל אחד מהם",
+        "lbl_message": "מידע נוסף",
+        "btn_send": "שלח בקשה",
         "ph_expr": "(4 + 8) * (8 - 6)",
 
         // JS Feedback Messages
@@ -92,7 +123,7 @@ const translations = {
         "msg_no_solution": "לא נמצא פתרון.",
         "msg_solution_found": "פתרון: {sol}",
         "msg_sending": "שולח...",
-        "msg_sent_success": "ההודעה נשלחה!",
+        "msg_sent_success": "הבקשה נשלחה!",
         "msg_sent_fail": "השליחה נכשלה.",
         "msg_del_confirm": "האם למחוק את כל החידות השמורות?",
         "msg_hist_cleared": "היסטוריה נוקתה",
@@ -107,11 +138,12 @@ const translations = {
         "rules_text_capture": "• בחר בדיוק 2 מרכיבי שברים.\n• בחר פעולת חשבון (+, -, *, /).\n• המטרה היא להגיע לשבר המטרה המוצג בכד.\n• דוגמה: 1/2 + 1/4 = 3/4.\n• הסדר משנה בחיסור ובחילוק!",
         "msg_sol_is": "פתרון: {sol}"
     },
+
     "nl": {
         "nav_game": "24 Uitdaging",
         "nav_fraction_capture": "Breuken Vangen",
-        "nav_contact": "Contact",
-        "game_title": "De 24 Uitdaging",
+        "nav_contact": "Wiskunde Bijles",
+        "game_title": "Wiskunde Bijles (Math Tutoring)",
         "capture_title": "Breuken Vangen",
         "puzzle_counter": "Puzzel #{current} van {total}",
         "btn_new": "Nieuwe Puzzel",
@@ -126,11 +158,26 @@ const translations = {
         "btn_clear_hist": "Geschiedenis Wissen",
         "btn_rules": "Hoe te Spelen",
         "btn_show_sol": "Oplossing Tonen",
-        "contact_title": "Neem Contact op met SealMath",
+        "contact_title": "Wiskunde Lessen",
+        "tutoring_desc": "Ik geef persoonlijke wiskundebijles aan leerlingen van alle leeftijden. Of je nu hulp nodig hebt bij algebra, meetkunde of iets anders — ik help je graag. Stuur me een bericht en we beginnen!",
+
+        "contact_subtitle": "Geïnteresseerd in persoonlijke wiskunde lessen? Vul het formulier in en ik neem contact met je op!",
         "lbl_name": "Naam",
         "lbl_email": "E-mail",
-        "lbl_message": "Bericht",
-        "btn_send": "Stuur Bericht",
+        "lbl_grade": "Klas / Leeftijd",
+        "lbl_grade_placeholder": "Selecteer klas of leeftijd…",
+        "lbl_topics": "Interessante onderwerpen",
+        "topic_fractions": "Breuken",
+        "topic_mental": "Hoofdrekenen",
+        "topic_algebra": "Algebra",
+        "topic_geometry": "Meetkunde",
+        "topic_other": "Anders",
+        "lbl_format": "Voorkeur",
+        "format_online": "Online",
+        "format_inperson": "In persoon",
+        "format_either": "Beide",
+        "lbl_message": "Extra info",
+        "btn_send": "Verzoek versturen",
         "ph_expr": "(4 + 8) * (8 - 6)",
 
         // JS Feedback Messages
@@ -146,7 +193,7 @@ const translations = {
         "msg_no_solution": "Geen oplossing gevonden.",
         "msg_solution_found": "Oplossing: {sol}",
         "msg_sending": "Verzenden...",
-        "msg_sent_success": "Bericht verzonden!",
+        "msg_sent_success": "Verzoek verzonden!",
         "msg_sent_fail": "Verzenden mislukt.",
         "msg_del_confirm": "Alle opgeslagen puzzels verwijderen?",
         "msg_hist_cleared": "Geschiedenis Gewist",
@@ -162,6 +209,7 @@ const translations = {
         "msg_sol_is": "Oplossing: {sol}"
     }
 };
+
 
 let currentLang = 'en';
 

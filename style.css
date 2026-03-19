@@ -636,7 +636,25 @@ button:hover {
     transform: scale(1.1);
 }
 
+/* ======= Tutoring Intro ======= */
+.tutoring-intro {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: var(--dark);
+}
+
+[dir="rtl"] .tutoring-intro {
+    border-left: none;
+    border-right: 4px solid var(--accent);
+}
+
 #expr-preview {
+
     display: flex;
     justify-content: center;
     align-items: center;

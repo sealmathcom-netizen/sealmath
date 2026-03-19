@@ -47,13 +47,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 function restoreActiveTab() {
-    const savedTab = localStorage.getItem('activeTab');
-    if (savedTab && storageAllowed) {
-        showPage(savedTab);
+    // Priority: URL hash → localStorage → default 'game'
+    const hashMap = { '#game': 'game', '#capture': 'capture', '#lessons': 'contact' };
+    const fromHash = hashMap[window.location.hash];
+    if (fromHash) {
+        showPage(fromHash);
+    } else if (storageAllowed && localStorage.getItem('activeTab')) {
+        showPage(localStorage.getItem('activeTab'));
     } else {
         showPage('game');
     }
 }
+
+// Allow browser back/forward to navigate between pages
+window.addEventListener('hashchange', () => {
+    const hashMap = { '#game': 'game', '#capture': 'capture', '#lessons': 'contact' };
+    const p = hashMap[window.location.hash];
+    if (p) showPage(p);
+});
+
+
 
 
 function updateAddButtonState() {
@@ -288,7 +301,10 @@ function showPage(p) {
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
     if (document.getElementById('link-' + p)) document.getElementById('link-' + p).classList.add('active');
     if (storageAllowed) localStorage.setItem('activeTab', p);
-    
+
+    // Sync the URL hash (without adding a scroll jump)
+    history.replaceState(null, '', '#' + (p === 'contact' ? 'lessons' : p));
+
     if (p === 'capture') {
         if (captureIngredients.length === 0) initFractionCapture();
         else {
@@ -297,6 +313,7 @@ function showPage(p) {
         }
     }
 }
+
 
 
 

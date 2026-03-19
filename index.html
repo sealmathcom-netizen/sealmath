@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>24 Game & Fraction Capture – Play Online | SealMath</title>
+    <title>Math Tutoring</title>
     <meta name="description"
-        content="Play the 24 game online and try Fraction Capture. Solve puzzles using + − × ÷, practice fast math, and use a built-in solver. Free on SealMath.">
+        content="Math lessons and tutoring with SealMath. Plus, enjoy the 24 game and Fraction Capture as free math practice tools.">
     <link rel="icon" type="image/x-icon" href="favicon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="/manifest.json">
@@ -16,10 +16,9 @@
 <body>
 
     <nav>
-        <a href="#" id="link-game" class="active" onclick="showPage('game')" data-i18n="nav_game">24 Challenge</a>
-        <a href="#" id="link-capture" onclick="showPage('capture')" data-i18n="nav_fraction_capture">Fraction
-            Capture</a>
-        <a href="#" id="link-contact" onclick="showPage('contact')" data-i18n="nav_contact">Contact</a>
+        <a href="#game" id="link-game" class="active" onclick="showPage('game')" data-i18n="nav_game">24 Challenge</a>
+        <a href="#capture" id="link-capture" onclick="showPage('capture')" data-i18n="nav_fraction_capture">Fraction Capture</a>
+        <a href="#lessons" id="link-contact" onclick="showPage('contact')" data-i18n="nav_contact">Math Tutoring</a>
         <select id="lang-switcher" onchange="setLanguage(this.value)"
             style="margin-left: auto; padding: 4px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 2px solid var(--dark); background: transparent;">
             <option value="en">🇺🇸 EN</option>
@@ -33,8 +32,7 @@
             <input type="checkbox" id="storage-toggle" onchange="toggleStoragePreference()">
             <span data-i18n="chk_remember">Remember my puzzle history</span>
         </label>
-        <button onclick="clearAllHistory()" class="btn-clear-minimal" data-i18n="btn_clear_hist">Clear All
-            History</button>
+        <button onclick="clearAllHistory()" class="btn-clear-minimal" data-i18n="btn_clear_hist">Clear All History</button>
     </div>
 
 
@@ -61,8 +59,7 @@
                     style="background-color: var(--blue); color: var(--dark); opacity: 0.5;" onclick="manualRegister()"
                     disabled data-i18n="btn_add_hist">Add to History
                 </button>
-                <button class="btn-solve btn-rules" onclick="toggleRules('24')" data-i18n="btn_rules">How to
-                    Play</button>
+                <button class="btn-solve btn-rules" onclick="toggleRules('24')" data-i18n="btn_rules">How to Play</button>
             </div>
 
             <div id="rules-24" class="rules-box" style="display: none;">
@@ -71,10 +68,8 @@
             </div>
 
             <div class="nav-controls">
-                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" data-i18n="btn_back">&larr;
-                    Back</button>
-                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" data-i18n="btn_next">Next
-                    &rarr;</button>
+                <button id="btn-back" class="btn-nav" onclick="navigateHistory(-1)" data-i18n="btn_back">&larr; Back</button>
+                <button id="btn-next" class="btn-nav" onclick="navigateHistory(1)" data-i18n="btn_next">Next &rarr;</button>
             </div>
 
             <div id="goto-section"
@@ -98,7 +93,6 @@
 
         </div>
     </section>
-
 
 
     <section id="capture-page" class="page">
@@ -127,7 +121,6 @@
                 <!-- Expression like 1/2 + 1/4 will appear here -->
             </div>
 
-
             <div id="fraction-board" class="fraction-board">
                 <div id="ing-slot-0"></div>
                 <button id="op-add" class="op-btn" onclick="selectOp('+')">+</button>
@@ -139,9 +132,7 @@
                 <div id="ing-slot-3"></div>
             </div>
 
-
             <div id="capture-feedback" style="margin-top: 20px; font-weight: bold; min-height: 24px;"></div>
-
 
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn-generate" onclick="initFractionCapture()"
@@ -153,12 +144,12 @@
         </div>
     </section>
 
-    <!-- No more Modal -->
-
     <section id="contact-page" class="page">
-
         <div class="container" style="max-width: 500px;">
-            <h2 style="text-align: center;" data-i18n="contact_title">Contact SealMath</h2>
+            <h1 style="text-align: center; font-size: 1.8rem; margin-top: 0;" data-i18n="contact_title">Math Lessons</h1>
+            <div class="tutoring-intro">
+                <p data-i18n="tutoring_desc">I offer personalized math tutoring for students of all ages. Whether you need help with algebra, geometry or anything else — I'm here to help. Send me a message and let's get started!</p>
+            </div>
             <form id="contact-form">
                 <label data-i18n="lbl_name">Name</label><input type="text" name="from_name" required />
                 <label data-i18n="lbl_email">Email</label><input type="email" name="reply_to" required />
@@ -168,6 +159,7 @@
             <div id="status" style="margin-top:12px; text-align: center; font-weight: bold;"></div>
         </div>
     </section>
+
 
     <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="script.js"></script>
