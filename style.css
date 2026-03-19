@@ -325,6 +325,18 @@ button:hover {
     font-family: inherit;
 }
 
+/* Hebrew/RTL: keep labels and typed text aligned to the right */
+html[dir="rtl"] #contact-form label {
+    text-align: right;
+}
+
+html[dir="rtl"] #contact-form input,
+html[dir="rtl"] #contact-form textarea {
+    text-align: right;
+    direction: rtl;
+    unicode-bidi: plaintext;
+}
+
 .btn-goto-highlight {
     background-color: var(--success) !important;
     transform: scale(1.08);
