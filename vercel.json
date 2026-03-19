@@ -1,13 +1,15 @@
 {
   "redirects": [
     {
-      "source": "http://www.sealmath.com/:path*",
-      "destination": "https://sealmath.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "http://sealmath.com/:path*",
-      "destination": "https://sealmath.com/:path*",
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "x-forwarded-proto",
+          "value": "http"
+        }
+      ],
+      "destination": "https://sealmath.com/$1",
       "permanent": true
     }
   ]
