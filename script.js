@@ -346,6 +346,26 @@ function runSolver() {
     updateAddButtonState();
 }
 
+// Auto-direction for contact form fields: Hebrew text RTL, others LTR
+function autoDirForContactField(el) {
+    const val = el.value || "";
+    const hasHebrew = /[\u0590-\u05FF]/.test(val);
+    if (hasHebrew) {
+        el.dir = 'rtl';
+        el.style.textAlign = 'right';
+    } else {
+        el.dir = 'ltr';
+        el.style.textAlign = 'left';
+    }
+}
+
+document.getElementById('contact-form').addEventListener('input', function (event) {
+    const target = event.target;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+        autoDirForContactField(target);
+    }
+});
+
 document.getElementById('contact-form').addEventListener('submit', function (event) {
     event.preventDefault();
     const btn = this.querySelector('button');

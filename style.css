@@ -337,6 +337,13 @@ html[dir="rtl"] #contact-form textarea {
     unicode-bidi: plaintext;
 }
 
+html[dir="ltr"] #contact-form input,
+html[dir="ltr"] #contact-form textarea {
+    text-align: left;
+    direction: ltr;
+    unicode-bidi: plaintext;
+}
+
 .btn-goto-highlight {
     background-color: var(--success) !important;
     transform: scale(1.08);
