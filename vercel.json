@@ -1,0 +1,14 @@
+{
+  "redirects": [
+    {
+      "source": "http://www.sealmath.com/:path*",
+      "destination": "https://sealmath.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "http://sealmath.com/:path*",
+      "destination": "https://sealmath.com/:path*",
+      "permanent": true
+    }
+  ]
+}
