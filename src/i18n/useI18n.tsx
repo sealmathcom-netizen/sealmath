@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import type { Lang } from './translations'
 import { translations } from './translations'
 
@@ -18,7 +18,15 @@ function applyDir(lang: Lang) {
   document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr'
 }
 
-export function useI18n() {
+interface I18nContextType {
+  lang: Lang
+  setLang: (lang: Lang) => void
+  t: (key: string, params?: Record<string, string | number>) => string
+}
+
+const I18nContext = createContext<I18nContextType | null>(null)
+
+export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [lang, setLang] = useState<Lang>(() => detectDefaultLanguage())
 
   useEffect(() => {
@@ -33,12 +41,22 @@ export function useI18n() {
       for (const [k, v] of Object.entries(params)) {
         str = str.replace(`{${k}}`, String(v))
       }
-      // The original legacy app used &larr; &rarr; inside strings.
-      // We keep them as-is and let React render them as HTML via dangerouslySetInnerHTML when needed.
       return str
     }
   }, [lang])
 
-  return { lang, setLang, t }
+  return (
+    <I18nContext.Provider value={{ lang, setLang, t }}>
+      {children}
+    </I18nContext.Provider>
+  )
+}
+
+export function useI18n() {
+  const ctx = useContext(I18nContext)
+  if (!ctx) {
+    throw new Error('useI18n must be used within an I18nProvider')
+  }
+  return ctx
 }
 
