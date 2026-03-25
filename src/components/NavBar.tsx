@@ -39,7 +39,7 @@ export default function NavBar({ lang, onChangeLang, t }: Props) {
         value={lang}
         onChange={(e) => onChangeLang(e.target.value as Lang)}
         style={{
-          marginLeft: 'auto',
+          marginInlineStart: 'auto',
           padding: '4px',
           borderRadius: '8px',
           fontWeight: 'bold',
