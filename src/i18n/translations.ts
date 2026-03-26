@@ -81,6 +81,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_btn_twostep: 'Two-Step Equations',
     algebra_twostep_desc: 'For two-step equations like <strong>2x + 5 = 10</strong>, you must solve them in two phases. First, isolate the term with <strong>x</strong>. Second, solve for <strong>x</strong>. Decimal answers are allowed!',
     algebra_twostep_ex1: '<strong>Example:</strong> <code style="font-family: var(--mono)">2x + 5 = 10</code> <br/><strong>Phase 1:</strong> Subtract 5 from both sides to get <code style="font-family: var(--mono)">2x = 5</code>.<br/><strong>Phase 2:</strong> Divide by 2 to get <code style="font-family: var(--mono)">x = 2.5</code>.',
+    algebra_twostep_err1: '❌ Phase 1 is incorrect.',
+    algebra_twostep_err2: '❌ Phase 1 is good, but Phase 2 is incorrect. Try again!',
   },
   he: {
     nav_game: 'אתגר ה-24',
@@ -162,6 +164,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_btn_twostep: 'משוואות בשני שלבים',
     algebra_twostep_desc: 'במשוואות בשני שלבים כמו <strong>2x + 5 = 10</strong>, יש לפתור בשני שלבים. תחילה בודד את האיבר עם <strong>x</strong>. לאחר מכן פתור עבור <strong>x</strong>. ניתן להזין תשובות עשרוניות!',
     algebra_twostep_ex1: '<strong>דוגמה:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">2x + 5 = 10</code> <br/><strong>שלב 1:</strong> חסר 5 משני הצדדים ותקבל <code dir="ltr" style="font-family: var(--mono); display: inline-block;">2x = 5</code>.<br/><strong>שלב 2:</strong> חלק ב-2 ותקבל <code dir="ltr" style="font-family: var(--mono); display: inline-block;">x = 2.5</code>.',
+    algebra_twostep_err1: '❌ שלב 1 אינו נכון.',
+    algebra_twostep_err2: '❌ שלב 1 נכון, אבל שלב 2 שגוי. נסה שוב!',
   },
   nl: {
     nav_game: '24 Uitdaging',
@@ -243,6 +247,8 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_btn_twostep: 'Tweestapsvergelijkingen',
     algebra_twostep_desc: 'Voor tweestapsvergelijkingen zoals <strong>2x + 5 = 10</strong>, moet je in twee fasen oplossen. Eerst isoleer je de term met <strong>x</strong>. Daarna los je op voor <strong>x</strong>. Decimale antwoorden zijn toegestaan!',
     algebra_twostep_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">2x + 5 = 10</code> <br/><strong>Fase 1:</strong> Trek 5 af aan beide kanten om <code style="font-family: var(--mono)">2x = 5</code> te krijgen.<br/><strong>Fase 2:</strong> Deel door 2 om <code style="font-family: var(--mono)">x = 2.5</code> te krijgen.',
+    algebra_twostep_err1: '❌ Fase 1 is onjuist.',
+    algebra_twostep_err2: '❌ Fase 1 is correct, maar Fase 2 is onjuist. Probeer opnieuw!',
   },
 }
 

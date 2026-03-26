@@ -206,7 +206,10 @@ function TwoStepAlgebraWindow({
     const v2 = Number(ans2);
     if (ans1.trim() === '' || ans2.trim() === '') return;
 
-    if (v1 === problem.step1Ans && v2 === problem.step2Ans) {
+    const isPhase1Correct = Math.abs(v1 - problem.step1Ans) < 0.001;
+    const isPhase2Correct = Math.abs(v2 - problem.step2Ans) < 0.01;
+
+    if (isPhase1Correct && isPhase2Correct) {
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
@@ -216,10 +219,20 @@ function TwoStepAlgebraWindow({
         setAns2('');
         setResultMsg('');
       }, 1000);
+    } else if (!isPhase1Correct) {
+      setResultMsg(t('algebra_twostep_err1') || t('algebra_incorrect'));
+      setResultColor("var(--error, red)");
     } else {
-      setResultMsg(t('algebra_incorrect'));
+      setResultMsg(t('algebra_twostep_err2') || t('algebra_incorrect'));
       setResultColor("var(--error, red)");
     }
+  };
+
+  const showSolution = () => {
+    if (!problem) return;
+    setAns1(String(problem.step1Ans));
+    setAns2(String(Math.round(problem.step2Ans * 100) / 100));
+    setResultMsg('');
   };
 
   if (!problem) return null;
@@ -268,9 +281,12 @@ function TwoStepAlgebraWindow({
           />
         </div>
         
-        <div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
           <button className="btn-check" onClick={checkBothAnswers} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem' }}>
             {t('algebra_check_ans')}
+          </button>
+          <button onClick={showSolution} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem', background: '#e74c3c', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>
+            {t('btn_show_sol') || 'Show Solution'}
           </button>
         </div>
 
