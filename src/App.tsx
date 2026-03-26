@@ -5,6 +5,7 @@ import NavBar from './components/NavBar'
 import GamePage from './pages/GamePage'
 import CapturePage from './pages/CapturePage'
 import ContactPage from './pages/ContactPage'
+import AlgebraPage from './pages/AlgebraPage'
 
 function App() {
   const { lang, setLang, t } = useI18n()
@@ -33,6 +34,7 @@ function App() {
       <Routes>
         <Route path="/" element={<GamePage storageAllowed={storageAllowed} setStorageAllowed={setStorageAllowed} />} />
         <Route path="/capture" element={<CapturePage storageAllowed={storageAllowed} />} />
+        <Route path="/algebra" element={<AlgebraPage />} />
         <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </>

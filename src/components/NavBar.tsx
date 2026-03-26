@@ -27,6 +27,13 @@ export default function NavBar({ lang, onChangeLang, t }: Props) {
       </NavLink>
 
       <NavLink
+        to="/algebra"
+        className={({ isActive }) => (isActive ? 'active' : '')}
+      >
+        Algebra Basics
+      </NavLink>
+
+      <NavLink
         to="/contact"
         className={({ isActive }) => (isActive ? 'active' : '')}
         data-i18n="nav_contact"
