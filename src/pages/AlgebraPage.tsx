@@ -88,7 +88,7 @@ function AlgebraWindow({
       </div>
 
       {showExample && (
-        <div style={{ textAlign: 'left', background: '#fdfaf6', border: '1px solid #e9d8c4', borderRadius: '8px', padding: '15px', marginBottom: '20px' }}>
+        <div style={{ textAlign: 'start', background: '#fdfaf6', border: '1px solid #e9d8c4', borderRadius: '8px', padding: '15px', marginBottom: '20px' }}>
           {exampleContent}
         </div>
       )}
@@ -146,7 +146,7 @@ export default function AlgebraPage() {
   const addSubExamples = (
     <>
       <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_addsub_desc') }} />
-      <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingLeft: '20px', color: '#555' }}>
+      <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingInlineStart: '20px', color: '#555' }}>
         <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_addsub_ex1') }} />
         <li dangerouslySetInnerHTML={{ __html: t('algebra_addsub_ex2') }} />
       </ul>
@@ -156,7 +156,7 @@ export default function AlgebraPage() {
   const mulDivExamples = (
     <>
       <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_desc') }} />
-      <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingLeft: '20px', color: '#555' }}>
+      <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingInlineStart: '20px', color: '#555' }}>
         <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_ex1') }} />
         <li dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_ex2') }} />
       </ul>
