@@ -206,8 +206,9 @@ function TwoStepAlgebraWindow({
     const v2 = Number(ans2);
     if (ans1.trim() === '' || ans2.trim() === '') return;
 
-    const isPhase1Correct = Math.abs(v1 - problem.step1Ans) < 0.001;
-    const isPhase2Correct = Math.abs(v2 - problem.step2Ans) < 0.01;
+    const isPhase1Correct = v1 === problem.step1Ans;
+    const expectedRounded2 = Math.round((problem.step2Ans + Number.EPSILON) * 100) / 100;
+    const isPhase2Correct = (v2 === expectedRounded2) || (v2 === problem.step2Ans);
 
     if (isPhase1Correct && isPhase2Correct) {
       setResultMsg(t('algebra_correct'));
