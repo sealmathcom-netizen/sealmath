@@ -214,7 +214,7 @@ export default function AlgebraPage() {
                 transform: activeTab === 'addsub' ? 'scale(1.02)' : 'scale(1)'
               }}
             >
-              + and -
+              Addition & Subtraction
             </button>
             <button 
               onClick={() => setActiveTab('muldiv')}
@@ -233,7 +233,7 @@ export default function AlgebraPage() {
                 transform: activeTab === 'muldiv' ? 'scale(1.02)' : 'scale(1)'
               }}
             >
-              * and /
+              Multiplication & Division
             </button>
           </div>
 
