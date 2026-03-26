@@ -30,7 +30,7 @@ export default function NavBar({ lang, onChangeLang, t }: Props) {
         to="/algebra"
         className={({ isActive }) => (isActive ? 'active' : '')}
       >
-        Algebra Basics
+        {t('nav_algebra')}
       </NavLink>
 
       <NavLink

@@ -1,69 +1,78 @@
-import { useState, ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
+import { useI18n } from '../i18n/useI18n';
 
-const addSubLevels = [
-  { q: "x + 3 = 5", a: 2 },
-  { q: "x + 7 = 10", a: 3 },
-  { q: "x - 4 = 6", a: 10 },
-  { q: "x + 5 = 12", a: 7 },
-  { q: "x - 2 = 8", a: 10 },
-  { q: "x + 8 = 15", a: 7 },
-  { q: "x - 5 = 4", a: 9 },
-  { q: "x + 9 = 20", a: 11 },
-  { q: "x - 7 = 3", a: 10 },
-  { q: "x + 6 = 14", a: 8 },
-  { q: "x - 9 = 11", a: 20 },
-  { q: "x + 10 = 25", a: 15 },
-];
+type Problem = { q: string, a: number };
 
-const mulDivLevels = [
-  { q: "2x = 8", a: 4 },
-  { q: "3x = 15", a: 5 },
-  { q: "x / 2 = 6", a: 12 },
-  { q: "4x = 24", a: 6 },
-  { q: "x / 3 = 5", a: 15 },
-  { q: "5x = 35", a: 7 },
-  { q: "x / 4 = 3", a: 12 },
-  { q: "6x = 42", a: 7 },
-  { q: "x / 5 = 4", a: 20 },
-  { q: "7x = 56", a: 8 },
-  { q: "x / 6 = 2", a: 12 },
-  { q: "8x = 72", a: 9 },
-];
+function generateAddSubProblem(): Problem {
+  const isAdd = Math.random() > 0.5;
+  const x = Math.floor(Math.random() * 20) + 1;
+  const a = Math.floor(Math.random() * 20) + 1;
+  if (isAdd) {
+    return { q: `x + ${a} = ${x + a}`, a: x };
+  } else {
+    // Ensure final answer is non-negative conceptually though x is the answer
+    const newX = x + a; // newX is the answer
+    return { q: `x - ${a} = ${newX - a}`, a: newX };
+  }
+}
 
-function AlgebraWindow({ levels, title, exampleContent }: { levels: {q: string, a: number}[], title: string, exampleContent: ReactNode }) {
-  const [current, setCurrent] = useState(0);
+function generateMulDivProblem(): Problem {
+  const isMul = Math.random() > 0.5;
+  const a = Math.floor(Math.random() * 9) + 2; // 2 to 10
+  if (isMul) {
+    const x = Math.floor(Math.random() * 12) + 1; // 1 to 12
+    return { q: `${a}x = ${a * x}`, a: x };
+  } else {
+    const b = Math.floor(Math.random() * 12) + 1; // 1 to 12
+    const x = a * b; // Answer
+    return { q: `x / ${a} = ${b}`, a: x };
+  }
+}
+
+function AlgebraWindow({ 
+  generateProblem, 
+  title, 
+  exampleContent,
+  t
+}: { 
+  generateProblem: () => Problem, 
+  title: string, 
+  exampleContent: ReactNode,
+  t: any
+}) {
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const [solvedCount, setSolvedCount] = useState(0);
   const [answer, setAnswer] = useState('');
   const [resultMsg, setResultMsg] = useState('');
   const [resultColor, setResultColor] = useState('');
   const [showExample, setShowExample] = useState(false);
 
-  const finished = current >= levels.length;
+  useEffect(() => {
+    setProblem(generateProblem());
+  }, [generateProblem]);
 
   const checkAnswer = () => {
-    if (finished) return;
+    if (!problem) return;
     const userAnswer = Number(answer);
-    const correct = levels[current].a;
+    if (answer.trim() === '') return;
 
-    if (userAnswer === correct) {
-      setResultMsg("✅ Correct! Seal is happy 🦭");
+    if (userAnswer === problem.a) {
+      setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
 
-      if (current + 1 < levels.length) {
-        setTimeout(() => {
-          setCurrent((c: number) => c + 1);
-          setAnswer('');
-          setResultMsg('');
-        }, 1000);
-      } else {
-        setTimeout(() => {
-          setCurrent((c: number) => c + 1);
-        }, 1000);
-      }
+      setTimeout(() => {
+        setSolvedCount(c => c + 1);
+        setProblem(generateProblem());
+        setAnswer('');
+        setResultMsg('');
+      }, 1000);
     } else {
-      setResultMsg("❌ Try again — think step by step");
+      setResultMsg(t('algebra_incorrect'));
       setResultColor("var(--error, red)");
     }
   };
+
+  if (!problem) return null;
 
   return (
     <div className="rules-box" style={{ flex: 1, textAlign: 'center', marginTop: '0', position: 'relative', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
@@ -74,7 +83,7 @@ function AlgebraWindow({ levels, title, exampleContent }: { levels: {q: string, 
           onClick={() => setShowExample(!showExample)} 
           style={{ padding: '8px 12px', borderRadius: '6px', background: showExample ? '#dcdde1' : 'var(--accent)', color: showExample ? '#333' : '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
         >
-          {showExample ? 'Hide Examples' : 'Show Examples'}
+          {showExample ? t('algebra_hide_examples') : t('algebra_show_examples')}
         </button>
       </div>
 
@@ -84,106 +93,72 @@ function AlgebraWindow({ levels, title, exampleContent }: { levels: {q: string, 
         </div>
       )}
 
-      {finished ? (
-         <div style={{ padding: '40px 0', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-           <h2 style={{ color: 'var(--success, green)', margin: '0 0 10px' }}>🎉 {title} Complete!</h2>
-           <p style={{ fontSize: '1.2rem' }}>Seal says: You mastered this topic!</p>
-           <div>
-             <button 
-               onClick={() => setCurrent(0)} 
-               style={{ marginTop: '15px', background: 'var(--accent)', padding: '10px 20px', borderRadius: '8px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
-             >
-               Play Again
-             </button>
-           </div>
-         </div>
-      ) : (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <p id="level" style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '5px' }}>
-            Level {current + 1} / {levels.length}
-          </p>
-          
-          <div className="question" style={{ fontSize: '36px', margin: '20px 0', fontFamily: 'var(--mono)', color: 'var(--dark)' }}>
-            {levels[current].q}
-          </div>
-
-          <input
-            type="number"
-            value={answer}
-            onChange={e => setAnswer(e.target.value)}
-            style={{
-              padding: '12px',
-              fontSize: '1.5rem',
-              width: '120px',
-              textAlign: 'center',
-              borderRadius: '8px',
-              border: '2px solid #ccc',
-              margin: '0 auto',
-              display: 'block',
-              outline: 'none',
-              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
-            }}
-            onKeyDown={e => e.key === 'Enter' && checkAnswer()}
-          />
-          <br />
-          <div>
-            <button className="btn-check" onClick={checkAnswer} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem' }}>
-              Check Answer
-            </button>
-          </div>
-
-          <div style={{ minHeight: '30px', marginTop: '15px' }}>
-            {resultMsg && (
-              <p className="result" style={{ margin: 0, fontWeight: 'bold', color: resultColor, fontSize: '1.1rem' }}>
-                {resultMsg}
-              </p>
-            )}
-          </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <p id="level" style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '5px' }}>
+          {t('algebra_level').replace('{count}', String(solvedCount))}
+        </p>
+        
+        <div className="question" style={{ fontSize: '36px', margin: '20px 0', fontFamily: 'var(--mono)', color: 'var(--dark)', direction: 'ltr' }}>
+          {problem.q}
         </div>
-      )}
+
+        <input
+          type="number"
+          value={answer}
+          onChange={e => setAnswer(e.target.value)}
+          style={{
+            padding: '12px',
+            fontSize: '1.5rem',
+            width: '120px',
+            textAlign: 'center',
+            borderRadius: '8px',
+            border: '2px solid #ccc',
+            margin: '0 auto',
+            display: 'block',
+            outline: 'none',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+          }}
+          onKeyDown={e => e.key === 'Enter' && checkAnswer()}
+        />
+        <br />
+        <div>
+          <button className="btn-check" onClick={checkAnswer} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem' }}>
+            {t('algebra_check_ans')}
+          </button>
+        </div>
+
+        <div style={{ minHeight: '30px', marginTop: '15px' }}>
+          {resultMsg && (
+            <p className="result" style={{ margin: 0, fontWeight: 'bold', color: resultColor, fontSize: '1.1rem' }}>
+              {resultMsg}
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
 export default function AlgebraPage() {
   const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv'>('addsub');
+  const { t } = useI18n();
 
   const addSubExamples = (
     <>
-      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }}>
-        When solving an equation, your goal is to get <strong>x</strong> by itself. You do this by performing the <strong>opposite mathematical operation</strong> on both sides of the equal sign.
-      </p>
+      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_addsub_desc') }} />
       <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingLeft: '20px', color: '#555' }}>
-        <li style={{ marginBottom: '10px' }}>
-          <strong>Example 1:</strong> <code style={{fontFamily: 'var(--mono)'}}>x + 3 = 5</code> <br/>
-          Since 3 is being <em>added</em> to x, we do the opposite: <strong>subtract 3</strong> from both sides.<br/>
-          <code style={{fontFamily: 'var(--mono)'}}>x = 5 - 3 ➔ x = 2</code>
-        </li>
-        <li>
-          <strong>Example 2:</strong> <code style={{fontFamily: 'var(--mono)'}}>x - 4 = 6</code> <br/>
-          Since 4 is being <em>subtracted</em> from x, we do the opposite: <strong>add 4</strong> to both sides.<br/>
-          <code style={{fontFamily: 'var(--mono)'}}>x = 6 + 4 ➔ x = 10</code>
-        </li>
+        <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_addsub_ex1') }} />
+        <li dangerouslySetInnerHTML={{ __html: t('algebra_addsub_ex2') }} />
       </ul>
     </>
   );
 
   const mulDivExamples = (
     <>
-      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }}>
-        Just like before, we use the <strong>opposite operation</strong> to isolate <strong>x</strong>.
-      </p>
+      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_desc') }} />
       <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingLeft: '20px', color: '#555' }}>
-        <li style={{ marginBottom: '10px' }}>
-          <strong>Example 1:</strong> <code style={{fontFamily: 'var(--mono)'}}>3x = 12</code> <br/>
-          Here, x is <em>multiplied</em> by 3. The opposite is <strong>dividing by 3</strong> on both sides.<br/>
-          <code style={{fontFamily: 'var(--mono)'}}>x = 12 / 3 ➔ x = 4</code>
-        </li>
-        <li>
-          <strong>Example 2:</strong> <code style={{fontFamily: 'var(--mono)'}}>x / 2 = 5</code> <br/>
-          Here, x is <em>divided</em> by 2. The opposite is <strong>multiplying by 2</strong> on both sides.<br/>
-          <code style={{fontFamily: 'var(--mono)'}}>x = 5 * 2 ➔ x = 10</code>
-        </li>
+        <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_ex1') }} />
+        <li dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_ex2') }} />
       </ul>
     </>
   );
@@ -191,7 +166,7 @@ export default function AlgebraPage() {
   return (
     <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
-        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '30px' }}>🦭 SealMath Algebra</h1>
+        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '30px' }}>{t('algebra_title')}</h1>
 
         <div style={{ display: 'flex', gap: '25px', flexWrap: 'wrap' }}>
           
@@ -214,7 +189,7 @@ export default function AlgebraPage() {
                 transform: activeTab === 'addsub' ? 'scale(1.02)' : 'scale(1)'
               }}
             >
-              Addition & Subtraction
+              {t('algebra_btn_addsub')}
             </button>
             <button 
               onClick={() => setActiveTab('muldiv')}
@@ -233,16 +208,26 @@ export default function AlgebraPage() {
                 transform: activeTab === 'muldiv' ? 'scale(1.02)' : 'scale(1)'
               }}
             >
-              Multiplication & Division
+              {t('algebra_btn_muldiv')}
             </button>
           </div>
 
           {/* Main Content Area */}
           <div style={{ flex: '3 1 350px', display: 'flex', flexDirection: 'column' }}>
             {activeTab === 'addsub' ? (
-              <AlgebraWindow title="Addition & Subtraction" levels={addSubLevels} exampleContent={addSubExamples} />
+              <AlgebraWindow 
+                title={t('algebra_btn_addsub')} 
+                generateProblem={generateAddSubProblem} 
+                exampleContent={addSubExamples}
+                t={t}
+              />
             ) : (
-              <AlgebraWindow title="Multiplication & Division" levels={mulDivLevels} exampleContent={mulDivExamples} />
+              <AlgebraWindow 
+                title={t('algebra_btn_muldiv')} 
+                generateProblem={generateMulDivProblem} 
+                exampleContent={mulDivExamples}
+                t={t}
+              />
             )}
           </div>
 
