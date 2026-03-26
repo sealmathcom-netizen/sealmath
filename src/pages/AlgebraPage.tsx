@@ -139,8 +139,155 @@ function AlgebraWindow({
   );
 }
 
+type TwoStepProblem = {
+  q: string;
+  step1Prefix: string;
+  step1Ans: number;
+  step2Prefix: string;
+  step2Ans: number;
+};
+
+function generateTwoStepProblem(): TwoStepProblem {
+  const isAdd = Math.random() > 0.5;
+  const a = Math.floor(Math.random() * 8) + 2; 
+  const b = Math.floor(Math.random() * 20) + 1;
+
+  if (!isAdd) {
+    const c = Math.floor(Math.random() * 30) + 5; 
+    const step1Ans = c + b;
+    const x = step1Ans / a;
+    return {
+      q: `${a}x - ${b} = ${c}`,
+      step1Prefix: `${a}x =`,
+      step1Ans: step1Ans,
+      step2Prefix: `x =`,
+      step2Ans: x
+    };
+  } else {
+    const c = b + Math.floor(Math.random() * 30) + 5; 
+    const step1Ans = c - b;
+    const x = step1Ans / a;
+    return {
+      q: `${a}x + ${b} = ${c}`,
+      step1Prefix: `${a}x =`,
+      step1Ans: step1Ans,
+      step2Prefix: `x =`,
+      step2Ans: x
+    };
+  }
+}
+
+function TwoStepAlgebraWindow({ 
+  generateProblem, 
+  title, 
+  exampleContent,
+  t
+}: { 
+  generateProblem: () => TwoStepProblem, 
+  title: string, 
+  exampleContent: ReactNode,
+  t: any
+}) {
+  const [problem, setProblem] = useState<TwoStepProblem | null>(null);
+  const [solvedCount, setSolvedCount] = useState(0);
+  const [ans1, setAns1] = useState('');
+  const [ans2, setAns2] = useState('');
+  const [resultMsg, setResultMsg] = useState('');
+  const [resultColor, setResultColor] = useState('');
+  const [showExample, setShowExample] = useState(false);
+
+  useEffect(() => {
+    setProblem(generateProblem());
+  }, [generateProblem]);
+
+  const checkBothAnswers = () => {
+    if (!problem) return;
+    const v1 = Number(ans1);
+    const v2 = Number(ans2);
+    if (ans1.trim() === '' || ans2.trim() === '') return;
+
+    if (v1 === problem.step1Ans && v2 === problem.step2Ans) {
+      setResultMsg(t('algebra_correct'));
+      setResultColor("var(--success, green)");
+      setTimeout(() => {
+        setSolvedCount(c => c + 1);
+        setProblem(generateProblem());
+        setAns1('');
+        setAns2('');
+        setResultMsg('');
+      }, 1000);
+    } else {
+      setResultMsg(t('algebra_incorrect'));
+      setResultColor("var(--error, red)");
+    }
+  };
+
+  if (!problem) return null;
+
+  return (
+    <div className="rules-box" style={{ flex: 1, textAlign: 'center', marginTop: '0', position: 'relative', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+        <h3 style={{ margin: '0', fontSize: '1.4rem', color: 'var(--dark)' }}>{title}</h3>
+        <button 
+          onClick={() => setShowExample(!showExample)} 
+          style={{ padding: '8px 12px', borderRadius: '6px', background: showExample ? '#dcdde1' : 'var(--accent)', color: showExample ? '#333' : '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          {showExample ? t('algebra_hide_examples') : t('algebra_show_examples')}
+        </button>
+      </div>
+
+      {showExample && (
+        <div style={{ textAlign: 'start', background: '#fdfaf6', border: '1px solid #e9d8c4', borderRadius: '8px', padding: '15px', marginBottom: '20px' }}>
+          {exampleContent}
+        </div>
+      )}
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <p id="level" style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '5px' }}>
+          {t('algebra_level').replace('{count}', String(solvedCount))}
+        </p>
+        
+        <div className="question" style={{ fontSize: '36px', margin: '20px 0', fontFamily: 'var(--mono)', color: 'var(--dark)', direction: 'ltr' }}>
+          {problem.q}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
+          <span style={{ width: '80px', textAlign: 'right' }}>{problem.step1Prefix}</span>
+          <input
+            type="number" step="any" value={ans1} onChange={e => setAns1(e.target.value)}
+            style={{ padding: '12px', fontSize: '1.5rem', width: '120px', textAlign: 'center', borderRadius: '8px', border: '2px solid #ccc', outline: 'none', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)' }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
+          <span style={{ width: '80px', textAlign: 'right' }}>{problem.step2Prefix}</span>
+          <input
+            type="number" step="any" value={ans2} onChange={e => setAns2(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
+            style={{ padding: '12px', fontSize: '1.5rem', width: '120px', textAlign: 'center', borderRadius: '8px', border: '2px solid #ccc', outline: 'none', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)' }}
+          />
+        </div>
+        
+        <div>
+          <button className="btn-check" onClick={checkBothAnswers} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem' }}>
+            {t('algebra_check_ans')}
+          </button>
+        </div>
+
+        <div style={{ minHeight: '30px', marginTop: '15px' }}>
+          {resultMsg && (
+            <p className="result" style={{ margin: 0, fontWeight: 'bold', color: resultColor, fontSize: '1.1rem' }}>
+              {resultMsg}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AlgebraPage() {
-  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv'>('addsub');
+  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'twostep'>('addsub');
   const { t } = useI18n();
 
   const addSubExamples = (
@@ -160,6 +307,13 @@ export default function AlgebraPage() {
         <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_ex1') }} />
         <li dangerouslySetInnerHTML={{ __html: t('algebra_muldiv_ex2') }} />
       </ul>
+    </>
+  );
+
+  const twoStepExamples = (
+    <>
+      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_twostep_desc') }} />
+      <div style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_twostep_ex1') }} />
     </>
   );
 
@@ -210,22 +364,50 @@ export default function AlgebraPage() {
             >
               {t('algebra_btn_muldiv')}
             </button>
+            <button 
+              onClick={() => setActiveTab('twostep')}
+              style={{
+                padding: '18px 15px',
+                background: activeTab === 'twostep' ? 'var(--accent)' : '#ecf0f1',
+                color: activeTab === 'twostep' ? '#fff' : '#2c3e50',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '1.3rem',
+                textAlign: 'center',
+                boxShadow: activeTab === 'twostep' ? '0 6px 15px rgba(142, 68, 173, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s',
+                transform: activeTab === 'twostep' ? 'scale(1.02)' : 'scale(1)'
+              }}
+            >
+              {t('algebra_btn_twostep')}
+            </button>
           </div>
 
           {/* Main Content Area */}
           <div style={{ flex: '3 1 350px', display: 'flex', flexDirection: 'column' }}>
-            {activeTab === 'addsub' ? (
+            {activeTab === 'addsub' && (
               <AlgebraWindow 
                 title={t('algebra_btn_addsub')} 
                 generateProblem={generateAddSubProblem} 
                 exampleContent={addSubExamples}
                 t={t}
               />
-            ) : (
+            )}
+            {activeTab === 'muldiv' && (
               <AlgebraWindow 
                 title={t('algebra_btn_muldiv')} 
                 generateProblem={generateMulDivProblem} 
                 exampleContent={mulDivExamples}
+                t={t}
+              />
+            )}
+            {activeTab === 'twostep' && (
+              <TwoStepAlgebraWindow 
+                title={t('algebra_btn_twostep')} 
+                generateProblem={generateTwoStepProblem} 
+                exampleContent={twoStepExamples}
                 t={t}
               />
             )}

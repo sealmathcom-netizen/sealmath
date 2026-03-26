@@ -78,6 +78,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_muldiv_desc: 'Just like before, we use the <strong>opposite operation</strong> to isolate <strong>x</strong>.',
     algebra_muldiv_ex1: '<strong>Example 1:</strong> <code style="font-family: var(--mono)">3x = 12</code> <br/>Here, x is <em>multiplied</em> by 3. The opposite is <strong>dividing by 3</strong> on both sides.<br/><code style="font-family: var(--mono)">x = 12 / 3 ➔ x = 4</code>',
     algebra_muldiv_ex2: '<strong>Example 2:</strong> <code style="font-family: var(--mono)">x / 2 = 5</code> <br/>Here, x is <em>divided</em> by 2. The opposite is <strong>multiplying by 2</strong> on both sides.<br/><code style="font-family: var(--mono)">x = 5 * 2 ➔ x = 10</code>',
+    algebra_btn_twostep: 'Two-Step Equations',
+    algebra_twostep_desc: 'For two-step equations like <strong>2x + 5 = 10</strong>, you must solve them in two phases. First, isolate the term with <strong>x</strong>. Second, solve for <strong>x</strong>. Decimal answers are allowed!',
+    algebra_twostep_ex1: '<strong>Example:</strong> <code style="font-family: var(--mono)">2x + 5 = 10</code> <br/><strong>Phase 1:</strong> Subtract 5 from both sides to get <code style="font-family: var(--mono)">2x = 5</code>.<br/><strong>Phase 2:</strong> Divide by 2 to get <code style="font-family: var(--mono)">x = 2.5</code>.',
   },
   he: {
     nav_game: 'אתגר ה-24',
@@ -156,6 +159,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_muldiv_desc: 'בדיוק כמו קודם, אנו משתמשים ב<strong>פעולה ההפוכה</strong> כדי לבודד את <strong>x</strong>.',
     algebra_muldiv_ex1: '<strong>דוגמה 1:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">3x = 12</code> <br/>כאן, x <em>מוכפל</em> ב-3. הפעולה ההפוכה היא <strong>לחלק ב-3</strong> את שני הצדדים.<br/><code dir="ltr" style="font-family: var(--mono); display: inline-block;">x = 12 / 3 ➔ x = 4</code>',
     algebra_muldiv_ex2: '<strong>דוגמה 2:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">x / 2 = 5</code> <br/>כאן, x <em>מחולק</em> ב-2. הפעולה ההפוכה היא <strong>להכפיל ב-2</strong> את שני הצדדים.<br/><code dir="ltr" style="font-family: var(--mono); display: inline-block;">x = 5 * 2 ➔ x = 10</code>',
+    algebra_btn_twostep: 'משוואות בשני שלבים',
+    algebra_twostep_desc: 'במשוואות בשני שלבים כמו <strong>2x + 5 = 10</strong>, יש לפתור בשני שלבים. תחילה בודד את האיבר עם <strong>x</strong>. לאחר מכן פתור עבור <strong>x</strong>. ניתן להזין תשובות עשרוניות!',
+    algebra_twostep_ex1: '<strong>דוגמה:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">2x + 5 = 10</code> <br/><strong>שלב 1:</strong> חסר 5 משני הצדדים ותקבל <code dir="ltr" style="font-family: var(--mono); display: inline-block;">2x = 5</code>.<br/><strong>שלב 2:</strong> חלק ב-2 ותקבל <code dir="ltr" style="font-family: var(--mono); display: inline-block;">x = 2.5</code>.',
   },
   nl: {
     nav_game: '24 Uitdaging',
@@ -234,6 +240,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_muldiv_desc: 'Net als hiervoor gebruiken we de <strong>tegenovergestelde bewerking</strong> om <strong>x</strong> te isoleren.',
     algebra_muldiv_ex1: '<strong>Voorbeeld 1:</strong> <code style="font-family: var(--mono)">3x = 12</code> <br/>Hier wordt x <em>vermenigvuldigd</em> met 3. Het tegenovergestelde is <strong>delen door 3</strong> aan beide kanten.<br/><code style="font-family: var(--mono)">x = 12 / 3 ➔ x = 4</code>',
     algebra_muldiv_ex2: '<strong>Voorbeeld 2:</strong> <code style="font-family: var(--mono)">x / 2 = 5</code> <br/>Hier wordt x <em>gedeeld</em> door 2. Het tegenovergestelde is <strong>vermenigvuldigen met 2</strong> aan beide kanten.<br/><code style="font-family: var(--mono)">x = 5 * 2 ➔ x = 10</code>',
+    algebra_btn_twostep: 'Tweestapsvergelijkingen',
+    algebra_twostep_desc: 'Voor tweestapsvergelijkingen zoals <strong>2x + 5 = 10</strong>, moet je in twee fasen oplossen. Eerst isoleer je de term met <strong>x</strong>. Daarna los je op voor <strong>x</strong>. Decimale antwoorden zijn toegestaan!',
+    algebra_twostep_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">2x + 5 = 10</code> <br/><strong>Fase 1:</strong> Trek 5 af aan beide kanten om <code style="font-family: var(--mono)">2x = 5</code> te krijgen.<br/><strong>Fase 2:</strong> Deel door 2 om <code style="font-family: var(--mono)">x = 2.5</code> te krijgen.',
   },
 }
 
