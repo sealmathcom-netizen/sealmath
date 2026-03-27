@@ -33,15 +33,19 @@ function AlgebraWindow({
   generateProblem, 
   title, 
   exampleContent,
-  t
+  t,
+  id
 }: { 
   generateProblem: () => Problem, 
   title: string, 
   exampleContent: ReactNode,
-  t: any
+  t: any,
+  id: string
 }) {
   const [problem, setProblem] = useState<Problem | null>(null);
-  const [solvedCount, setSolvedCount] = useState(0);
+  const [solvedCount, setSolvedCount] = useState(() => {
+    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+  });
   const [answer, setAnswer] = useState('');
   const [resultMsg, setResultMsg] = useState('');
   const [resultColor, setResultColor] = useState('');
@@ -50,6 +54,12 @@ function AlgebraWindow({
   useEffect(() => {
     setProblem(generateProblem());
   }, [generateProblem]);
+
+  useEffect(() => {
+    const handleClear = () => setSolvedCount(0);
+    window.addEventListener('clear-history', handleClear);
+    return () => window.removeEventListener('clear-history', handleClear);
+  }, []);
 
   const checkAnswer = () => {
     if (!problem) return;
@@ -61,7 +71,11 @@ function AlgebraWindow({
       setResultColor("var(--success, green)");
 
       setTimeout(() => {
-        setSolvedCount(c => c + 1);
+        setSolvedCount(c => {
+          const next = c + 1;
+          localStorage.setItem(`algebra_solved_${id}`, String(next));
+          return next;
+        });
         setProblem(generateProblem());
         setAnswer('');
         setResultMsg('');
@@ -181,15 +195,19 @@ function TwoStepAlgebraWindow({
   generateProblem, 
   title, 
   exampleContent,
-  t
+  t,
+  id
 }: { 
   generateProblem: () => TwoStepProblem, 
   title: string, 
   exampleContent: ReactNode,
-  t: any
+  t: any,
+  id: string
 }) {
   const [problem, setProblem] = useState<TwoStepProblem | null>(null);
-  const [solvedCount, setSolvedCount] = useState(0);
+  const [solvedCount, setSolvedCount] = useState(() => {
+    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+  });
   const [ans1, setAns1] = useState('');
   const [ans2, setAns2] = useState('');
   const [resultMsg, setResultMsg] = useState('');
@@ -199,6 +217,12 @@ function TwoStepAlgebraWindow({
   useEffect(() => {
     setProblem(generateProblem());
   }, [generateProblem]);
+
+  useEffect(() => {
+    const handleClear = () => setSolvedCount(0);
+    window.addEventListener('clear-history', handleClear);
+    return () => window.removeEventListener('clear-history', handleClear);
+  }, []);
 
   const checkBothAnswers = () => {
     if (!problem) return;
@@ -214,7 +238,11 @@ function TwoStepAlgebraWindow({
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
-        setSolvedCount(c => c + 1);
+        setSolvedCount(c => {
+          const next = c + 1;
+          localStorage.setItem(`algebra_solved_${id}`, String(next));
+          return next;
+        });
         setProblem(generateProblem());
         setAns1('');
         setAns2('');
@@ -304,8 +332,14 @@ function TwoStepAlgebraWindow({
 }
 
 export default function AlgebraPage() {
-  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'twostep'>('addsub');
+  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'twostep'>(() => {
+    return (localStorage.getItem('algebraActiveTab') as any) || 'addsub';
+  });
   const { t } = useI18n();
+
+  useEffect(() => {
+    localStorage.setItem('algebraActiveTab', activeTab);
+  }, [activeTab]);
 
   const addSubExamples = (
     <>
@@ -410,6 +444,7 @@ export default function AlgebraPage() {
                 generateProblem={generateAddSubProblem} 
                 exampleContent={addSubExamples}
                 t={t}
+                id="addsub"
               />
             )}
             {activeTab === 'muldiv' && (
@@ -418,6 +453,7 @@ export default function AlgebraPage() {
                 generateProblem={generateMulDivProblem} 
                 exampleContent={mulDivExamples}
                 t={t}
+                id="muldiv"
               />
             )}
             {activeTab === 'twostep' && (
@@ -426,6 +462,7 @@ export default function AlgebraPage() {
                 generateProblem={generateTwoStepProblem} 
                 exampleContent={twoStepExamples}
                 t={t}
+                id="twostep"
               />
             )}
           </div>

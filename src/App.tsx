@@ -6,6 +6,7 @@ import GamePage from './pages/GamePage'
 import CapturePage from './pages/CapturePage'
 import ContactPage from './pages/ContactPage'
 import AlgebraPage from './pages/AlgebraPage'
+import GlobalStorageControls from './components/GlobalStorageControls'
 
 function App() {
   const { lang, setLang, t } = useI18n()
@@ -31,8 +32,9 @@ function App() {
   return (
     <>
       <NavBar lang={lang} onChangeLang={setLang} t={t} />
+      <GlobalStorageControls storageAllowed={storageAllowed} setStorageAllowed={setStorageAllowed} />
       <Routes>
-        <Route path="/" element={<GamePage storageAllowed={storageAllowed} setStorageAllowed={setStorageAllowed} />} />
+        <Route path="/" element={<GamePage storageAllowed={storageAllowed} />} />
         <Route path="/capture" element={<CapturePage storageAllowed={storageAllowed} />} />
         <Route path="/algebra" element={<AlgebraPage />} />
         <Route path="/contact" element={<ContactPage />} />

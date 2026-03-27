@@ -5,7 +5,6 @@ import { solve24 } from '../logic/solve24'
 
 type Props = {
   storageAllowed: boolean
-  setStorageAllowed: (allowed: boolean) => void
 }
 
 const TOTAL_POSSIBLE = 1820
@@ -22,7 +21,7 @@ function formatKey(nums: number[]) {
   return [...nums].sort((a, b) => a - b).join(',')
 }
 
-export default function GamePage({ storageAllowed, setStorageAllowed }: Props) {
+export default function GamePage({ storageAllowed }: Props) {
   const { lang, t } = useI18n()
 
   const solvableHistoryRef = useRef<string[]>([])
@@ -275,23 +274,21 @@ export default function GamePage({ storageAllowed, setStorageAllowed }: Props) {
     })
   }
 
-  const clearAllHistory = () => {
-    if (!confirm(t('msg_del_confirm'))) return
-    checkedCombinationsRef.current.clear()
-    solvableHistoryRef.current = []
-    unsolvableHistoryRef.current = []
-    setSolvableHistory([])
-    setUnsolvableHistory([])
-    setCurrentHistoryIndex(-1)
-    setInputs(emptyNumbers())
-    clearSolutionArea()
-
-    localStorage.removeItem('solvableHistory')
-    localStorage.removeItem('unsolvableHistory')
-    localStorage.removeItem('lastViewedIndex')
-
-    updateFeedback(t('msg_hist_cleared'), '#e74c3c')
-  }
+  useEffect(() => {
+    const handleClear = () => {
+      checkedCombinationsRef.current.clear()
+      solvableHistoryRef.current = []
+      unsolvableHistoryRef.current = []
+      setSolvableHistory([])
+      setUnsolvableHistory([])
+      setCurrentHistoryIndex(-1)
+      setInputs(emptyNumbers())
+      clearSolutionArea()
+      updateFeedback(t('msg_hist_cleared'), '#e74c3c')
+    }
+    window.addEventListener('clear-history', handleClear)
+    return () => window.removeEventListener('clear-history', handleClear)
+  }, [t])
 
   return (
     <>
@@ -299,21 +296,6 @@ export default function GamePage({ storageAllowed, setStorageAllowed }: Props) {
         <title>{t('game_title')}</title>
         <meta name="description" content={t('meta_description_game')} />
       </Helmet>
-
-      <div className="global-controls">
-        <label className="storage-label">
-          <input
-            type="checkbox"
-            id="storage-toggle"
-            checked={storageAllowed}
-            onChange={(e) => setStorageAllowed(e.target.checked)}
-          />
-          <span>{t('chk_remember')}</span>
-        </label>
-        <button className="btn-clear-minimal" onClick={clearAllHistory}>
-          {t('btn_clear_hist')}
-        </button>
-      </div>
 
       <section id="game-page" className="page active">
         <div className="container">
