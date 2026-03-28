@@ -12,5 +12,11 @@
       "destination": "https://sealmath.com/$1",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }
