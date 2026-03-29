@@ -711,6 +711,8 @@ export default function AlgebraPage() {
       <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_rounding_desc') }} />
       <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingInlineStart: '20px', color: '#555' }}>
         <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_rounding_ex1') }} />
+        <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_rounding_ex2') }} />
+        <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_rounding_ex3') }} />
       </ul>
     </>
   );
