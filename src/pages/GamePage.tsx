@@ -293,6 +293,7 @@ export default function GamePage({ storageAllowed }: Props) {
   return (
     <>
       <Helmet>
+        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
         <title>{t('meta_title_game')}</title>
         <link rel="canonical" href="https://sealmath.com/" />
         <link rel="alternate" hrefLang="he" href="https://sealmath.com/?lang=he" />

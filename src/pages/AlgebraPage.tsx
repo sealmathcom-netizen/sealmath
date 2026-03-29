@@ -336,7 +336,7 @@ export default function AlgebraPage() {
   const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'twostep'>(() => {
     return (localStorage.getItem('algebraActiveTab') as any) || 'addsub';
   });
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
 
   useEffect(() => {
     localStorage.setItem('algebraActiveTab', activeTab);
@@ -372,6 +372,7 @@ export default function AlgebraPage() {
   return (
     <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
       <Helmet>
+        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
         <title>{t('meta_title_algebra')}</title>
         <link rel="canonical" href="https://sealmath.com/algebra" />
         <link rel="alternate" hrefLang="he" href="https://sealmath.com/algebra?lang=he" />

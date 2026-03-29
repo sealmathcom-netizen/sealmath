@@ -7,7 +7,7 @@ function hasHebrewText(v: string) {
 }
 
 export default function ContactPage() {
-  const { t } = useI18n()
+  const { lang, t } = useI18n()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -70,6 +70,7 @@ export default function ContactPage() {
   return (
     <>
       <Helmet>
+        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
         <title>{t('meta_title_contact')}</title>
         <link rel="canonical" href="https://sealmath.com/contact" />
         <link rel="alternate" hrefLang="he" href="https://sealmath.com/contact?lang=he" />

@@ -15,10 +15,6 @@ function detectDefaultLanguage(): Lang {
   return 'en'
 }
 
-function applyDir(lang: Lang) {
-  document.documentElement.dir = lang === 'he' ? 'rtl' : 'ltr'
-}
-
 interface I18nContextType {
   lang: Lang
   setLang: (lang: Lang) => void
@@ -39,7 +35,6 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   // Sync state changes to localStorage and URL
   useEffect(() => {
     localStorage.setItem('preferredLang', lang)
-    applyDir(lang)
 
     const currentUrlLang = searchParams.get('lang')
     if (currentUrlLang !== lang) {
@@ -57,9 +52,6 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (urlLang && (urlLang === 'en' || urlLang === 'he' || urlLang === 'nl') && urlLang !== lang) {
       setLangInternal(urlLang)
-    } else if (!urlLang && lang !== 'en' && !localStorage.getItem('preferredLang')) {
-      // If no URL param and no saved preference, could fallback to English or detected
-      // For now, we stay with current state or detection
     }
   }, [urlLang])
 
