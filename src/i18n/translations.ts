@@ -32,10 +32,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_message: 'Any extra info',
     btn_send: 'Send Request',
     ph_expr: '(4 + 8) * (8 - 6)',
-    meta_title_game: '24 Challenge | SealMath',
-    meta_title_capture: 'Fraction Capture | SealMath',
-    meta_title_algebra: 'Algebra Basics | SealMath',
-    meta_title_contact: 'Math Tutoring | SealMath',
+    meta_title_game: '24 Challenge - Fun Mental Math Puzzle | SealMath',
+    meta_title_capture: 'Fraction Capture - Mastering Fractions through Play | SealMath',
+    meta_title_algebra: 'Algebra Basics - Practice Equations & Puzzles | SealMath',
+    meta_title_contact: 'Math Tutoring & Lessons - Online Math Support | SealMath',
     meta_description_algebra: 'Learn algebra basics with SealMath. Practice solving equations step by step.',
 
     // JS Feedback Messages
@@ -120,10 +120,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_message: 'מידע נוסף',
     btn_send: 'שלח בקשה',
     ph_expr: '(4 + 8) * (8 - 6)',
-    meta_title_game: 'אתגר ה-24 | SealMath',
-    meta_title_capture: 'לכידת שברים | SealMath',
-    meta_title_algebra: 'יסודות האלגברה | SealMath',
-    meta_title_contact: 'שיעורים פרטיים | SealMath',
+    meta_title_game: 'אתגר ה-24 - משחק חשבון וחידות היגיון | SealMath',
+    meta_title_capture: 'לכידת שברים - תרגול שברים בדרך מהנה | SealMath',
+    meta_title_algebra: 'יסודות האלגברה - פתרון משוואות ותרגול צעד אחר צעד | SealMath',
+    meta_title_contact: 'שיעורים פרטיים במתמטיקה - תמיכה ולימוד אונליין | SealMath',
     meta_description_algebra: 'למדו את יסודות האלגברה עם SealMath. תרגלו פתרון משוואות צעד אחר צעד.',
 
     // JS Feedback Messages
@@ -208,10 +208,10 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_message: 'Extra info',
     btn_send: 'Verzoek versturen',
     ph_expr: '(4 + 8) * (8 - 6)',
-    meta_title_game: '24 Uitdaging | SealMath',
-    meta_title_capture: 'Breuken Vangen | SealMath',
-    meta_title_algebra: 'Algebra Basis | SealMath',
-    meta_title_contact: 'Wiskunde Bijles | SealMath',
+    meta_title_game: '24 Uitdaging - Leuk Rekenspel & Mentale Wiskunde | SealMath',
+    meta_title_capture: 'Breuken Vangen - Spelenderwijs Breuken Leren | SealMath',
+    meta_title_algebra: 'Algebra Basis - Vergelijkingen Oplossen & Oefenen | SealMath',
+    meta_title_contact: 'Wiskunde Bijles & Lessen - Online Ondersteuning | SealMath',
     meta_description_algebra: 'Leer de basis van algebra met SealMath. Oefen het stap voor stap oplossen van vergelijkingen.',
 
     // JS Feedback Messages
