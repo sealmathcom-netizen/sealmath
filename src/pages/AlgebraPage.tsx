@@ -347,17 +347,29 @@ type RoundingProblem = {
 };
 
 function generateRoundingProblem(): RoundingProblem {
-  // Generate a number like 5.459
   const base = Math.floor(Math.random() * 20) + 1;
-  const dec = Math.floor(Math.random() * 1000) / 1000;
+  let dec: number;
+  
+  if (Math.random() < 1/3) {
+    // Force a "carry over" case: x.y9[5-9]
+    // e.g., 5.696 rounded to 2 decimals is 5.70
+    const tenths = Math.floor(Math.random() * 9); // 0-8 to allow carry to y+1
+    const hundredths = 9;
+    const thousandths = Math.floor(Math.random() * 5) + 5; // 5-9
+    dec = (tenths * 0.1) + (hundredths * 0.01) + (thousandths * 0.001);
+  } else {
+    // Normal case
+    dec = Math.floor(Math.random() * 1000) / 1000;
+  }
+  
   const num = Math.round((base + dec) * 1000) / 1000;
   
   // Target precision: always 2 as requested
   const precision = 2;
   
-  // Calculate answer
-  const factor = Math.pow(10, precision);
-  const ans = Math.round(num * factor) / factor;
+  // Calculate answer robustly to avoid float precision issues (e.g. 17.115 * 100 = 1711.499...)
+  // Since we know num has at most 3 decimals, we can scale to integer first.
+  const ans = Math.round(Math.round(num * 1000) / 10) / 100;
   
   return { num, precision, ans };
 }
