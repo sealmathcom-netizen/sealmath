@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import type { Lang } from './translations'
 import { translations } from './translations'
 
@@ -27,12 +28,40 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | null>(null)
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLang] = useState<Lang>(() => detectDefaultLanguage())
+  const [searchParams, setSearchParams] = useSearchParams()
+  const urlLang = searchParams.get('lang') as Lang | null
 
+  const [lang, setLangInternal] = useState<Lang>(() => {
+    if (urlLang === 'en' || urlLang === 'he' || urlLang === 'nl') return urlLang
+    return detectDefaultLanguage()
+  })
+
+  // Sync state changes to localStorage and URL
   useEffect(() => {
     localStorage.setItem('preferredLang', lang)
     applyDir(lang)
-  }, [lang])
+
+    const currentUrlLang = searchParams.get('lang')
+    if (currentUrlLang !== lang) {
+      const newParams = new URLSearchParams(searchParams)
+      if (lang === 'en') {
+        newParams.delete('lang')
+      } else {
+        newParams.set('lang', lang)
+      }
+      setSearchParams(newParams, { replace: true })
+    }
+  }, [lang, setSearchParams, searchParams])
+
+  // Sync URL changes back to state (e.g. browser back button or manual URL edit)
+  useEffect(() => {
+    if (urlLang && (urlLang === 'en' || urlLang === 'he' || urlLang === 'nl') && urlLang !== lang) {
+      setLangInternal(urlLang)
+    } else if (!urlLang && lang !== 'en' && !localStorage.getItem('preferredLang')) {
+      // If no URL param and no saved preference, could fallback to English or detected
+      // For now, we stay with current state or detection
+    }
+  }, [urlLang])
 
   const t = useMemo(() => {
     return (key: string, params: Record<string, string | number> = {}) => {
@@ -46,7 +75,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   }, [lang])
 
   return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>
+    <I18nContext.Provider value={{ lang, setLang: setLangInternal, t }}>
       {children}
     </I18nContext.Provider>
   )

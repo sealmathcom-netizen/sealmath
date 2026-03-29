@@ -72,6 +72,10 @@ export default function ContactPage() {
       <Helmet>
         <title>{t('meta_title_contact')}</title>
         <link rel="canonical" href="https://sealmath.com/contact" />
+        <link rel="alternate" hrefLang="he" href="https://sealmath.com/contact?lang=he" />
+        <link rel="alternate" hrefLang="en" href="https://sealmath.com/contact" />
+        <link rel="alternate" hrefLang="nl" href="https://sealmath.com/contact?lang=nl" />
+        <link rel="alternate" hrefLang="x-default" href="https://sealmath.com/contact" />
         <meta name="description" content={t('meta_description_contact')} />
       </Helmet>
 

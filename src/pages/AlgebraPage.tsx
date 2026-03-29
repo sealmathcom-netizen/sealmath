@@ -374,6 +374,10 @@ export default function AlgebraPage() {
       <Helmet>
         <title>{t('meta_title_algebra')}</title>
         <link rel="canonical" href="https://sealmath.com/algebra" />
+        <link rel="alternate" hrefLang="he" href="https://sealmath.com/algebra?lang=he" />
+        <link rel="alternate" hrefLang="en" href="https://sealmath.com/algebra" />
+        <link rel="alternate" hrefLang="nl" href="https://sealmath.com/algebra?lang=nl" />
+        <link rel="alternate" hrefLang="x-default" href="https://sealmath.com/algebra" />
         <meta name="description" content={t('meta_description_algebra')} />
       </Helmet>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
