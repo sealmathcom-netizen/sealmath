@@ -340,6 +340,28 @@ type CombiningLikeTermsProblem = {
   variable: string;
 };
 
+type RoundingProblem = {
+  num: number;
+  precision: number;
+  ans: number;
+};
+
+function generateRoundingProblem(): RoundingProblem {
+  // Generate a number like 5.459
+  const base = Math.floor(Math.random() * 20) + 1;
+  const dec = Math.floor(Math.random() * 1000) / 1000;
+  const num = Math.round((base + dec) * 1000) / 1000;
+  
+  // Target precision: always 2 as requested
+  const precision = 2;
+  
+  // Calculate answer
+  const factor = Math.pow(10, precision);
+  const ans = Math.round(num * factor) / factor;
+  
+  return { num, precision, ans };
+}
+
 function generateCombiningLikeTermsProblem(): CombiningLikeTermsProblem {
   const isAdd = Math.random() > 0.5;
   const a = Math.floor(Math.random() * 12) + 2; 
@@ -513,8 +535,133 @@ function CombiningLikeTermsWindow({
   );
 }
 
+function RoundingWindow({ 
+  generateProblem, 
+  title, 
+  exampleContent,
+  t,
+  id
+}: { 
+  generateProblem: () => RoundingProblem, 
+  title: string, 
+  exampleContent: ReactNode,
+  t: any,
+  id: string
+}) {
+  const [problem, setProblem] = useState<RoundingProblem | null>(null);
+  const [solvedCount, setSolvedCount] = useState(() => {
+    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+  });
+  const [answer, setAnswer] = useState('');
+  const [resultMsg, setResultMsg] = useState('');
+  const [resultColor, setResultColor] = useState('');
+  const [showExample, setShowExample] = useState(false);
+
+  useEffect(() => {
+    setProblem(generateProblem());
+  }, [generateProblem]);
+
+  useEffect(() => {
+    const handleClear = () => setSolvedCount(0);
+    window.addEventListener('clear-history', handleClear);
+    return () => window.removeEventListener('clear-history', handleClear);
+  }, []);
+
+  const checkAnswer = () => {
+    if (!problem) return;
+    const userAnswer = Number(answer);
+    if (answer.trim() === '') return;
+
+    // Use a small epsilon for float comparison
+    if (Math.abs(userAnswer - problem.ans) < 0.000001) {
+      setResultMsg(t('algebra_correct'));
+      setResultColor("var(--success, green)");
+
+      setTimeout(() => {
+        setSolvedCount(c => {
+          const next = c + 1;
+          localStorage.setItem(`algebra_solved_${id}`, String(next));
+          return next;
+        });
+        setProblem(generateProblem());
+        setAnswer('');
+        setResultMsg('');
+      }, 1000);
+    } else {
+      setResultMsg(t('algebra_incorrect'));
+      setResultColor("var(--error, red)");
+    }
+  };
+
+  if (!problem) return null;
+
+  return (
+    <div className="rules-box" style={{ flex: 1, textAlign: 'center', marginTop: '0', position: 'relative', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+        <h3 style={{ margin: '0', fontSize: '1.4rem', color: 'var(--dark)' }}>{title}</h3>
+        <button 
+          onClick={() => setShowExample(!showExample)} 
+          style={{ padding: '8px 12px', borderRadius: '6px', background: showExample ? '#dcdde1' : 'var(--accent)', color: showExample ? '#333' : '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          {showExample ? t('algebra_hide_examples') : t('algebra_show_examples')}
+        </button>
+      </div>
+
+      {showExample && (
+        <div style={{ textAlign: 'start', background: '#fdfaf6', border: '1px solid #e9d8c4', borderRadius: '8px', padding: '15px', marginBottom: '20px' }}>
+          {exampleContent}
+        </div>
+      )}
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <p id="level" style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '5px' }}>
+          {t('algebra_level').replace('{count}', String(solvedCount))}
+        </p>
+        
+        <div className="question" style={{ fontSize: '28px', margin: '20px 0', fontFamily: 'var(--mono)', color: 'var(--dark)', direction: 'ltr' }}>
+          {t('algebra_rounding_prompt').replace('{num}', String(problem.num)).replace('{count}', String(problem.precision))}
+        </div>
+
+        <input
+          type="number"
+          step="any"
+          value={answer}
+          onChange={e => setAnswer(e.target.value)}
+          style={{
+            padding: '12px',
+            fontSize: '1.5rem',
+            width: '120px',
+            textAlign: 'center',
+            borderRadius: '8px',
+            border: '2px solid #ccc',
+            margin: '0 auto',
+            display: 'block',
+            outline: 'none',
+            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+          }}
+          onKeyDown={e => e.key === 'Enter' && checkAnswer()}
+        />
+        <br />
+        <div>
+          <button className="btn-check" onClick={checkAnswer} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem' }}>
+            {t('algebra_check_ans')}
+          </button>
+        </div>
+
+        <div style={{ minHeight: '30px', marginTop: '15px' }}>
+          {resultMsg && (
+            <p className="result" style={{ margin: 0, fontWeight: 'bold', color: resultColor, fontSize: '1.1rem' }}>
+              {resultMsg}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AlgebraPage() {
-  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'twostep' | 'combinelike'>(() => {
+  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike'>(() => {
     return (localStorage.getItem('algebraActiveTab') as any) || 'addsub';
   });
   const { lang, t } = useI18n();
@@ -555,6 +702,15 @@ export default function AlgebraPage() {
       <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_combinelike_desc') }} />
       <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingInlineStart: '20px', color: '#555' }}>
         <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_combinelike_ex1') }} />
+      </ul>
+    </>
+  );
+
+  const roundingExamples = (
+    <>
+      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_rounding_desc') }} />
+      <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingInlineStart: '20px', color: '#555' }}>
+        <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_rounding_ex1') }} />
       </ul>
     </>
   );
@@ -617,6 +773,25 @@ export default function AlgebraPage() {
               {t('algebra_btn_muldiv')}
             </button>
             <button 
+              onClick={() => setActiveTab('rounding')}
+              style={{
+                padding: '18px 15px',
+                background: activeTab === 'rounding' ? 'var(--accent)' : '#ecf0f1',
+                color: activeTab === 'rounding' ? '#fff' : '#2c3e50',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
+                textAlign: 'center',
+                boxShadow: activeTab === 'rounding' ? '0 6px 15px rgba(142, 68, 173, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s',
+                transform: activeTab === 'rounding' ? 'scale(1.02)' : 'scale(1)'
+              }}
+            >
+              {t('algebra_btn_rounding')}
+            </button>
+            <button 
               onClick={() => setActiveTab('twostep')}
               style={{
                 padding: '18px 15px',
@@ -673,6 +848,15 @@ export default function AlgebraPage() {
                 title={t('algebra_btn_muldiv')} 
                 generateProblem={generateMulDivProblem} 
                 exampleContent={mulDivExamples}
+                t={t}
+              />
+            )}
+            {activeTab === 'rounding' && (
+              <RoundingWindow 
+                id="rounding"
+                title={t('algebra_btn_rounding')} 
+                generateProblem={generateRoundingProblem} 
+                exampleContent={roundingExamples}
                 t={t}
               />
             )}

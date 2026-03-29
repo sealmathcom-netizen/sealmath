@@ -92,6 +92,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_combinelike_ex1: '<strong>Example:</strong> <code style="font-family: var(--mono)">5x + 8x</code> <br/><strong>Step 1:</strong> Factor out x to get <code style="font-family: var(--mono)">x(5 + 8)</code>.<br/><strong>Step 2:</strong> Add the numbers to get <code style="font-family: var(--mono)">13x</code>.',
     algebra_combinelike_err1: '❌ Step 1 (distribution) is incorrect.',
     algebra_combinelike_err2: '❌ Step 1 is good, but Step 2 is incorrect.',
+    algebra_btn_rounding: 'Rounding',
+    algebra_rounding_desc: 'Rounding decimals makes numbers easier to work with. Look at the digit to the right of the target place: if it is 5 or more, round up; if it is less than 5, keep it same.',
+    algebra_rounding_ex1: '<strong>Example:</strong> Round <code style="font-family: var(--mono)">5.459</code> to 2 decimal places. <br/>Look at the 3rd decimal (9). Since it is 5 or more, 5 becomes 6: ➔ <code style="font-family: var(--mono)">5.46</code>.',
+    algebra_rounding_prompt: 'Round {num} to {count} decimal places:',
+    algebra_rounding_prompt_whole: 'Round {num} to the nearest whole number:',
   },
   he: {
     nav_game: 'אתגר ה-24',
@@ -184,6 +189,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_combinelike_ex1: '<strong>דוגמה:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5x + 8x</code> <br/><strong>שלב 1:</strong> הוצאת x מחוץ לסוגריים: <code dir="ltr" style="font-family: var(--mono); display: inline-block;">x(5 + 8)</code>.<br/><strong>שלב 2:</strong> חיבור המספרים לקבלת <code dir="ltr" style="font-family: var(--mono); display: inline-block;">13x</code>.',
     algebra_combinelike_err1: '❌ שלב 1 (חוק הפילוג) אינו נכון.',
     algebra_combinelike_err2: '❌ שלב 1 נכון, אבל שלב 2 שגוי. נסה שוב!',
+    algebra_btn_rounding: 'עיגול מספרים',
+    algebra_rounding_desc: 'עיגול מספרים עשרוניים עוזר לנו לפשט מספרים תוך שמירה על ערך קרוב למקור. אם הספרה מימין למקום העיגול היא 5 ומעלה - מעגלים למעלה; אם היא פחות מ-5 - משאירים את הספרה כפי שהיא.',
+    algebra_rounding_ex1: '<strong>דוגמה:</strong> עגלו את <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.459</code> ל-2 ספרות אחרי הנקודה. <br/>נסתכל על הספרה השלישית (9). כיוון שהיא 5 ומעלה, ה-5 הופך ל-6: ➔ <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.46</code>.',
+    algebra_rounding_prompt: 'עגלו את {num} ל-{count} ספרות עשרוניות:',
+    algebra_rounding_prompt_whole: 'עגלו את {num} למספר השלם הקרוב ביותר:',
   },
   nl: {
     nav_game: '24 Uitdaging',
@@ -276,6 +286,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_combinelike_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">5x + 8x</code> <br/><strong>Stap 1:</strong> Haal x buiten haakjes om <code style="font-family: var(--mono)">x(5 + 8)</code> te krijgen.<br/><strong>Stap 2:</strong> Tel de getallen op om <code style="font-family: var(--mono)">13x</code> te krijgen.',
     algebra_combinelike_err1: '❌ Stap 1 (distributie) is onjuist.',
     algebra_combinelike_err2: '❌ Stap 1 is correct, maar Stap 2 is onjuist.',
+    algebra_btn_rounding: 'Afronden',
+    algebra_rounding_desc: 'Het afronden van decimalen maakt getallen gemakkelijker om mee te werken. Kijk naar het cijfer rechts van de gewenste plek: als het 5 of hoger is, rond je naar boven af; is het lager dan 5, dan blijft het cijfer gelijk.',
+    algebra_rounding_ex1: '<strong>Voorbeeld:</strong> Rond <code style="font-family: var(--mono)">5.459</code> af op 2 decimalen. <br/>Kijk naar de 3e decimaal (9). Omdat dit 5 of hoger is, wordt de 5 een 6: ➔ <code style="font-family: var(--mono)">5.46</code>.',
+    algebra_rounding_prompt: 'Rond {num} af op {count} decimalen:',
+    algebra_rounding_prompt_whole: 'Rond {num} af op het dichtstbijzijnde gehele getal:',
   },
 }
 
