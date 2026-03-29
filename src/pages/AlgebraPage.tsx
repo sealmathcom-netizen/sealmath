@@ -115,25 +115,26 @@ function AlgebraWindow({
           {problem.q}
         </div>
 
-        <input
-          type="number"
-          value={answer}
-          onChange={e => setAnswer(e.target.value)}
-          style={{
-            padding: '12px',
-            fontSize: '1.5rem',
-            width: '120px',
-            textAlign: 'center',
-            borderRadius: '8px',
-            border: '2px solid #ccc',
-            margin: '0 auto',
-            display: 'block',
-            outline: 'none',
-            boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
-          }}
-          onKeyDown={e => e.key === 'Enter' && checkAnswer()}
-        />
-        <br />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'center', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
+          <span>x =</span>
+          <input
+            type="number"
+            value={answer}
+            onChange={e => setAnswer(e.target.value)}
+            style={{
+              padding: '12px',
+              fontSize: '1.5rem',
+              width: '120px',
+              textAlign: 'center',
+              borderRadius: '8px',
+              border: '2px solid #ccc',
+              outline: 'none',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+            }}
+            onKeyDown={e => e.key === 'Enter' && checkAnswer()}
+          />
+        </div>
+        
         <div>
           <button className="btn-check" onClick={checkAnswer} style={{ marginTop: '5px', maxWidth: '200px', fontSize: '1.1rem' }}>
             {t('algebra_check_ans')}
