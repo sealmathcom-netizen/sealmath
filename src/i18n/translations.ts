@@ -87,6 +87,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_twostep_ex1: '<strong>Example:</strong> <code style="font-family: var(--mono)">2x + 5 = 10</code> <br/><strong>Phase 1:</strong> Subtract 5 from both sides to get <code style="font-family: var(--mono)">2x = 5</code>.<br/><strong>Phase 2:</strong> Divide by 2 to get <code style="font-family: var(--mono)">x = 2.5</code>.',
     algebra_twostep_err1: '❌ Phase 1 is incorrect.',
     algebra_twostep_err2: '❌ Phase 1 is good, but Phase 2 is incorrect. Try again!',
+    algebra_btn_combinelike: 'Combining Like Terms',
+    algebra_combinelike_desc: 'To combine terms like <strong>5x + 8x</strong>, use the <strong>distribution rule</strong>: factor out the <strong>x</strong> and add the constant numbers.',
+    algebra_combinelike_ex1: '<strong>Example:</strong> <code style="font-family: var(--mono)">5x + 8x</code> <br/><strong>Step 1:</strong> Factor out x to get <code style="font-family: var(--mono)">x(5 + 8)</code>.<br/><strong>Step 2:</strong> Add the numbers to get <code style="font-family: var(--mono)">13x</code>.',
+    algebra_combinelike_err1: '❌ Step 1 (distribution) is incorrect.',
+    algebra_combinelike_err2: '❌ Step 1 is good, but Step 2 is incorrect.',
   },
   he: {
     nav_game: 'אתגר ה-24',
@@ -174,6 +179,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_twostep_ex1: '<strong>דוגמה:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">2x + 5 = 10</code> <br/><strong>שלב 1:</strong> חסר 5 משני הצדדים ותקבל <code dir="ltr" style="font-family: var(--mono); display: inline-block;">2x = 5</code>.<br/><strong>שלב 2:</strong> חלק ב-2 ותקבל <code dir="ltr" style="font-family: var(--mono); display: inline-block;">x = 2.5</code>.',
     algebra_twostep_err1: '❌ שלב 1 אינו נכון.',
     algebra_twostep_err2: '❌ שלב 1 נכון, אבל שלב 2 שגוי. נסה שוב!',
+    algebra_btn_combinelike: 'כינוס איברים דומים',
+    algebra_combinelike_desc: 'כדי לכנס איברים כמו <strong>5x + 8x</strong>, נשתמש ב<strong>חוק הפילוג</strong>: נוציא את ה-<strong>x</strong> מחוץ לסוגריים ונחבר את המספרים.',
+    algebra_combinelike_ex1: '<strong>דוגמה:</strong> <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5x + 8x</code> <br/><strong>שלב 1:</strong> הוצאת x מחוץ לסוגריים: <code dir="ltr" style="font-family: var(--mono); display: inline-block;">x(5 + 8)</code>.<br/><strong>שלב 2:</strong> חיבור המספרים לקבלת <code dir="ltr" style="font-family: var(--mono); display: inline-block;">13x</code>.',
+    algebra_combinelike_err1: '❌ שלב 1 (חוק הפילוג) אינו נכון.',
+    algebra_combinelike_err2: '❌ שלב 1 נכון, אבל שלב 2 שגוי. נסה שוב!',
   },
   nl: {
     nav_game: '24 Uitdaging',
@@ -261,6 +271,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_twostep_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">2x + 5 = 10</code> <br/><strong>Fase 1:</strong> Trek 5 af aan beide kanten om <code style="font-family: var(--mono)">2x = 5</code> te krijgen.<br/><strong>Fase 2:</strong> Deel door 2 om <code style="font-family: var(--mono)">x = 2.5</code> te krijgen.',
     algebra_twostep_err1: '❌ Fase 1 is onjuist.',
     algebra_twostep_err2: '❌ Fase 1 is correct, maar Fase 2 is onjuist. Probeer opnieuw!',
+    algebra_btn_combinelike: 'Gelijksoortige termen samenvoegen',
+    algebra_combinelike_desc: 'Om termen als <strong>5x + 8x</strong> samen te voegen, gebruik je de <strong>distributieve eigenschap</strong>: haal de <strong>x</strong> buiten haakjes en tel de getallen op.',
+    algebra_combinelike_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">5x + 8x</code> <br/><strong>Stap 1:</strong> Haal x buiten haakjes om <code style="font-family: var(--mono)">x(5 + 8)</code> te krijgen.<br/><strong>Stap 2:</strong> Tel de getallen op om <code style="font-family: var(--mono)">13x</code> te krijgen.',
+    algebra_combinelike_err1: '❌ Stap 1 (distributie) is onjuist.',
+    algebra_combinelike_err2: '❌ Stap 1 is correct, maar Stap 2 is onjuist.',
   },
 }
 
