@@ -21,10 +21,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     btn_rules: 'How to Play',
     btn_show_sol: 'Show Solution',
     contact_title: 'Math Lessons',
-    meta_description_game: 'Practice math with the 24 Challenge. Solve puzzles and save history.',
-    meta_description_capture: 'Practice fraction arithmetic with Fraction Capture.',
-    meta_description_contact:
-      'Math lessons and tutoring with SealMath. Plus, enjoy the 24 game and Fraction Capture as free math practice tools.',
+    meta_description_game: 'Master mental math with the 24 Challenge! Solve thousands of puzzles, practice all operations, and track your progress with our free math game.',
+    meta_description_capture: 'Master fractions with Fraction Capture! A fun, interactive way to practice addition, subtraction, multiplication, and division of fractions.',
+    meta_description_contact: 'Get personalized math tutoring and lessons with SealMath. From algebra to geometry, I help students of all ages succeed in math.',
     tutoring_desc:
       "I offer personalized math tutoring for students of all ages. Whether you need help with algebra, geometry or anything else — I'm here to help. Send me a message and let's get started!",
     lbl_name: 'Name',
@@ -36,7 +35,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     meta_title_capture: 'Fraction Capture - Mastering Fractions through Play | SealMath',
     meta_title_algebra: 'Algebra Basics - Practice Equations & Puzzles | SealMath',
     meta_title_contact: 'Math Tutoring & Lessons - Online Math Support | SealMath',
-    meta_description_algebra: 'Learn algebra basics with SealMath. Practice solving equations step by step.',
+    meta_description_algebra: 'Learn how to solve linear equations step-by-step. Practice addition, subtraction, multiplication, and division equations with interactive feedback.',
 
     // JS Feedback Messages
     msg_saved: 'Saved!',
@@ -109,10 +108,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     btn_rules: 'איך משחקים',
     btn_show_sol: 'הצג פתרון',
     contact_title: 'שיעורי מתמטיקה',
-    meta_description_game: 'תרגלו מתמטיקה עם אתגר ה-24. פתרו חידות ושמרו היסטוריה.',
-    meta_description_capture: 'תרגלו חיבור וחיסור שברים עם לכידת שברים.',
-    meta_description_contact:
-      'שיעורי מתמטיקה ותמיכה עם SealMath. בנוסף, תהנו מהמשחק 24 ומ-Fraction Capture ככלי תרגול חינמי.',
+    meta_description_game: 'שפרו את החשבון המנטלי עם אתגר ה-24! פתרו אלפי חידות, תרגלו את כל פעולות החשבון ועקבו אחר ההתקדמות שלכם עם משחק המתמטיקה החינמי שלנו.',
+    meta_description_capture: 'השתלטו על השברים עם לכידת שברים! דרך מהנה ואינטראקטיבית לתרגול חיבור, חיסור, כפל וחילוק של שברים.',
+    meta_description_contact: 'קבלו שיעורים פרטיים מותאמים אישית במתמטיקה עם SealMath. מאלגברה ועד גיאומטריה, אני עוזר לתלמידים בכל הגילאים להצליח במתמטיקה.',
     tutoring_desc:
       'אני מציע שיעורי מתמטיקה פרטיים לתלמידים בכל הגילאים. בין אם אתה צריך עזרה באלגברה, גיאומטריה או כל דבר אחר — אני פה לעזור. שלח הודעה ונתחיל!',
     lbl_name: 'שם',
@@ -124,7 +122,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     meta_title_capture: 'לכידת שברים - תרגול שברים בדרך מהנה | SealMath',
     meta_title_algebra: 'יסודות האלגברה - פתרון משוואות ותרגול צעד אחר צעד | SealMath',
     meta_title_contact: 'שיעורים פרטיים במתמטיקה - תמיכה ולימוד אונליין | SealMath',
-    meta_description_algebra: 'למדו את יסודות האלגברה עם SealMath. תרגלו פתרון משוואות צעד אחר צעד.',
+    meta_description_algebra: 'למדו איך לפתור משוואות ליניאריות צעד אחר צעד. תרגלו משוואות של חיבור, חיסור, כפל וחילוק עם משוב אינטראקטיבי.',
 
     // JS Feedback Messages
     msg_saved: 'נשמר!',
@@ -197,10 +195,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     btn_rules: 'Hoe te Spelen',
     btn_show_sol: 'Oplossing Tonen',
     contact_title: 'Wiskunde Lessen',
-    meta_description_game: 'Oefen wiskunde met de 24 Uitdaging. Los puzzels op en bewaar je geschiedenis.',
-    meta_description_capture: 'Oefen breuken met Breuken Vangen.',
-    meta_description_contact:
-      'Wiskunde bijles en begeleiding met SealMath. Plus: geniet van de 24-uitdaging en Fraction Capture als gratis oefenmateriaal.',
+    meta_description_game: 'Verbeter je hoofdrekenen met de 24 Uitdaging! Los duizenden puzzels op, oefen alle bewerkingen en houd je voortgang bij met ons gratis wiskundespel.',
+    meta_description_capture: 'Word een meester in breuken met Breuken Vangen! Een leuke, interactieve manier om optellen, aftrekken, vermenigvuldigen en delen van breuken te oefenen.',
+    meta_description_contact: 'Krijg persoonlijke wiskundebegeleiding en lessen met SealMath. Van algebra tot geometrie, ik help leerlingen van alle leeftijden om te slagen voor wiskunde.',
     tutoring_desc:
       'Ik geef persoonlijke wiskundebijles aan leerlingen van alle leeftijden. Of je nu hulp nodig hebt bij algebra, geometrie of iets anders — ik help je graag. Stuur me een bericht en we beginnen!',
     lbl_name: 'Naam',
@@ -212,7 +209,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     meta_title_capture: 'Breuken Vangen - Spelenderwijs Breuken Leren | SealMath',
     meta_title_algebra: 'Algebra Basis - Vergelijkingen Oplossen & Oefenen | SealMath',
     meta_title_contact: 'Wiskunde Bijles & Lessen - Online Ondersteuning | SealMath',
-    meta_description_algebra: 'Leer de basis van algebra met SealMath. Oefen het stap voor stap oplossen van vergelijkingen.',
+    meta_description_algebra: 'Leer stap voor stap lineaire vergelijkingen oplossen. Oefen vergelijkingen met optellen, aftrekken, vermenigvuldigen en delen met interactieve feedback.',
 
     // JS Feedback Messages
     msg_saved: 'Opgeslagen!',
