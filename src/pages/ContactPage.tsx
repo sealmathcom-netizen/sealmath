@@ -70,7 +70,8 @@ export default function ContactPage() {
   return (
     <>
       <Helmet>
-        <title>{t('contact_title')}</title>
+        <title>{t('meta_title_contact')}</title>
+        <link rel="canonical" href="https://sealmath.com/contact" />
         <meta name="description" content={t('meta_description_contact')} />
       </Helmet>
 

@@ -293,7 +293,8 @@ export default function GamePage({ storageAllowed }: Props) {
   return (
     <>
       <Helmet>
-        <title>{t('game_title')}</title>
+        <title>{t('meta_title_game')}</title>
+        <link rel="canonical" href="https://sealmath.com/" />
         <meta name="description" content={t('meta_description_game')} />
       </Helmet>
 

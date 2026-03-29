@@ -32,6 +32,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_message: 'Any extra info',
     btn_send: 'Send Request',
     ph_expr: '(4 + 8) * (8 - 6)',
+    meta_title_game: '24 Challenge | SealMath',
+    meta_title_capture: 'Fraction Capture | SealMath',
+    meta_title_algebra: 'Algebra Basics | SealMath',
+    meta_title_contact: 'Math Tutoring | SealMath',
+    meta_description_algebra: 'Learn algebra basics with SealMath. Practice solving equations step by step.',
 
     // JS Feedback Messages
     msg_saved: 'Saved!',
@@ -115,6 +120,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_message: 'מידע נוסף',
     btn_send: 'שלח בקשה',
     ph_expr: '(4 + 8) * (8 - 6)',
+    meta_title_game: 'אתגר ה-24 | SealMath',
+    meta_title_capture: 'לכידת שברים | SealMath',
+    meta_title_algebra: 'יסודות האלגברה | SealMath',
+    meta_title_contact: 'שיעורים פרטיים | SealMath',
+    meta_description_algebra: 'למדו את יסודות האלגברה עם SealMath. תרגלו פתרון משוואות צעד אחר צעד.',
 
     // JS Feedback Messages
     msg_saved: 'נשמר!',
@@ -198,6 +208,11 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_message: 'Extra info',
     btn_send: 'Verzoek versturen',
     ph_expr: '(4 + 8) * (8 - 6)',
+    meta_title_game: '24 Uitdaging | SealMath',
+    meta_title_capture: 'Breuken Vangen | SealMath',
+    meta_title_algebra: 'Algebra Basis | SealMath',
+    meta_title_contact: 'Wiskunde Bijles | SealMath',
+    meta_description_algebra: 'Leer de basis van algebra met SealMath. Oefen het stap voor stap oplossen van vergelijkingen.',
 
     // JS Feedback Messages
     msg_saved: 'Opgeslagen!',

@@ -172,7 +172,8 @@ export default function CapturePage({ storageAllowed }: Props) {
   return (
     <>
       <Helmet>
-        <title>{t('capture_title')}</title>
+        <title>{t('meta_title_capture')}</title>
+        <link rel="canonical" href="https://sealmath.com/capture" />
         <meta name="description" content={t('meta_description_capture')} />
       </Helmet>
 

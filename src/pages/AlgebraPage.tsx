@@ -1,4 +1,5 @@
 import { useState, useEffect, type ReactNode } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useI18n } from '../i18n/useI18n';
 
 type Problem = { q: string, a: number };
@@ -370,6 +371,11 @@ export default function AlgebraPage() {
 
   return (
     <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
+      <Helmet>
+        <title>{t('meta_title_algebra')}</title>
+        <link rel="canonical" href="https://sealmath.com/algebra" />
+        <meta name="description" content={t('meta_description_algebra')} />
+      </Helmet>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
         <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '30px' }}>{t('algebra_title')}</h1>
 
