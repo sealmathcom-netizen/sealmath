@@ -336,17 +336,21 @@ type CombiningLikeTermsProblem = {
   a: number;
   b: number;
   isAdd: boolean;
+  variable: string;
 };
 
 function generateCombiningLikeTermsProblem(): CombiningLikeTermsProblem {
   const isAdd = Math.random() > 0.5;
   const a = Math.floor(Math.random() * 12) + 2; 
   const b = Math.floor(Math.random() * 12) + 2;
+  const variables = ['x', 'y', 't', 'd'];
+  const variable = variables[Math.floor(Math.random() * variables.length)];
   return {
-    q: `${a}x ${isAdd ? '+' : '-'} ${b}x`,
+    q: `${a}${variable} ${isAdd ? '+' : '-'} ${b}${variable}`,
     a,
     b,
-    isAdd
+    isAdd,
+    variable
   };
 }
 
@@ -387,16 +391,28 @@ function CombiningLikeTermsWindow({
     if (!problem) return;
     if (ans1.trim() === '' || ans2.trim() === '') return;
 
-    // Normalize ans1: Step 1 expects "a+b" or "a-b" as a string
-    const normalizedAns1 = ans1.replace(/\s+/g, '');
-    const expectedAns1 = `${problem.a}${problem.isAdd ? '+' : '-'}${problem.b}`;
-    const expectedAns1Rev = `${problem.b}${problem.isAdd ? '+' : '-'}${problem.a}`;
+    // Normalize ans1: Step 1 expects "variable(a+b)" or "(a+b)variable" etc.
+    const v = problem.variable;
+    const a = problem.a;
+    const b = problem.b;
+    const op = problem.isAdd ? '+' : '-';
     
-    const isStep1Correct = (normalizedAns1 === expectedAns1) || (problem.isAdd && normalizedAns1 === expectedAns1Rev);
+    const normalizedAns1 = ans1.replace(/\s+/g, '').toLowerCase();
     
-    const v2 = Number(ans2);
-    const expectedAns2 = problem.isAdd ? (problem.a + problem.b) : (problem.a - problem.b);
-    const isStep2Correct = v2 === expectedAns2;
+    const validFormats = [
+      `${v}(${a}${op}${b})`,
+      `${v}(${b}${op}${a})`,
+      `(${a}${op}${b})${v}`,
+      `(${b}${op}${a})${v}`
+    ];
+
+    const isStep1Correct = validFormats.includes(normalizedAns1);
+    
+    // Step 2: Full simplified expression like "13x"
+    const normalizedAns2 = ans2.replace(/\s+/g, '').toLowerCase();
+    const resultNum = problem.isAdd ? (a + b) : (a - b);
+    const expectedAns2 = `${resultNum}${v}`;
+    const isStep2Correct = normalizedAns2 === expectedAns2;
 
     if (isStep1Correct && isStep2Correct) {
       setResultMsg(t('algebra_correct'));
@@ -423,8 +439,8 @@ function CombiningLikeTermsWindow({
 
   const showSolution = () => {
     if (!problem) return;
-    setAns1(`${problem.a} ${problem.isAdd ? '+' : '-'} ${problem.b}`);
-    setAns2(String(problem.isAdd ? (problem.a + problem.b) : (problem.a - problem.b)));
+    setAns1(`${problem.variable}(${problem.a} ${problem.isAdd ? '+' : '-'} ${problem.b})`);
+    setAns2(`${problem.isAdd ? (problem.a + problem.b) : (problem.a - problem.b)}${problem.variable}`);
     setResultMsg('');
   };
 
@@ -458,23 +474,21 @@ function CombiningLikeTermsWindow({
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
-          <span style={{ minWidth: '60px', textAlign: 'right' }}>x(</span>
           <input
             type="text" value={ans1} onChange={e => setAns1(e.target.value)}
-            placeholder="a + b"
-            style={{ padding: '8px', fontSize: '1.4rem', width: '120px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
+            placeholder={`${problem.variable}(a + b)`}
+            style={{ padding: '8px', fontSize: '1.4rem', width: '200px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
             onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
           />
-          <span style={{ minWidth: '20px', textAlign: 'left' }}>)</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
           <input
-            type="number" value={ans2} onChange={e => setAns2(e.target.value)}
-            style={{ padding: '8px', fontSize: '1.4rem', width: '100px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
+            type="text" value={ans2} onChange={e => setAns2(e.target.value)}
+            placeholder={`result${problem.variable}`}
+            style={{ padding: '8px', fontSize: '1.4rem', width: '200px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
             onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
           />
-          <span style={{ minWidth: '40px', textAlign: 'left' }}>x</span>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
