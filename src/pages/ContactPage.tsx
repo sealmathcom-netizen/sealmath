@@ -84,8 +84,8 @@ export default function ContactPage() {
         <div className="container" style={{ maxWidth: 500 }}>
           <h1 style={{ textAlign: 'center', fontSize: '1.8rem', marginTop: 0 }}>{t('contact_title')}</h1>
 
-          <div className="tutoring-intro">
-            <p>{t('tutoring_desc')}</p>
+          <div className="feedback-intro">
+            <p>{t('feedback_desc')}</p>
           </div>
 
           <form id="contact-form" onSubmit={send}>
