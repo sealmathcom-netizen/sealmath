@@ -218,7 +218,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     btn_clear_hist: 'Geschiedenis Wissen',
     btn_rules: 'Hoe te Spelen',
     btn_show_sol: 'Oplossing Tonen',
-    contact_title: 'Feedback & Bugmeldingen',
+    contact_title: 'Feedback & Bugrapporten',
     meta_description_game: 'Verbeter je hoofdrekenen met de 24 Uitdaging! Los duizenden puzzels op, oefen alle bewerkingen en houd je voortgang bij met ons gratis wiskundespel.',
     meta_description_capture: 'Word een meester in breuken met Breuken Vangen! Een leuke, interactieve manier om optellen, aftrekken, vermenigvuldigen en delen van breuken te oefenen.',
     meta_description_contact: 'Help SealMath te verbeteren! Meld bugs, stel nieuwe functies voor of deel je ideeën om onze gratis wiskundetools nog beter te maken.',
