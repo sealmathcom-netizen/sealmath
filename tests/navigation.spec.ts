@@ -18,8 +18,8 @@ test.describe('Navigation', () => {
     await page.click('nav >> text=Algebra Basics');
     await expect(page.locator('h1')).toContainText('Algebra Basics');
 
-    // Navigate to Math Tutoring
-    await page.click('nav >> text=Math Tutoring');
-    await expect(page.locator('h1')).toContainText('Math Lessons');
+    // Navigate to Feedback
+    await page.click('nav >> text=Feedback');
+    await expect(page.locator('h1')).toContainText('Feedback');
   });
 });
