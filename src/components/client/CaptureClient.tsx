@@ -1,15 +1,17 @@
-import { Helmet } from 'react-helmet-async'
+'use client'
+
 import { useEffect, useMemo, useState } from 'react'
-import { useI18n } from '../i18n/useI18n'
 import {
   type Frac,
   calculateFrac,
   findSolution,
   generateNewGame,
-} from '../logic/fractionCapture'
+} from '../../logic/fractionCapture'
+import type { Lang } from '../../i18n/translations'
 
 type Props = {
-  storageAllowed: boolean
+  lang: Lang
+  dict: Record<string, string>
 }
 
 function FracView({ f }: { f: Frac }) {
@@ -21,8 +23,28 @@ function FracView({ f }: { f: Frac }) {
   )
 }
 
-export default function CapturePage({ storageAllowed }: Props) {
-  const { lang, t } = useI18n()
+export default function CaptureClient({ lang, dict }: Props) {
+  const t = (key: string, params: Record<string, string | number> = {}) => {
+    let str = dict[key] ?? key
+    for (const [k, v] of Object.entries(params)) {
+      str = str.replace(`{${k}}`, String(v))
+    }
+    return str
+  }
+
+  const [storageAllowed, setStorageAllowed] = useState(true)
+
+  useEffect(() => {
+    const raw = localStorage.getItem('storageAllowed')
+    if (raw !== null) setStorageAllowed(raw === 'true')
+
+    const listener = () => {
+      const updated = localStorage.getItem('storageAllowed')
+      if (updated !== null) setStorageAllowed(updated === 'true')
+    }
+    window.addEventListener('storage-allowed-changed', listener)
+    return () => window.removeEventListener('storage-allowed-changed', listener)
+  }, [])
 
   const [captureTarget, setCaptureTarget] = useState<Frac>({ n: 0, d: 1 })
   const [captureIngredients, setCaptureIngredients] = useState<Frac[]>([])
@@ -170,19 +192,7 @@ export default function CapturePage({ storageAllowed }: Props) {
   }
 
   return (
-    <>
-      <Helmet>
-        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
-        <title>{t('meta_title_capture')}</title>
-        <link rel="canonical" href="https://sealmath.com/capture" />
-        <link rel="alternate" hrefLang="he" href="https://sealmath.com/capture?lang=he" />
-        <link rel="alternate" hrefLang="en" href="https://sealmath.com/capture" />
-        <link rel="alternate" hrefLang="nl" href="https://sealmath.com/capture?lang=nl" />
-        <link rel="alternate" hrefLang="x-default" href="https://sealmath.com/capture" />
-        <meta name="description" content={t('meta_description_capture')} />
-      </Helmet>
-
-      <section id="capture-page" className="page active">
+    <section id="capture-page" className="page active" style={{ display: 'block' }}>
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('capture_title')}</h1>
@@ -341,7 +351,6 @@ export default function CapturePage({ storageAllowed }: Props) {
           </div>
         </div>
       </section>
-    </>
   )
 }
 

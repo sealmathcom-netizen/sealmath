@@ -1,53 +1,59 @@
-import { NavLink } from 'react-router-dom'
+'use client'
+
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { Lang } from '../i18n/translations'
+import { setLanguage } from '../app/actions'
 
 type Props = {
   lang: Lang
-  onChangeLang: (lang: Lang) => void
-  t: (key: string, params?: Record<string, string | number>) => string
+  dict: Record<string, string>
 }
 
-export default function NavBar({ lang, onChangeLang, t }: Props) {
+export default function NavBar({ lang, dict }: Props) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const t = (key: string) => dict[key] ?? key
+
+  async function onChangeLang(newLang: Lang) {
+    await setLanguage(newLang)
+    
+    const params = new URLSearchParams(searchParams?.toString() ?? '')
+    if (newLang === 'en') {
+      params.delete('lang')
+    } else {
+      params.set('lang', newLang)
+    }
+    const query = params.toString()
+    router.replace(`${pathname}${query ? `?${query}` : ''}`)
+    router.refresh()
+  }
+
+  const isActive = (path: string) => pathname === path
+
   return (
     <nav>
-      <NavLink
-        to="/"
-        end
-        className={({ isActive }) => (isActive ? 'active' : '')}
-      >
+      <Link href="/" className={isActive('/') ? 'active' : ''}>
         {t('nav_home')}
-      </NavLink>
+      </Link>
 
-      <NavLink
-        to="/24-challenge"
-        className={({ isActive }) => (isActive ? 'active' : '')}
-        data-i18n="nav_game"
-      >
+      <Link href="/24-challenge" className={isActive('/24-challenge') ? 'active' : ''}>
         {t('nav_game')}
-      </NavLink>
+      </Link>
 
-      <NavLink
-        to="/capture"
-        className={({ isActive }) => (isActive ? 'active' : '')}
-        data-i18n="nav_fraction_capture"
-      >
+      <Link href="/capture" className={isActive('/capture') ? 'active' : ''}>
         {t('nav_fraction_capture')}
-      </NavLink>
+      </Link>
 
-      <NavLink
-        to="/algebra"
-        className={({ isActive }) => (isActive ? 'active' : '')}
-      >
+      <Link href="/algebra" className={isActive('/algebra') ? 'active' : ''}>
         {t('nav_algebra')}
-      </NavLink>
+      </Link>
 
-      <NavLink
-        to="/contact"
-        className={({ isActive }) => (isActive ? 'active' : '')}
-        data-i18n="nav_contact"
-      >
+      <Link href="/contact" className={isActive('/contact') ? 'active' : ''}>
         {t('nav_contact')}
-      </NavLink>
+      </Link>
 
       <select
         id="lang-switcher"
@@ -70,4 +76,3 @@ export default function NavBar({ lang, onChangeLang, t }: Props) {
     </nav>
   )
 }
-

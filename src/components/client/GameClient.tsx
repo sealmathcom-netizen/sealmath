@@ -1,10 +1,12 @@
-import { Helmet } from 'react-helmet-async'
+'use client'
+
 import { useMemo, useEffect, useRef, useState } from 'react'
-import { useI18n } from '../i18n/useI18n'
-import { solve24 } from '../logic/solve24'
+import { solve24 } from '../../logic/solve24'
+import type { Lang } from '../../i18n/translations'
 
 type Props = {
-  storageAllowed: boolean
+  lang: Lang
+  dict: Record<string, string>
 }
 
 const TOTAL_POSSIBLE = 1820
@@ -21,8 +23,28 @@ function formatKey(nums: number[]) {
   return [...nums].sort((a, b) => a - b).join(',')
 }
 
-export default function GamePage({ storageAllowed }: Props) {
-  const { lang, t } = useI18n()
+export default function GameClient({ lang, dict }: Props) {
+  const t = (key: string, params: Record<string, string | number> = {}) => {
+    let str = dict[key] ?? key
+    for (const [k, v] of Object.entries(params)) {
+      str = str.replace(`{${k}}`, String(v))
+    }
+    return str
+  }
+
+  const [storageAllowed, setStorageAllowed] = useState(true)
+
+  useEffect(() => {
+    const raw = localStorage.getItem('storageAllowed')
+    if (raw !== null) setStorageAllowed(raw === 'true')
+
+    const listener = () => {
+      const updated = localStorage.getItem('storageAllowed')
+      if (updated !== null) setStorageAllowed(updated === 'true')
+    }
+    window.addEventListener('storage-allowed-changed', listener)
+    return () => window.removeEventListener('storage-allowed-changed', listener)
+  }, [])
 
   const solvableHistoryRef = useRef<string[]>([])
   const unsolvableHistoryRef = useRef<string[]>([])
@@ -291,19 +313,7 @@ export default function GamePage({ storageAllowed }: Props) {
   }, [t])
 
   return (
-    <>
-      <Helmet>
-        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
-        <title>{t('meta_title_game')}</title>
-        <link rel="canonical" href="https://sealmath.com/24-challenge" />
-        <link rel="alternate" hrefLang="he" href="https://sealmath.com/24-challenge?lang=he" />
-        <link rel="alternate" hrefLang="en" href="https://sealmath.com/24-challenge" />
-        <link rel="alternate" hrefLang="nl" href="https://sealmath.com/24-challenge?lang=nl" />
-        <link rel="alternate" hrefLang="x-default" href="https://sealmath.com/24-challenge" />
-        <meta name="description" content={t('meta_description_game')} />
-      </Helmet>
-
-      <section id="game-page" className="page active">
+    <section id="game-page" className="page active" style={{ display: 'block' }}>
         <div className="container">
           <div
             style={{
@@ -456,7 +466,6 @@ export default function GamePage({ storageAllowed }: Props) {
           </div>
         </div>
       </section>
-    </>
   )
 }
 

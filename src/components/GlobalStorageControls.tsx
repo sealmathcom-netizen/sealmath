@@ -1,13 +1,37 @@
-import { useI18n } from '../i18n/useI18n'
+'use client'
+
+import { useEffect, useState } from 'react'
 
 export default function GlobalStorageControls({
-  storageAllowed,
-  setStorageAllowed,
+  dict,
 }: {
-  storageAllowed: boolean
-  setStorageAllowed: (val: boolean) => void
+  dict: Record<string, string>
 }) {
-  const { t } = useI18n()
+  const [storageAllowed, setStorageAllowedState] = useState<boolean>(true)
+
+  useEffect(() => {
+    const raw = localStorage.getItem('storageAllowed')
+    if (raw !== null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setStorageAllowedState(raw === 'true')
+    }
+  }, [])
+
+  const setStorageAllowed = (val: boolean) => {
+    setStorageAllowedState(val)
+    localStorage.setItem('storageAllowed', String(val))
+    if (!val) {
+      localStorage.removeItem('solvableHistory')
+      localStorage.removeItem('unsolvableHistory')
+      localStorage.removeItem('lastViewedIndex')
+      localStorage.removeItem('captureIngredients')
+      localStorage.removeItem('captureTarget')
+      localStorage.removeItem('captureGameOver')
+    }
+    window.dispatchEvent(new Event('storage-allowed-changed'))
+  }
+
+  const t = (key: string) => dict[key] ?? key
 
   const clearAllHistory = () => {
     if (!confirm(t('msg_del_confirm'))) return
@@ -30,6 +54,14 @@ export default function GlobalStorageControls({
 
     window.dispatchEvent(new Event('clear-history'))
   }
+
+  // Prevent hydration mismatch by returning null on first server render if needed,
+  // but since we initialize to true, it might mismatch the checkbox if user set to false.
+  // Using a hydration trick:
+  const [mounted, setMounted] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), [])
+  if (!mounted) return <div className="global-controls" style={{ visibility: 'hidden' }}></div>
 
   return (
     <div className="global-controls">

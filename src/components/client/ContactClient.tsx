@@ -1,13 +1,25 @@
-import { Helmet } from 'react-helmet-async'
+'use client'
+
 import { useEffect, useState } from 'react'
-import { useI18n } from '../i18n/useI18n'
+import type { Lang } from '../../i18n/translations'
+
+type Props = {
+  lang: Lang
+  dict: Record<string, string>
+}
 
 function hasHebrewText(v: string) {
   return /[\u0590-\u05FF]/.test(v)
 }
 
-export default function ContactPage() {
-  const { lang, t } = useI18n()
+export default function ContactClient({ dict }: Props) {
+  const t = (key: string, params: Record<string, string | number> = {}) => {
+    let str = dict[key] ?? key
+    for (const [k, v] of Object.entries(params)) {
+      str = str.replace(`{${k}}`, String(v))
+    }
+    return str
+  }
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -22,6 +34,7 @@ export default function ContactPage() {
     // Wait briefly for the CDN to load.
     let attempts = 0
     const interval = window.setInterval(() => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const emailjs = (window as any).emailjs
       if (emailjs?.init) {
         emailjs.init({ publicKey: PUBLIC_KEY })
@@ -46,6 +59,7 @@ export default function ContactPage() {
     const TEMPLATE_ID = 'template_n4ns66m'
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const emailjs = (window as any).emailjs
       if (!emailjs || !emailjs.sendForm) {
         throw new Error('emailjs is not available')
@@ -68,19 +82,7 @@ export default function ContactPage() {
   }
 
   return (
-    <>
-      <Helmet>
-        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
-        <title>{t('meta_title_contact')}</title>
-        <link rel="canonical" href="https://sealmath.com/contact" />
-        <link rel="alternate" hrefLang="he" href="https://sealmath.com/contact?lang=he" />
-        <link rel="alternate" hrefLang="en" href="https://sealmath.com/contact" />
-        <link rel="alternate" hrefLang="nl" href="https://sealmath.com/contact?lang=nl" />
-        <link rel="alternate" hrefLang="x-default" href="https://sealmath.com/contact" />
-        <meta name="description" content={t('meta_description_contact')} />
-      </Helmet>
-
-      <section id="contact-page" className="page active">
+    <section id="contact-page" className="page active" style={{ display: 'block' }}>
         <div className="container" style={{ maxWidth: 500 }}>
           <h1 style={{ textAlign: 'center', fontSize: '1.8rem', marginTop: 0 }}>{t('contact_title')}</h1>
 
@@ -132,7 +134,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-    </>
   )
 }
 

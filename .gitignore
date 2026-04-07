@@ -12,8 +12,13 @@ playwright-report/
 blob-report/
 playwright/.cache/
 
-# Production Build
-dist/
+# Next.js Build
+.next/
+out/
+build/
+
+# Vercel
+.vercel/
 
 # OS Files
 .DS_Store

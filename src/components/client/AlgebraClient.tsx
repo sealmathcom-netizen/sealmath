@@ -1,6 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client'
+
 import { useState, useEffect, type ReactNode } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useI18n } from '../i18n/useI18n';
+import type { Lang } from '../../i18n/translations';
+
+type Props = {
+  lang: Lang;
+  dict: Record<string, string>;
+};
 
 type Problem = { q: string, a: number };
 
@@ -44,7 +51,10 @@ function AlgebraWindow({
 }) {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [solvedCount, setSolvedCount] = useState(() => {
-    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    }
+    return 0;
   });
   const [answer, setAnswer] = useState('');
   const [resultMsg, setResultMsg] = useState('');
@@ -206,7 +216,10 @@ function TwoStepAlgebraWindow({
 }) {
   const [problem, setProblem] = useState<TwoStepProblem | null>(null);
   const [solvedCount, setSolvedCount] = useState(() => {
-    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    }
+    return 0;
   });
   const [ans1, setAns1] = useState('');
   const [ans2, setAns2] = useState('');
@@ -404,7 +417,10 @@ function CombiningLikeTermsWindow({
 }) {
   const [problem, setProblem] = useState<CombiningLikeTermsProblem | null>(null);
   const [solvedCount, setSolvedCount] = useState(() => {
-    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    }
+    return 0;
   });
   const [ans1, setAns1] = useState('');
   const [ans2, setAns2] = useState('');
@@ -562,7 +578,10 @@ function RoundingWindow({
 }) {
   const [problem, setProblem] = useState<RoundingProblem | null>(null);
   const [solvedCount, setSolvedCount] = useState(() => {
-    return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    if (typeof window !== 'undefined') {
+      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
+    }
+    return 0;
   });
   const [answer, setAnswer] = useState('');
   const [resultMsg, setResultMsg] = useState('');
@@ -672,11 +691,21 @@ function RoundingWindow({
   );
 }
 
-export default function AlgebraPage() {
+export default function AlgebraClient({ dict }: Props) {
   const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike'>(() => {
-    return (localStorage.getItem('algebraActiveTab') as any) || 'addsub';
+    if (typeof window !== 'undefined') {
+      return (localStorage.getItem('algebraActiveTab') as 'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike') || 'addsub';
+    }
+    return 'addsub';
   });
-  const { lang, t } = useI18n();
+  
+  const t = (key: string, params: Record<string, string | number> = {}) => {
+    let str = dict[key] ?? key
+    for (const [k, v] of Object.entries(params)) {
+      str = str.replace(`{${k}}`, String(v))
+    }
+    return str
+  }
 
   useEffect(() => {
     localStorage.setItem('algebraActiveTab', activeTab);
@@ -730,17 +759,7 @@ export default function AlgebraPage() {
   );
 
   return (
-    <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
-      <Helmet>
-        <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} />
-        <title>{t('meta_title_algebra')}</title>
-        <link rel="canonical" href="https://sealmath.com/algebra" />
-        <link rel="alternate" hrefLang="he" href="https://sealmath.com/algebra?lang=he" />
-        <link rel="alternate" hrefLang="en" href="https://sealmath.com/algebra" />
-        <link rel="alternate" hrefLang="nl" href="https://sealmath.com/algebra?lang=nl" />
-        <link rel="alternate" hrefLang="x-default" href="https://sealmath.com/algebra" />
-        <meta name="description" content={t('meta_description_algebra')} />
-      </Helmet>
+    <section className="page active" id="algebra-page" style={{ paddingBottom: '60px', display: 'block' }}>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
         <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '30px', textAlign: 'center' }}>{t('algebra_title')}</h1>
 
