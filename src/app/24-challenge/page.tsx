@@ -8,12 +8,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t('meta_title_game'),
     description: t('meta_description_game'),
     alternates: {
-      canonical: 'https://sealmath.com/24-challenge',
+      canonical: '/24-challenge',
       languages: {
-        'he': 'https://sealmath.com/24-challenge?lang=he',
-        'en': 'https://sealmath.com/24-challenge',
-        'nl': 'https://sealmath.com/24-challenge?lang=nl',
-        'x-default': 'https://sealmath.com/24-challenge',
+        'he': '/24-challenge?lang=he',
+        'en': '/24-challenge',
+        'nl': '/24-challenge?lang=nl',
+        'x-default': '/24-challenge',
       }
     }
   }

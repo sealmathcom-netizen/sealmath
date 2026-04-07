@@ -8,12 +8,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t('meta_title_algebra'),
     description: t('meta_description_algebra'),
     alternates: {
-      canonical: 'https://sealmath.com/algebra',
+      canonical: '/algebra',
       languages: {
-        'he': 'https://sealmath.com/algebra?lang=he',
-        'en': 'https://sealmath.com/algebra',
-        'nl': 'https://sealmath.com/algebra?lang=nl',
-        'x-default': 'https://sealmath.com/algebra',
+        'he': '/algebra?lang=he',
+        'en': '/algebra',
+        'nl': '/algebra?lang=nl',
+        'x-default': '/algebra',
       }
     }
   }

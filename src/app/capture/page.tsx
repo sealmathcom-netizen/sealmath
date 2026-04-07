@@ -8,12 +8,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t('meta_title_capture'),
     description: t('meta_description_capture'),
     alternates: {
-      canonical: 'https://sealmath.com/capture',
+      canonical: '/capture',
       languages: {
-        'he': 'https://sealmath.com/capture?lang=he',
-        'en': 'https://sealmath.com/capture',
-        'nl': 'https://sealmath.com/capture?lang=nl',
-        'x-default': 'https://sealmath.com/capture',
+        'he': '/capture?lang=he',
+        'en': '/capture',
+        'nl': '/capture?lang=nl',
+        'x-default': '/capture',
       }
     }
   }

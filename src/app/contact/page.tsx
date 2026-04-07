@@ -8,12 +8,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: t('meta_title_contact'),
     description: t('meta_description_contact'),
     alternates: {
-      canonical: 'https://sealmath.com/contact',
+      canonical: '/contact',
       languages: {
-        'he': 'https://sealmath.com/contact?lang=he',
-        'en': 'https://sealmath.com/contact',
-        'nl': 'https://sealmath.com/contact?lang=nl',
-        'x-default': 'https://sealmath.com/contact',
+        'he': '/contact?lang=he',
+        'en': '/contact',
+        'nl': '/contact?lang=nl',
+        'x-default': '/contact',
       }
     }
   }

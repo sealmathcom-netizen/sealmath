@@ -9,7 +9,17 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: t('meta_title_home'),
     description: t('meta_description_home'),
+    metadataBase: new URL('https://sealmath.com'),
     manifest: '/manifest.json',
+    alternates: {
+      canonical: '/',
+      languages: {
+        'he': '/?lang=he',
+        'en': '/',
+        'nl': '/?lang=nl',
+        'x-default': '/',
+      }
+    }
   }
 }
 
