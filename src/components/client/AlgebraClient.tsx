@@ -759,7 +759,7 @@ export default function AlgebraClient({ dict }: Props) {
   );
 
   return (
-    <section className="page active" id="algebra-page" style={{ paddingBottom: '60px', display: 'block' }}>
+    <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
         <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '30px', textAlign: 'center' }}>{t('algebra_title')}</h1>
 

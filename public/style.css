@@ -113,25 +113,37 @@ nav a.active {
     margin-bottom: 20px;
 }
 
-/* Global History Controls (Linked Sticky) */
+/* Global History Controls */
 .global-controls {
-    position: sticky;
-    top: 64px;
-    left: 20px;
     z-index: 1001;
-    width: fit-content;
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(8px);
     padding: 8px 15px;
     border-radius: 12px;
     border: 1px solid rgba(0, 0, 0, 0.08);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    margin: 10px 0 0 20px;
-    float: left;
+    margin: 15px auto 20px;
+    width: fit-content;
+}
+
+@media (min-width: 1200px) {
+    .global-controls {
+        position: fixed;
+        top: 80px;
+        flex-direction: column;
+        align-items: flex-start;
+        margin: 0;
+    }
+    html[dir="ltr"] .global-controls {
+        left: 20px;
+    }
+    html[dir="rtl"] .global-controls {
+        right: 20px;
+    }
 }
 
 

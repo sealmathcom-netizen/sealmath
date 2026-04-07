@@ -192,7 +192,7 @@ export default function CaptureClient({ lang, dict }: Props) {
   }
 
   return (
-    <section id="capture-page" className="page active" style={{ display: 'block' }}>
+    <section id="capture-page" className="page active">
         <div className="container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('capture_title')}</h1>

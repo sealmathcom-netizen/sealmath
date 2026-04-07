@@ -11,7 +11,7 @@ export default async function HomePage() {
   ]
 
   return (
-    <section id="home-page" className="page active" style={{ display: 'block' }}>
+    <section id="home-page" className="page active">
       <div className="home-hero">
         <h1 className="home-hero-title">{t('home_hero_title')}</h1>
         <p className="home-hero-subtitle">{t('home_hero_subtitle')}</p>

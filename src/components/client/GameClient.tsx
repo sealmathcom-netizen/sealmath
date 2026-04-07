@@ -313,7 +313,7 @@ export default function GameClient({ lang, dict }: Props) {
   }, [t])
 
   return (
-    <section id="game-page" className="page active" style={{ display: 'block' }}>
+    <section id="game-page" className="page active">
         <div className="container">
           <div
             style={{

@@ -82,7 +82,7 @@ export default function ContactClient({ dict }: Props) {
   }
 
   return (
-    <section id="contact-page" className="page active" style={{ display: 'block' }}>
+    <section id="contact-page" className="page active">
         <div className="container" style={{ maxWidth: 500 }}>
           <h1 style={{ textAlign: 'center', fontSize: '1.8rem', marginTop: 0 }}>{t('contact_title')}</h1>
 
