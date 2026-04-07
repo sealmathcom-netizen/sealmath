@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Games', () => {
   test.describe('24 Challenge', () => {
     test.beforeEach(async ({ page }) => {
-      await page.goto('/?lang=en');
+      await page.goto('/24-challenge?lang=en');
     });
 
     test('should load and allow generating a new puzzle', async ({ page }) => {

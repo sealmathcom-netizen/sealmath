@@ -2,6 +2,7 @@ export type Lang = 'en' | 'he' | 'nl'
 
 export const translations: Record<Lang, Record<string, string>> = {
   en: {
+    nav_home: 'Home',
     nav_game: '24 Challenge',
     nav_fraction_capture: 'Fraction Capture',
     nav_contact: 'Feedback',
@@ -99,8 +100,22 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_rounding_ex3: '<strong>Example 3:</strong> Round <code style="font-family: var(--mono)">5.495</code> to 2 decimal places. <br/>Look at the 3rd decimal (5). Since it is 5 or more, the 9 rounds up to 10, which changes the 4 to 5: ➔ <code style="font-family: var(--mono)">5.5</code> or <code style="font-family: var(--mono)">5.50</code>.',
     algebra_rounding_prompt: 'Round {num} to {count} decimal places:',
     algebra_rounding_prompt_whole: 'Round {num} to the nearest whole number:',
+
+    // Homepage
+    meta_title_home: 'SealMath – Free Interactive Math Games & Learning Tools',
+    meta_description_home: 'Learn math the fun way with SealMath! Free interactive games, algebra practice, fraction challenges, and mental math puzzles for students of all ages.',
+    home_hero_title: 'Master Math the Fun Way 🦭',
+    home_hero_subtitle: 'Interactive games and tools that make learning math exciting — for students of all ages.',
+    home_card_24_title: '🎯 24 Challenge',
+    home_card_24_desc: 'Sharpen your mental math! Combine four numbers using +, −, ×, ÷ to make exactly 24.',
+    home_card_capture_title: '🧩 Fraction Capture',
+    home_card_capture_desc: 'Master fractions by mixing the right ingredients to seal the pot. A fun twist on fraction arithmetic!',
+    home_card_algebra_title: '📐 Algebra Basics',
+    home_card_algebra_desc: 'Learn to solve equations step by step — from simple addition to combining like terms and rounding.',
+    home_cta: 'Start Learning →',
   },
   he: {
+    nav_home: 'בית',
     nav_game: 'אתגר ה-24',
     nav_fraction_capture: 'לכידת שברים',
     nav_contact: 'משוב',
@@ -198,8 +213,22 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_rounding_ex3: '<strong>דוגמה 3:</strong> עגלו את <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.495</code> ל-2 ספרות עשרוניות. <br/>נסתכל על הספרה השלישית (5). כיוון שהיא 5 ומעלה, ה-9 מתעגל ל-10, מה שמשנה גם את ה-4 ל-5: ➔ <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.5</code> או <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.50</code>.',
     algebra_rounding_prompt: 'עגלו את {num} ל-{count} ספרות עשרוניות:',
     algebra_rounding_prompt_whole: 'עגלו את {num} למספר השלם הקרוב ביותר:',
+
+    // Homepage
+    meta_title_home: 'SealMath – משחקי מתמטיקה אינטראקטיביים וכלי למידה חינמיים',
+    meta_description_home: 'למדו מתמטיקה בדרך מהנה עם SealMath! משחקים אינטראקטיביים, תרגול אלגברה, אתגרי שברים וחידות חשבון מנטלי לתלמידים בכל הגילאים.',
+    home_hero_title: 'לימדו מתמטיקה בדרך מהנה 🦭',
+    home_hero_subtitle: 'משחקים וכלים אינטראקטיביים שהופכים את לימוד המתמטיקה למרתק — לתלמידים בכל הגילאים.',
+    home_card_24_title: '🎯 אתגר ה-24',
+    home_card_24_desc: 'חדדו את החשבון המנטלי! שלבו ארבעה מספרים עם +, −, ×, ÷ כדי להגיע בדיוק ל-24.',
+    home_card_capture_title: '🧩 לכידת שברים',
+    home_card_capture_desc: 'השתלטו על השברים על ידי ערבוב המרכיבים הנכונים לחתימת הכד. תפנית מהנה לאריתמטיקה של שברים!',
+    home_card_algebra_title: '📐 אלגברה בסיסית',
+    home_card_algebra_desc: 'למדו לפתור משוואות צעד אחר צעד — מחיבור פשוט ועד כינוס איברים דומים ועיגול.',
+    home_cta: 'התחילו ללמוד ←',
   },
   nl: {
+    nav_home: 'Home',
     nav_game: '24 Uitdaging',
     nav_fraction_capture: 'Breuken Vangen',
     nav_contact: 'Feedback',
@@ -297,6 +326,19 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_rounding_ex3: '<strong>Voorbeeld 3:</strong> Rond <code style="font-family: var(--mono)">5.495</code> af op 2 decimalen. <br/>Kijk naar de 3e decimaal (5). Omdat dit 5 of hoger is, wordt de 9 een 10, waardoor de 4 een 5 wordt: ➔ <code style="font-family: var(--mono)">5.5</code> of <code style="font-family: var(--mono)">5.50</code>.',
     algebra_rounding_prompt: 'Rond {num} af op {count} decimalen:',
     algebra_rounding_prompt_whole: 'Rond {num} af op het dichtstbijzijnde gehele getal:',
+
+    // Homepage
+    meta_title_home: 'SealMath – Gratis Interactieve Wiskundespellen & Leertools',
+    meta_description_home: 'Leer wiskunde op een leuke manier met SealMath! Gratis interactieve spellen, algebra-oefeningen, breukenuitdagingen en hoofdrekenpuzzels voor leerlingen van alle leeftijden.',
+    home_hero_title: 'Leer Wiskunde op een Leuke Manier 🦭',
+    home_hero_subtitle: 'Interactieve spellen en tools die het leren van wiskunde spannend maken — voor leerlingen van alle leeftijden.',
+    home_card_24_title: '🎯 24 Uitdaging',
+    home_card_24_desc: 'Verscherp je hoofdrekenen! Combineer vier getallen met +, −, ×, ÷ om precies 24 te maken.',
+    home_card_capture_title: '🧩 Breuken Vangen',
+    home_card_capture_desc: 'Word een meester in breuken door de juiste ingrediënten te mengen om de pot te verzegelen!',
+    home_card_algebra_title: '📐 Algebra Basis',
+    home_card_algebra_desc: 'Leer stap voor stap vergelijkingen oplossen — van optellen tot het samenvoegen van gelijksoortige termen en afronden.',
+    home_cta: 'Begin met Leren →',
   },
 }
 

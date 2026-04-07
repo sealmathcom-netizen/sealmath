@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { useI18n } from './i18n/useI18n'
 import NavBar from './components/NavBar'
 import GamePage from './pages/GamePage'
+import HomePage from './pages/HomePage'
 import CapturePage from './pages/CapturePage'
 import ContactPage from './pages/ContactPage'
 import AlgebraPage from './pages/AlgebraPage'
@@ -34,7 +35,8 @@ function App() {
       <NavBar lang={lang} onChangeLang={setLang} t={t} />
       <GlobalStorageControls storageAllowed={storageAllowed} setStorageAllowed={setStorageAllowed} />
       <Routes>
-        <Route path="/" element={<GamePage storageAllowed={storageAllowed} />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/24-challenge" element={<GamePage storageAllowed={storageAllowed} />} />
         <Route path="/capture" element={<CapturePage storageAllowed={storageAllowed} />} />
         <Route path="/algebra" element={<AlgebraPage />} />
         <Route path="/contact" element={<ContactPage />} />

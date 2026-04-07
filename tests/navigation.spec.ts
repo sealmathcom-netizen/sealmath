@@ -5,9 +5,17 @@ test.describe('Navigation', () => {
     await page.goto('/?lang=en');
   });
 
+  test('should load homepage with hero section', async ({ page }) => {
+    await expect(page.locator('.home-hero-title')).toBeVisible();
+    await expect(page.locator('.home-hero-title')).toContainText('Master Math');
+  });
+
   test('should navigate to all core pages', async ({ page }) => {
-    // Wait for initial load
-    await expect(page.locator('h1')).toBeVisible();
+    // Start on homepage
+    await expect(page.locator('.home-hero-title')).toBeVisible();
+
+    // Navigate to 24 Challenge
+    await page.click('nav >> text=24 Challenge');
     await expect(page.locator('h1')).toContainText('24 Challenge');
 
     // Navigate to Fraction Capture
@@ -21,5 +29,9 @@ test.describe('Navigation', () => {
     // Navigate to Feedback
     await page.click('nav >> text=Feedback');
     await expect(page.locator('h1')).toContainText('Feedback');
+
+    // Navigate back to Home
+    await page.click('nav >> text=Home');
+    await expect(page.locator('.home-hero-title')).toBeVisible();
   });
 });

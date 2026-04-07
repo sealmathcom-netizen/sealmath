@@ -12,6 +12,14 @@ export default function NavBar({ lang, onChangeLang, t }: Props) {
     <nav>
       <NavLink
         to="/"
+        end
+        className={({ isActive }) => (isActive ? 'active' : '')}
+      >
+        {t('nav_home')}
+      </NavLink>
+
+      <NavLink
+        to="/24-challenge"
         className={({ isActive }) => (isActive ? 'active' : '')}
         data-i18n="nav_game"
       >
