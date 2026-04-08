@@ -38,7 +38,7 @@ export default async function AlgebraPage({ searchParams }: Props) {
   return (
     <AlgebraClient lang={lang} dict={dict}>
       <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('home_card_algebra_title')}</h1>
-      <p style={{ color: '#7f8c8d', margin: '0.5rem 0', textAlign: 'center' }}>{t('meta_description_algebra')}</p>
+      <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '2rem' }}>{t('meta_description_algebra')}</p>
     </AlgebraClient>
   )
 }
