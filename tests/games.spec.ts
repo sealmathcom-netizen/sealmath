@@ -4,6 +4,7 @@ test.describe('Games', () => {
   test.describe('24 Challenge', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/24-challenge?lang=en');
+      await page.evaluate(() => localStorage.clear());
     });
 
     test('should load and allow generating a new puzzle', async ({ page }) => {
@@ -23,6 +24,7 @@ test.describe('Games', () => {
   test.describe('Fraction Capture', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/capture?lang=en');
+      await page.evaluate(() => localStorage.clear());
     });
 
     test('should load and display target and ingredients', async ({ page }) => {
@@ -34,7 +36,7 @@ test.describe('Games', () => {
 
     test('should show solution', async ({ page }) => {
       await page.click('text=Show Solution', { force: true });
-      await expect(page.locator('text=Solution:')).toBeVisible();
+      await expect(page.locator('#capture-feedback')).toContainText('Solution:');
     });
   });
 });

@@ -7,6 +7,7 @@ import type { Lang } from '../../i18n/translations'
 type Props = {
   lang: Lang
   dict: Record<string, string>
+  children?: React.ReactNode
 }
 
 const TOTAL_POSSIBLE = 1820
@@ -23,7 +24,7 @@ function formatKey(nums: number[]) {
   return [...nums].sort((a, b) => a - b).join(',')
 }
 
-export default function GameClient({ lang, dict }: Props) {
+export default function GameClient({ lang, dict, children }: Props) {
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key
     for (const [k, v] of Object.entries(params)) {
@@ -315,15 +316,15 @@ export default function GameClient({ lang, dict }: Props) {
   return (
     <section id="game-page" className="page active">
         <div className="container">
+          {children}
           <div
             style={{
               display: 'flex',
-              justifyContent: 'space-between',
+              justifyContent: 'flex-end',
               alignItems: 'center',
               marginBottom: 10,
             }}
           >
-            <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('game_title')}</h1>
             <span id="puzzle-counter" style={{ fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 'bold' }}>
               {puzzleCounter}
             </span>

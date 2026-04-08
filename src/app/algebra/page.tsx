@@ -13,7 +13,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
   const { t, lang } = await getTranslations(forceLang as Lang)
   
-  const canonical = lang === 'en' ? '/algebra' : `/algebra?lang=${lang}`
+  const canonical = lang === 'en' ? 'https://sealmath.com/algebra' : `https://sealmath.com/algebra?lang=${lang}`
 
   return {
     title: t('meta_title_algebra'),
@@ -21,16 +21,24 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     alternates: {
       canonical,
       languages: {
-        'he': '/algebra?lang=he',
-        'en': '/algebra',
-        'nl': '/algebra?lang=nl',
-        'x-default': '/algebra',
+        'he': 'https://sealmath.com/algebra?lang=he',
+        'en': 'https://sealmath.com/algebra',
+        'nl': 'https://sealmath.com/algebra?lang=nl',
+        'x-default': 'https://sealmath.com/algebra',
       }
     }
   }
 }
 
-export default async function AlgebraPage() {
-  const { lang, dict } = await getTranslations()
-  return <AlgebraClient lang={lang} dict={dict} />
+export default async function AlgebraPage({ searchParams }: Props) {
+  const sParams = await searchParams
+  const langQuery = sParams.lang as string | undefined
+  const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
+  const { lang, dict, t } = await getTranslations(forceLang as Lang)
+  return (
+    <AlgebraClient lang={lang} dict={dict}>
+      <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('home_card_algebra_title')}</h1>
+      <p style={{ color: '#7f8c8d', margin: '0.5rem 0', textAlign: 'center' }}>{t('meta_description_algebra')}</p>
+    </AlgebraClient>
+  )
 }

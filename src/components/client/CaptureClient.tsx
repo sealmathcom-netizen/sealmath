@@ -12,6 +12,7 @@ import type { Lang } from '../../i18n/translations'
 type Props = {
   lang: Lang
   dict: Record<string, string>
+  children?: React.ReactNode
 }
 
 function FracView({ f }: { f: Frac }) {
@@ -23,7 +24,7 @@ function FracView({ f }: { f: Frac }) {
   )
 }
 
-export default function CaptureClient({ lang, dict }: Props) {
+export default function CaptureClient({ lang, dict, children }: Props) {
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key
     for (const [k, v] of Object.entries(params)) {
@@ -194,8 +195,8 @@ export default function CaptureClient({ lang, dict }: Props) {
   return (
     <section id="capture-page" className="page active">
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('capture_title')}</h1>
+          {children}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 20 }}>
             <button
               className="btn-solve btn-rules"
               style={{ margin: 0, padding: '6px 12px', fontSize: '0.85rem' }}

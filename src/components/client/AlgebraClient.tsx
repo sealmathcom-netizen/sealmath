@@ -7,6 +7,7 @@ import type { Lang } from '../../i18n/translations';
 type Props = {
   lang: Lang;
   dict: Record<string, string>;
+  children?: React.ReactNode;
 };
 
 type Problem = { q: string, a: number };
@@ -691,7 +692,7 @@ function RoundingWindow({
   );
 }
 
-export default function AlgebraClient({ dict }: Props) {
+export default function AlgebraClient({ dict, children }: Props) {
   const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike'>(() => {
     if (typeof window !== 'undefined') {
       return (localStorage.getItem('algebraActiveTab') as 'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike') || 'addsub';
@@ -761,7 +762,7 @@ export default function AlgebraClient({ dict }: Props) {
   return (
     <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
-        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '30px', textAlign: 'center' }}>{t('algebra_title')}</h1>
+        {children}
 
         <div style={{ display: 'flex', gap: '25px', flexWrap: 'wrap' }}>
           

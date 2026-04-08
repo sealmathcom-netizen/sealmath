@@ -5,6 +5,7 @@ import GlobalStorageControls from '@/components/GlobalStorageControls'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
+    metadataBase: new URL('https://sealmath.com'),
     manifest: '/manifest.json',
   }
 }

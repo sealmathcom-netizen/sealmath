@@ -6,13 +6,14 @@ import type { Lang } from '../../i18n/translations'
 type Props = {
   lang: Lang
   dict: Record<string, string>
+  children?: React.ReactNode
 }
 
 function hasHebrewText(v: string) {
   return /[\u0590-\u05FF]/.test(v)
 }
 
-export default function ContactClient({ dict }: Props) {
+export default function ContactClient({ dict, children }: Props) {
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key
     for (const [k, v] of Object.entries(params)) {
@@ -84,11 +85,7 @@ export default function ContactClient({ dict }: Props) {
   return (
     <section id="contact-page" className="page active">
         <div className="container" style={{ maxWidth: 500 }}>
-          <h1 style={{ textAlign: 'center', fontSize: '1.8rem', marginTop: 0 }}>{t('contact_title')}</h1>
-
-          <div className="feedback-intro">
-            <p>{t('feedback_desc')}</p>
-          </div>
+          {children}
 
           <form id="contact-form" onSubmit={send}>
             <label>{t('lbl_name')}</label>

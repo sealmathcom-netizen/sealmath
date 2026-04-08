@@ -21,17 +21,20 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     alternates: {
       canonical,
       languages: {
-        'he': '/?lang=he',
-        'en': '/',
-        'nl': '/?lang=nl',
-        'x-default': '/',
+        'he': 'https://sealmath.com/?lang=he',
+        'en': 'https://sealmath.com/',
+        'nl': 'https://sealmath.com/?lang=nl',
+        'x-default': 'https://sealmath.com/',
       }
     }
   }
 }
 
-export default async function HomePage() {
-  const { t } = await getTranslations()
+export default async function HomePage({ searchParams }: Props) {
+  const sParams = await searchParams
+  const langQuery = sParams.lang as string | undefined
+  const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
+  const { t } = await getTranslations(forceLang as Lang)
 
   const cards = [
     { titleKey: 'home_card_24_title', descKey: 'home_card_24_desc', to: '/24-challenge' },

@@ -4,6 +4,7 @@ test.describe('Algebra Basics', () => {
   test.beforeEach(async ({ page }) => {
     // Force English and make viewport stable
     await page.goto('/algebra?lang=en');
+    await page.evaluate(() => localStorage.clear());
     await page.waitForLoadState('networkidle');
   });
 
