@@ -1,5 +1,34 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/i18n/server'
+import { type Lang } from '@/i18n/translations'
+
+interface Props {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const sParams = await searchParams
+  const langQuery = sParams.lang as string | undefined
+  const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
+  const { t, lang } = await getTranslations(forceLang as Lang)
+  
+  const canonical = lang === 'en' ? 'https://sealmath.com/' : `https://sealmath.com/?lang=${lang}`
+
+  return {
+    title: t('meta_title_home'),
+    description: t('meta_description_home'),
+    alternates: {
+      canonical,
+      languages: {
+        'he': '/?lang=he',
+        'en': '/',
+        'nl': '/?lang=nl',
+        'x-default': '/',
+      }
+    }
+  }
+}
 
 export default async function HomePage() {
   const { t } = await getTranslations()

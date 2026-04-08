@@ -13,8 +13,8 @@ export async function getLanguage(): Promise<Lang> {
   return 'en'
 }
 
-export async function getTranslations() {
-  const lang = await getLanguage()
+export async function getTranslations(forcedLang?: Lang) {
+  const lang = forcedLang || await getLanguage()
   
   const dict = translations[lang]
   const t = (key: string, params: Record<string, string | number> = {}) => {
