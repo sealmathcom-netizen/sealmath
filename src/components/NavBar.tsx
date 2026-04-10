@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createSupabaseClient } from '../utils/supabase/client'
 import type { Lang } from '../i18n/translations'
 import { setLanguage } from '../app/actions'
@@ -20,7 +20,8 @@ export default function NavBar({ lang, dict }: Props) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isBypassed, setIsBypassed] = useState(false)
-  const supabase = createSupabaseClient()
+  // Memoize the client so it is created exactly once, not on every render
+  const supabase = useMemo(() => createSupabaseClient(), [])
 
   const t = (key: string) => dict[key] ?? key
 
