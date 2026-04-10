@@ -2,8 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { createClient } from '../utils/supabase/client'
 import type { Lang } from '../i18n/translations'
 import { setLanguage } from '../app/actions'
+import type { User } from '@supabase/supabase-js'
 
 type Props = {
   lang: Lang
@@ -14,8 +17,28 @@ export default function NavBar({ lang, dict }: Props) {
   const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
 
   const t = (key: string) => dict[key] ?? key
+
+  useEffect(() => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [supabase.auth])
 
   async function onChangeLang(newLang: Lang) {
     await setLanguage(newLang)
@@ -31,29 +54,58 @@ export default function NavBar({ lang, dict }: Props) {
     router.refresh()
   }
 
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    router.push('/')
+    router.refresh()
+  }
+
+  const getHref = (path: string) => {
+    if (path === '/' || user) return path
+    return `/login?next=${encodeURIComponent(path)}`
+  }
+
   const isActive = (path: string) => pathname === path
 
   return (
     <nav>
-      <Link href="/" className={isActive('/') ? 'active' : ''}>
+      <Link href={getHref('/')} className={isActive('/') ? 'active' : ''}>
         {t('nav_home')}
       </Link>
 
-      <Link href="/24-challenge" className={isActive('/24-challenge') ? 'active' : ''}>
+      <Link href={getHref('/24-challenge')} className={isActive('/24-challenge') ? 'active' : ''}>
         {t('nav_game')}
       </Link>
 
-      <Link href="/capture" className={isActive('/capture') ? 'active' : ''}>
+      <Link href={getHref('/capture')} className={isActive('/capture') ? 'active' : ''}>
         {t('nav_fraction_capture')}
       </Link>
 
-      <Link href="/algebra" className={isActive('/algebra') ? 'active' : ''}>
+      <Link href={getHref('/algebra')} className={isActive('/algebra') ? 'active' : ''}>
         {t('nav_algebra')}
       </Link>
 
-      <Link href="/contact" className={isActive('/contact') ? 'active' : ''}>
+      <Link href={getHref('/contact')} className={isActive('/contact') ? 'active' : ''}>
         {t('nav_contact')}
       </Link>
+
+      {!loading && (
+        <>
+          {user ? (
+            <button 
+              onClick={handleSignOut} 
+              className="nav-btn-text"
+              style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', color: 'inherit' }}
+            >
+              {t('nav_signout')}
+            </button>
+          ) : (
+            <Link href="/login" className={isActive('/login') ? 'active' : ''}>
+              {t('nav_signin')}
+            </Link>
+          )}
+        </>
+      )}
 
       <select
         id="lang-switcher"

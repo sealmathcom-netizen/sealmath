@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function GlobalStorageControls({
   dict,
@@ -8,6 +9,7 @@ export default function GlobalStorageControls({
   dict: Record<string, string>
 }) {
   const [storageAllowed, setStorageAllowedState] = useState<boolean>(true)
+  const pathname = usePathname()
 
   useEffect(() => {
     const raw = localStorage.getItem('storageAllowed')
@@ -61,6 +63,12 @@ export default function GlobalStorageControls({
   const [mounted, setMounted] = useState(false)
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => setMounted(true), [])
+
+  // Don't show on login or auth pages
+  if (pathname === '/login' || pathname?.startsWith('/auth')) {
+    return null
+  }
+
   if (!mounted) return <div className="global-controls" style={{ visibility: 'hidden' }}></div>
 
   return (

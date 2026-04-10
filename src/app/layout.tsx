@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getTranslations } from '@/i18n/server'
 import NavBar from '@/components/NavBar'
 import GlobalStorageControls from '@/components/GlobalStorageControls'
@@ -28,7 +29,14 @@ export default async function RootLayout({
         <div id="root">
           <NavBar lang={lang} dict={dict} />
           <GlobalStorageControls dict={dict} />
-          {children}
+          <main>{children}</main>
+          <footer style={{ marginTop: '50px', padding: '30px 20px', borderTop: '1px solid #eee', textAlign: 'center', fontSize: '0.9rem', color: '#7f8c8d' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '10px' }}>
+              <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>{dict.nav_privacy}</Link>
+              <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>{dict.nav_terms}</Link>
+            </div>
+            <p>&copy; {new Date().getFullYear()} SealMath. All rights reserved.</p>
+          </footer>
         </div>
       </body>
     </html>
