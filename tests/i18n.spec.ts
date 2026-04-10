@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Internationalization (i18n)', () => {
+  test.beforeEach(async ({ context }) => {
+    await context.addCookies([{
+      name: 'test-bypass-token',
+      value: 'playwright-local-test-secret',
+      domain: 'localhost',
+      path: '/'
+    }]);
+  });
+
   test('should switch languages correctly', async ({ page }) => {
     await page.goto('/?lang=en');
 

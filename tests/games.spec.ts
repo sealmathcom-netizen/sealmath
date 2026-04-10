@@ -2,7 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Games', () => {
   test.describe('24 Challenge', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ context, page }) => {
+      await context.addCookies([{
+        name: 'test-bypass-token',
+        value: 'playwright-local-test-secret',
+        domain: 'localhost',
+        path: '/'
+      }]);
       await page.goto('/24-challenge?lang=en');
       await page.evaluate(() => localStorage.clear());
     });
@@ -22,7 +28,13 @@ test.describe('Games', () => {
   });
 
   test.describe('Fraction Capture', () => {
-    test.beforeEach(async ({ page }) => {
+    test.beforeEach(async ({ context, page }) => {
+      await context.addCookies([{
+        name: 'test-bypass-token',
+        value: 'playwright-local-test-secret',
+        domain: 'localhost',
+        path: '/'
+      }]);
       await page.goto('/capture?lang=en');
       await page.evaluate(() => localStorage.clear());
     });

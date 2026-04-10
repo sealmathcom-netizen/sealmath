@@ -1,7 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Algebra Basics', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ context, page }) => {
+    await context.addCookies([{
+      name: 'test-bypass-token',
+      value: 'playwright-local-test-secret',
+      domain: 'localhost',
+      path: '/'
+    }]);
     // Force English and make viewport stable
     await page.goto('/algebra?lang=en');
     await page.evaluate(() => localStorage.clear());

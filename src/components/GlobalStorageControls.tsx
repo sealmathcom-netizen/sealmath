@@ -69,7 +69,7 @@ export default function GlobalStorageControls({
     return null
   }
 
-  if (!mounted) return <div className="global-controls" style={{ visibility: 'hidden' }}></div>
+  if (!mounted) return null
 
   return (
     <div className="global-controls">

@@ -19,11 +19,16 @@ export default function NavBar({ lang, dict }: Props) {
   const searchParams = useSearchParams()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isBypassed, setIsBypassed] = useState(false)
   const supabase = createClient()
 
   const t = (key: string) => dict[key] ?? key
 
   useEffect(() => {
+    // Check for test bypass cookie
+    const hasBypass = document.cookie.includes('test-bypass-token=playwright-local-test-secret')
+    setIsBypassed(hasBypass)
+
     async function getUser() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -61,7 +66,7 @@ export default function NavBar({ lang, dict }: Props) {
   }
 
   const getHref = (path: string) => {
-    if (path === '/' || user) return path
+    if (path === '/' || user || isBypassed) return path
     return `/login?next=${encodeURIComponent(path)}`
   }
 

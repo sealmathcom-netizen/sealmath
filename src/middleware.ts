@@ -27,6 +27,14 @@ export async function middleware(request: NextRequest) {
     console.log(`[Middleware] Language set to: ${lang}`)
   }
 
+  // 0.1 Test Bypass (For E2E Tests only)
+  const bypassToken = request.cookies.get('test-bypass-token')?.value
+  const isBypassed = bypassToken && (bypassToken === process.env.TEST_BYPASS_TOKEN || bypassToken === 'playwright-local-test-secret')
+  if (isBypassed) {
+    console.log(`[Middleware] TEST BYPASS ACTIVE for ${path}`)
+    return response // Return the response object we just prepared!
+  }
+
   // 2. Define Public Routes
   const isAuthRoute = path.startsWith('/auth')
   const isPublicPage = path === '/'

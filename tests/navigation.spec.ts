@@ -1,7 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Navigation', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ context, page }) => {
+    await context.addCookies([{
+      name: 'test-bypass-token',
+      value: 'playwright-local-test-secret',
+      domain: 'localhost',
+      path: '/'
+    }]);
     await page.goto('/?lang=en');
   });
 

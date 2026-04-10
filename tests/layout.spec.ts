@@ -1,6 +1,15 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Layout & Window Placement', () => {
+  test.beforeEach(async ({ context }) => {
+    await context.addCookies([{
+      name: 'test-bypass-token',
+      value: 'playwright-local-test-secret',
+      domain: 'localhost',
+      path: '/'
+    }]);
+  });
+
   test('Pages are horizontally centered', async ({ page }) => {
     // Navigate to a page with a container (24 Challenge)
     await page.goto('/24-challenge');
