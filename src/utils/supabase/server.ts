@@ -4,9 +4,16 @@ import {cookies} from 'next/headers'
 export async function createSupabaseServerClient() {
     const cookieStore = await cookies()
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+        throw new Error('Supabase environment variables are missing. Please check your production dashboard.')
+    }
+
     return createServerClient(
-        'https://aklaifdmrdloycebatrd.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrbGFpZmRtcmRsb3ljZWJhdHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NzgxOTMsImV4cCI6MjA5MTI1NDE5M30.2kAu8T0LujyOgeC0bfanizS4Mj2-tuQ_M24tGOpqZu4',
+        supabaseUrl,
+        supabaseAnonKey,
         {
             cookies: {
                 getAll() {
