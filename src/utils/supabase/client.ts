@@ -1,9 +1,18 @@
 import { createBrowserClient } from '@supabase/ssr'
 
 export function createClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('CRITICAL: Supabase keys are missing on the client! If you just added them to Vercel, you must do a "Redeploy" with "Clean Build" to refresh the JavaScript bundle.')
+    // Fallback to empty strings to prevent the underlying SDK from throwing a generic crash
+    return createBrowserClient('', '')
+  }
+
   return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       auth: {
         flowType: 'pkce',
