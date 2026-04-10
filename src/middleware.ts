@@ -39,6 +39,7 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = path.startsWith('/auth')
   const isPublicPage = path === '/'
   const isLoginPage = path === '/login'
+  const isApiRoute = path.startsWith('/api')
   const isStaticFile = path.match(/\.(png|jpg|ico|svg|css|js|json|webmanifest|txt)$/) || path.startsWith('/_next')
 
   // Early exit for auth routes and static files to avoid unnecessary work
@@ -83,7 +84,7 @@ export async function middleware(request: NextRequest) {
   console.log(`[Middleware] Auth check - User: ${user ? user.email : 'None'}, Path: ${path}`)
 
   // 3. Protection Logic
-  if (!user && !isPublicPage && !isLoginPage && !isAuthRoute && !isStaticFile) {
+  if (!user && !isPublicPage && !isLoginPage && !isAuthRoute && !isStaticFile && !isApiRoute) {
     console.log(`[Middleware] Unauthenticated access to ${path}. Redirecting to /login`)
     const url = request.nextUrl.clone()
     url.pathname = '/login'
