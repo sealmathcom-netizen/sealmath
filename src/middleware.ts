@@ -47,8 +47,11 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const FALLBACK_SUPABASE_URL = 'https://aklaifdmrdloycebatrd.supabase.co'
+  const FALLBACK_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFrbGFpZmRtcmRsb3ljZWJhdHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NzgxOTMsImV4cCI6MjA5MTI1NDE5M30.2kAu8T0LujyOgeC0bfanizS4Mj2-tuQ_M24tGOpqZu4'
+
+  const supabaseUrl = FALLBACK_SUPABASE_URL
+  const supabaseAnonKey = FALLBACK_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
     console.error('[Middleware] MISSING SUPABASE ENVS - Auth protected routes will fail')
