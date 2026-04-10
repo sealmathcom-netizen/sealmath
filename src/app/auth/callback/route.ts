@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { createClient } from '@/utils/supabase/server'
+import { createSupabaseServerClient } from '@/utils/supabase/server'
 import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get('next') ?? '/'
 
   const cookieStore = await cookies()
-  const supabase = await createClient()
+  const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (user) {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (code) {
-    const supabase = await createClient()
+    const supabase = await createSupabaseServerClient()
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
     
     if (!exchangeError) {

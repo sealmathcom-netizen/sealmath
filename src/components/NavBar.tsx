@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { createClient } from '../utils/supabase/client'
+import { createSupabaseClient } from '../utils/supabase/client'
 import type { Lang } from '../i18n/translations'
 import { setLanguage } from '../app/actions'
 import type { User } from '@supabase/supabase-js'
@@ -20,12 +20,12 @@ export default function NavBar({ lang, dict }: Props) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isBypassed, setIsBypassed] = useState(false)
-  const supabase = createClient()
+  const supabase = createSupabaseClient()
 
   const t = (key: string) => dict[key] ?? key
 
   useEffect(() => {
-    // Check for test bypass cookie
+    // Check for test bypass cookie (presence is enough for navigation logic, middleware handles security)
     const hasBypass = document.cookie.includes('test-bypass-token=playwright-local-test-secret')
     setIsBypassed(hasBypass)
 

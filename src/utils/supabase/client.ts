@@ -1,6 +1,6 @@
 import { createBrowserClient } from '@supabase/ssr'
 
-export function createClient() {
+export function createSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
@@ -11,8 +11,8 @@ export function createClient() {
       hasKey: !!supabaseAnonKey,
       urlPrefix: supabaseUrl ? supabaseUrl.substring(0, 10) : 'none'
     })
-    // Fallback to empty strings to prevent the underlying SDK from throwing a generic crash
-    return createBrowserClient('', '')
+    // Use a placeholder URL to prevent the constructor from throwing "required" error
+    return createBrowserClient('https://placeholder.supabase.co', 'placeholder')
   }
 
   return createBrowserClient(

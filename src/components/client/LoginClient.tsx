@@ -1,6 +1,6 @@
 'use client'
 
-import { createClient } from '@/utils/supabase/client'
+import { createSupabaseClient } from '@/utils/supabase/client'
 import { useSearchParams } from 'next/navigation'
 import type { Lang } from '@/i18n/translations'
 
@@ -10,7 +10,7 @@ type Props = {
 }
 
 export default function LoginClient({ lang, dict }: Props) {
-  const supabase = createClient()
+  const supabase = createSupabaseClient()
   const searchParams = useSearchParams()
   const next = searchParams?.get('next')
 
