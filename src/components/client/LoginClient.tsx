@@ -31,6 +31,16 @@ export default function LoginClient({ lang, dict }: Props) {
         redirectTo.searchParams.set('next', next)
       }
 
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+      if (supabaseUrl) {
+        // Probe network: If Etrog is actively blocking the DB, this fetch will instantly crash.
+        try {
+          await fetch(`${supabaseUrl}/auth/v1/health`, { method: 'GET', mode: 'no-cors' })
+        } catch (probeError) {
+          throw new Error("Authentication service is currently unreachable. Please check your connection or try again later.")
+        }
+      }
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
