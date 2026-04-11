@@ -31,9 +31,16 @@ export default function NavBar({ lang, dict }: Props) {
     setIsBypassed(hasBypass)
 
     async function getUser() {
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
+      try {
+        const { data, error } = await supabase.auth.getUser()
+        if (error) console.warn('Auth error in NavBar:', error.message)
+        setUser(data?.user ?? null)
+      } catch (err) {
+        console.error('Exception fetching user in NavBar:', err)
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
     }
     getUser()
 

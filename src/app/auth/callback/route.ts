@@ -9,7 +9,13 @@ export async function GET(request: NextRequest) {
 
   const cookieStore = await cookies()
   const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user || null
+  } catch (err) {
+    console.error('[Auth Callback] getUser error:', err)
+  }
 
   if (user) {
     console.log(`[Auth Callback] User already logged in: ${user.email}. Redirecting to ${next}`)

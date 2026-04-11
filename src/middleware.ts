@@ -79,7 +79,16 @@ export async function middleware(request: NextRequest) {
   )
 
   // This will also refresh the session if needed
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const { data, error } = await supabase.auth.getUser()
+    user = data?.user || null
+    if (error) {
+      console.warn(`[Middleware] Auth check returned error:`, error.message)
+    }
+  } catch (err) {
+    console.error(`[Middleware] Exception during auth check (network error?):`, err)
+  }
 
   console.log(`[Middleware] Auth check - User: ${user ? user.email : 'None'}, Path: ${path}`)
 
