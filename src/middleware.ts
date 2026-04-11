@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
 
   // 2. Define Public Routes
   const isAuthRoute = path.startsWith('/auth')
-  const isPublicPage = path === '/'
+  const isPublicPage = path === '/' || path === '/terms' || path === '/privacy'
   const isLoginPage = path === '/login'
   const isApiRoute = path.startsWith('/api')
   const isStaticFile = path.match(/\.(png|jpg|ico|svg|css|js|json|webmanifest|txt)$/) || path.startsWith('/_next')
