@@ -23,6 +23,8 @@ export function createSupabaseClient() {
                 getSession: async () => ({ data: { session: null }, error: null }),
                 onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
                 signOut: async () => ({ error: null }),
+                signInWithOAuth: async () => ({ data: { provider: '', url: '' }, error: { message: "Authentication service is currently unreachable. Please check your connection or try again later." } as any }),
+                signInWithOtp: async () => ({ data: { user: null, session: null }, error: { message: "Authentication service is currently unreachable. Please check your connection or try again later." } as any }),
             }
         } as unknown as ReturnType<typeof createBrowserClient>;
     }

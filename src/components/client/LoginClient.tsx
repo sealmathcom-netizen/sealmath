@@ -25,7 +25,7 @@ export default function LoginClient({ lang, dict }: Props) {
       redirectTo.searchParams.set('next', next)
     }
 
-    await supabase.auth.signInWithOAuth({
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectTo.toString(),
@@ -35,6 +35,10 @@ export default function LoginClient({ lang, dict }: Props) {
         }
       },
     })
+
+    if (error) {
+      alert(error.message)
+    }
   }
 
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
