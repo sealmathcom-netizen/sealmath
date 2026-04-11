@@ -31,12 +31,14 @@ export default function LoginClient({ lang, dict }: Props) {
         redirectTo.searchParams.set('next', next)
       }
 
+      // ── Network connectivity check ──────────────────────────────────
+      // Etrog (and similar filters) can block in two ways:
+      //   a) DNS-level block  → fetch throws a TypeError (net::ERR_NAME_NOT_RESOLVED)
+      //   b) HTTP proxy block → fetch "succeeds" but returns an HTML block-page
+      // We must detect BOTH: catch (a) in the catch block, detect (b) by
+      // verifying the response is real Supabase JSON, not an HTML page.
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       if (supabaseUrl) {
-        // Probe network: If Etrog (or another filter) blocks the Supabase domain,
-        // this fetch will throw a TypeError (net::ERR_BLOCKED_BY_CLIENT or similar).
-        // IMPORTANT: mode must be 'cors' (not 'no-cors'), because 'no-cors' returns
-        // an opaque response with status 0 even on failure — it never throws.
         try {
           const controller = new AbortController()
           const timeoutId = setTimeout(() => controller.abort(), 5000)
@@ -45,19 +47,30 @@ export default function LoginClient({ lang, dict }: Props) {
             signal: controller.signal,
           })
           clearTimeout(timeoutId)
-          // Even if it didn't throw, a status of 0 means opaque/blocked
-          if (!probeResp.ok && probeResp.status !== 0) {
-            throw new Error('Health check returned error status')
+
+          // Verify the response is actual JSON from Supabase, not an HTML block page
+          const contentType = probeResp.headers.get('content-type') || ''
+          if (!contentType.includes('application/json')) {
+            throw new Error('Response is not JSON — likely intercepted by a network filter')
           }
         } catch (probeError) {
-          console.error('Supabase probe failed:', probeError)
+          console.error('Supabase connectivity check failed:', probeError)
           throw new Error("Authentication service is currently unreachable. This may be caused by a network filter (e.g. Etrog). Please check your connection or try again later.")
         }
+      } else {
+        // No Supabase URL configured at all
+        throw new Error("Authentication service is not configured. Please contact support.")
       }
 
-      const { error } = await supabase.auth.signInWithOAuth({
+      // ── OAuth sign-in ───────────────────────────────────────────────
+      // Use skipBrowserRedirect so the library does NOT immediately navigate
+      // away via window.location.href. Without this, if the redirect target
+      // is blocked, the browser shows a raw error page and we lose the
+      // ability to display our own friendly error message.
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          skipBrowserRedirect: true,
           redirectTo: redirectTo.toString(),
           queryParams: {
             access_type: 'offline',
@@ -68,6 +81,14 @@ export default function LoginClient({ lang, dict }: Props) {
 
       if (error) {
         setAuthError(error.message)
+        return
+      }
+
+      if (data?.url) {
+        // Everything checked out — now navigate to the OAuth provider
+        window.location.href = data.url
+      } else {
+        setAuthError("Failed to initialize login. Please try again.")
       }
     } catch (err: any) {
       console.error('Login network error:', err)
