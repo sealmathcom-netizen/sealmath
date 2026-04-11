@@ -55,11 +55,11 @@ export default function LoginClient({ lang, dict }: Props) {
           }
         } catch (probeError) {
           console.error('Supabase connectivity check failed:', probeError)
-          throw new Error("Authentication service is currently unreachable. This may be caused by a network filter (e.g. Etrog). Please check your connection or try again later.")
+          throw new Error("The authentication service is temporarily unavailable. Please try again in a few minutes.")
         }
       } else {
         // No Supabase URL configured at all
-        throw new Error("Authentication service is not configured. Please contact support.")
+        throw new Error("The authentication service is temporarily unavailable. Please try again in a few minutes.")
       }
 
       // ── OAuth sign-in ───────────────────────────────────────────────
@@ -92,7 +92,7 @@ export default function LoginClient({ lang, dict }: Props) {
       }
     } catch (err: any) {
       console.error('Login network error:', err)
-      setAuthError(err?.message || "Authentication service is currently unreachable. Please check your connection or try again later.")
+      setAuthError(err?.message || "The authentication service is temporarily unavailable. Please try again shortly.")
     }
   }
 
@@ -124,7 +124,7 @@ export default function LoginClient({ lang, dict }: Props) {
       }
     } catch (err: any) {
       console.error('Email login network error:', err)
-      setAuthError(err?.message || "Authentication service is currently unreachable. Please check your connection or try again later.")
+      setAuthError(err?.message || "The authentication service is temporarily unavailable. Please try again shortly.")
     }
   }
 

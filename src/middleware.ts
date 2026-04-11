@@ -89,8 +89,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  console.log(`[Middleware] Auth check - User: ${user ? user.email : 'None'}, Path: ${path}`)
-
   // 3. Protection Logic
   if (!user && !isPublicPage && !isLoginPage && !isAuthRoute && !isStaticFile && !isApiRoute) {
     console.log(`[Middleware] Unauthenticated access to ${path}. Redirecting to /login`)
