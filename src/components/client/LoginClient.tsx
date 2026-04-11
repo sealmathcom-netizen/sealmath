@@ -2,6 +2,7 @@
 
 import { createSupabaseClient } from '@/utils/supabase/client'
 import { useSearchParams } from 'next/navigation'
+import React, { useState } from 'react'
 import type { Lang } from '@/i18n/translations'
 
 type Props = {
@@ -16,8 +17,12 @@ export default function LoginClient({ lang, dict }: Props) {
 
   const t = (key: string) => dict[key] ?? key
   const isRtl = lang === 'he'
+  const [authError, setAuthError] = useState<string | null>(null)
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   const handleLogin = async () => {
+    setAuthError(null)
+    setSuccessMsg(null)
     // Ensure we use localhost instead of 127.0.0.1 for OAuth consistency
     const origin = window.location.origin.replace('127.0.0.1', 'localhost')
     const redirectTo = new URL(`${origin}/auth/callback`)
@@ -37,12 +42,14 @@ export default function LoginClient({ lang, dict }: Props) {
     })
 
     if (error) {
-      alert(error.message)
+      setAuthError(error.message)
     }
   }
 
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    setAuthError(null)
+    setSuccessMsg(null)
     const formData = new FormData(e.currentTarget)
     const email = formData.get('email') as string
     
@@ -60,9 +67,9 @@ export default function LoginClient({ lang, dict }: Props) {
     })
 
     if (error) {
-      alert(error.message)
+      setAuthError(error.message)
     } else {
-      alert(t('login_msg_check_email'))
+      setSuccessMsg(t('login_msg_check_email'))
     }
   }
 
@@ -74,6 +81,16 @@ export default function LoginClient({ lang, dict }: Props) {
       </p>
       
       <div style={{ maxWidth: '400px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {authError && (
+          <div style={{ backgroundColor: '#ffeaa7', color: '#d63031', padding: '12px', borderRadius: '8px', border: '1px solid #fab1a0', fontWeight: 'bold' }}>
+            ⚠️ {authError}
+          </div>
+        )}
+        {successMsg && (
+          <div style={{ backgroundColor: '#55efc4', color: '#00b894', padding: '12px', borderRadius: '8px', border: '1px solid #00b894', fontWeight: 'bold' }}>
+            ✅ {successMsg}
+          </div>
+        )}
         <button 
           onClick={handleLogin}
           className="btn-solve shadow"
