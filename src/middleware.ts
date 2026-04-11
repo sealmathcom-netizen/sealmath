@@ -47,47 +47,46 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-        console.error('[Middleware] MISSING SUPABASE ENVS - Auth protected routes will fail')
-        return response
-    }
+  let user = null
 
-    const supabase = createServerClient(
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('[Middleware] MISSING SUPABASE ENVS - Failing auth gracefully')
+  } else {
+    try {
+      const supabase = createServerClient(
         supabaseUrl,
         supabaseAnonKey,
         {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-          })
-          response = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options)
-          })
-        },
-      },
-    }
-  )
+          cookies: {
+            getAll() {
+              return request.cookies.getAll()
+            },
+            setAll(cookiesToSet) {
+              cookiesToSet.forEach(({ name, value }) => {
+                request.cookies.set(name, value)
+              })
+              response = NextResponse.next({
+                request,
+              })
+              cookiesToSet.forEach(({ name, value, options }) => {
+                response.cookies.set(name, value, options)
+              })
+            },
+          },
+        }
+      )
 
-  // This will also refresh the session if needed
-  let user = null
-  try {
-    const { data, error } = await supabase.auth.getUser()
-    user = data?.user || null
-    if (error) {
-      console.warn(`[Middleware] Auth check returned error:`, error.message)
+      const { data, error } = await supabase.auth.getUser()
+      user = data?.user || null
+      if (error) {
+        console.warn(`[Middleware] Auth check returned error:`, error.message)
+      }
+    } catch (err) {
+      console.error(`[Middleware] Exception during auth check (network error?):`, err)
     }
-  } catch (err) {
-    console.error(`[Middleware] Exception during auth check (network error?):`, err)
   }
 
   console.log(`[Middleware] Auth check - User: ${user ? user.email : 'None'}, Path: ${path}`)
