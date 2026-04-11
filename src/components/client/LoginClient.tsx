@@ -21,55 +21,65 @@ export default function LoginClient({ lang, dict }: Props) {
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   const handleLogin = async () => {
-    setAuthError(null)
-    setSuccessMsg(null)
-    // Ensure we use localhost instead of 127.0.0.1 for OAuth consistency
-    const origin = window.location.origin.replace('127.0.0.1', 'localhost')
-    const redirectTo = new URL(`${origin}/auth/callback`)
-    if (next) {
-      redirectTo.searchParams.set('next', next)
-    }
+    try {
+      setAuthError(null)
+      setSuccessMsg(null)
+      // Ensure we use localhost instead of 127.0.0.1 for OAuth consistency
+      const origin = window.location.origin.replace('127.0.0.1', 'localhost')
+      const redirectTo = new URL(`${origin}/auth/callback`)
+      if (next) {
+        redirectTo.searchParams.set('next', next)
+      }
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectTo.toString(),
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent'
-        }
-      },
-    })
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectTo.toString(),
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
+        },
+      })
 
-    if (error) {
-      setAuthError(error.message)
+      if (error) {
+        setAuthError(error.message)
+      }
+    } catch (err: any) {
+      console.error('Login network error:', err)
+      setAuthError(err?.message || "Authentication service is currently unreachable. Please check your connection or try again later.")
     }
   }
 
   const handleEmailLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setAuthError(null)
-    setSuccessMsg(null)
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    
-    const origin = window.location.origin.replace('127.0.0.1', 'localhost')
-    const redirectTo = new URL(`${origin}/auth/callback`)
-    if (next) {
-      redirectTo.searchParams.set('next', next)
-    }
+    try {
+      setAuthError(null)
+      setSuccessMsg(null)
+      const formData = new FormData(e.currentTarget)
+      const email = formData.get('email') as string
+      
+      const origin = window.location.origin.replace('127.0.0.1', 'localhost')
+      const redirectTo = new URL(`${origin}/auth/callback`)
+      if (next) {
+        redirectTo.searchParams.set('next', next)
+      }
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectTo.toString(),
-      },
-    })
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: redirectTo.toString(),
+        },
+      })
 
-    if (error) {
-      setAuthError(error.message)
-    } else {
-      setSuccessMsg(t('login_msg_check_email'))
+      if (error) {
+        setAuthError(error.message)
+      } else {
+        setSuccessMsg(t('login_msg_check_email'))
+      }
+    } catch (err: any) {
+      console.error('Email login network error:', err)
+      setAuthError(err?.message || "Authentication service is currently unreachable. Please check your connection or try again later.")
     }
   }
 
