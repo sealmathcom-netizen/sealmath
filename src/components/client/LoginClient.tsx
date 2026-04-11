@@ -33,11 +33,25 @@ export default function LoginClient({ lang, dict }: Props) {
 
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
       if (supabaseUrl) {
-        // Probe network: If Etrog is actively blocking the DB, this fetch will instantly crash.
+        // Probe network: If Etrog (or another filter) blocks the Supabase domain,
+        // this fetch will throw a TypeError (net::ERR_BLOCKED_BY_CLIENT or similar).
+        // IMPORTANT: mode must be 'cors' (not 'no-cors'), because 'no-cors' returns
+        // an opaque response with status 0 even on failure — it never throws.
         try {
-          await fetch(`${supabaseUrl}/auth/v1/health`, { method: 'GET', mode: 'no-cors' })
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 5000)
+          const probeResp = await fetch(`${supabaseUrl}/auth/v1/health`, {
+            method: 'GET',
+            signal: controller.signal,
+          })
+          clearTimeout(timeoutId)
+          // Even if it didn't throw, a status of 0 means opaque/blocked
+          if (!probeResp.ok && probeResp.status !== 0) {
+            throw new Error('Health check returned error status')
+          }
         } catch (probeError) {
-          throw new Error("Authentication service is currently unreachable. Please check your connection or try again later.")
+          console.error('Supabase probe failed:', probeError)
+          throw new Error("Authentication service is currently unreachable. This may be caused by a network filter (e.g. Etrog). Please check your connection or try again later.")
         }
       }
 
