@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      NEXT_PUBLIC_SUPABASE_URL: 'https://test-dummy-project.supabase.co'
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: 'test-dummy-anon-key-123'
+      TEST_BYPASS_TOKEN: 'playwright-local-test-secret'
     steps:
     - uses: actions/checkout@v4
     - uses: actions/setup-node@v4
