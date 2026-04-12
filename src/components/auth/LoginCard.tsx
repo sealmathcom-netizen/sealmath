@@ -26,7 +26,7 @@ export default function LoginCard({ lang, dict }: Props) {
       setAuthError(null)
       const origin = window.location.origin.replace('127.0.0.1', 'localhost')
       const redirectTo = new URL(`${origin}/auth/callback`)
-      redirectTo.searchParams.set('next', pathname)
+      redirectTo.searchParams.set('next', pathname || '/')
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -54,7 +54,7 @@ export default function LoginCard({ lang, dict }: Props) {
       
       const origin = window.location.origin.replace('127.0.0.1', 'localhost')
       const redirectTo = new URL(`${origin}/auth/callback`)
-      redirectTo.searchParams.set('next', pathname)
+      redirectTo.searchParams.set('next', pathname || '/')
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
