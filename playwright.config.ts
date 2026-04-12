@@ -15,7 +15,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: isCheckly ? 'https://sealmath.com' : 'http://localhost:3000',
+    baseURL: process.env.ENVIRONMENT_URL || (isCheckly ? 'https://sealmath.com' : 'http://localhost:3000'),
     trace: isCheckly ? 'on' : 'on-first-retry',
   },
   projects: [
@@ -27,7 +27,7 @@ export default defineConfig({
       name: 'checkly',
       use: {
         ...devices['Desktop Chrome'],
-        baseURL: isCheckly ? 'https://sealmath.com' : 'http://localhost:3000',
+        baseURL: process.env.ENVIRONMENT_URL || (isCheckly ? 'https://sealmath.com' : 'http://localhost:3000'),
       },
     },
   ],
