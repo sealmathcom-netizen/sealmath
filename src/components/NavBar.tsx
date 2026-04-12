@@ -89,7 +89,6 @@ export default function NavBar({ lang, dict }: Props) {
   async function handleSignOut() {
     await supabase.auth.signOut()
     setShowDropdown(false)
-    router.push('/')
     router.refresh()
   }
 
