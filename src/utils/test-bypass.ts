@@ -27,12 +27,8 @@ export async function verifyBypassToken(token: string | undefined) {
     const { payload } = await jwtVerify(token, key, {
       algorithms: ['HS256'],
     })
-    const valid = payload.bypass === true
-    if (valid) console.log('[TestBypass] JWT Verified successfully')
-    return valid
+    return payload.bypass === true
   } catch (err) {
-    console.error('[TestBypass] JWT verification failed:', err instanceof Error ? err.message : err)
-    console.error('[TestBypass] Using secret starting with:', secret.substring(0, 3))
     return false
   }
 }

@@ -6,7 +6,6 @@ import { SignJWT } from 'jose'
  */
 export async function generateBypassToken() {
   const secret = process.env.TEST_BYPASS_SECRET || 'playwright-local-test-secret'
-  console.log(`[Test Utility] Using secret starting with: ${secret.substring(0, 3)}`)
   const key = new TextEncoder().encode(secret)
   
   return await new SignJWT({ bypass: true })
