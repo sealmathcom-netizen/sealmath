@@ -1,13 +1,20 @@
 import { test, expect } from '@playwright/test';
+import { generateBypassToken, BYPASS_COOKIE_NAME } from './utils/bypass';
 
 test.describe('Games', () => {
   test.describe('24 Challenge', () => {
     test.beforeEach(async ({ context, page }) => {
+      const baseURL = test.info().project.use.baseURL || 'http://localhost:3000';
+      const hostname = new URL(baseURL).hostname;
+      const token = await generateBypassToken();
+
       await context.addCookies([{
-        name: 'test-bypass-token',
-        value: 'playwright-local-test-secret',
-        domain: 'localhost',
-        path: '/'
+        name: BYPASS_COOKIE_NAME,
+        value: token,
+        domain: hostname,
+        path: '/',
+        secure: baseURL.startsWith('https'),
+        sameSite: 'Lax'
       }]);
       await page.goto('/24-challenge?lang=en');
       await page.evaluate(() => localStorage.clear());
@@ -29,11 +36,17 @@ test.describe('Games', () => {
 
   test.describe('Fraction Capture', () => {
     test.beforeEach(async ({ context, page }) => {
+      const baseURL = test.info().project.use.baseURL || 'http://localhost:3000';
+      const hostname = new URL(baseURL).hostname;
+      const token = await generateBypassToken();
+
       await context.addCookies([{
-        name: 'test-bypass-token',
-        value: 'playwright-local-test-secret',
-        domain: 'localhost',
-        path: '/'
+        name: BYPASS_COOKIE_NAME,
+        value: token,
+        domain: hostname,
+        path: '/',
+        secure: baseURL.startsWith('https'),
+        sameSite: 'Lax'
       }]);
       await page.goto('/capture?lang=en');
       await page.evaluate(() => localStorage.clear());

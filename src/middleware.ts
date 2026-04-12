@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { verifyBypassToken, BYPASS_COOKIES } from './utils/test-bypass'
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
@@ -27,12 +28,20 @@ export async function middleware(request: NextRequest) {
     console.log(`[Middleware] Language set to: ${lang}`)
   }
 
-  // 0.1 Test Bypass (For E2E Tests only)
-  const bypassToken = request.cookies.get('test-bypass-token')?.value
-  const isBypassed = bypassToken && (bypassToken === process.env.TEST_BYPASS_TOKEN || bypassToken === 'playwright-local-test-secret')
+  // 0.1 Test Bypass (Secure JWT based)
+  const bypassToken = request.cookies.get(BYPASS_COOKIES.TOKEN)?.value
+  const isBypassed = await verifyBypassToken(bypassToken)
+  
   if (isBypassed) {
-    console.log(`[Middleware] TEST BYPASS ACTIVE for ${path}`)
-    return response // Return the response object we just prepared!
+    console.log(`[Middleware] SECURE TEST BYPASS ACTIVE for ${path}`)
+    // Set a client-readable cookie so components like NavBar know we are bypassed
+    response.cookies.set(BYPASS_COOKIES.ACTIVE, 'true', { path: '/', maxAge: 300 }) // 5 min matches JWT
+    return response 
+  }
+  
+  // Ensure the active flag is cleared if we are NOT bypassed
+  if (request.cookies.has(BYPASS_COOKIES.ACTIVE)) {
+    response.cookies.delete(BYPASS_COOKIES.ACTIVE)
   }
 
   // 2. Define Public Routes

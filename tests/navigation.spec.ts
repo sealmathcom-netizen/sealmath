@@ -1,12 +1,21 @@
 import { test, expect } from '@playwright/test';
+import { generateBypassToken, BYPASS_COOKIE_NAME } from './utils/bypass';
 
 test.describe('Navigation', () => {
   test.beforeEach(async ({ context, page }) => {
+    const baseURL = test.info().project.use.baseURL || 'http://localhost:3000';
+    const hostname = new URL(baseURL).hostname;
+    const token = await generateBypassToken();
+    
+    // console.log(`[Test Debug] Setting bypass cookie for hostname: ${hostname}`);
+    
     await context.addCookies([{
-      name: 'test-bypass-token',
-      value: 'playwright-local-test-secret',
-      domain: 'localhost',
-      path: '/'
+      name: BYPASS_COOKIE_NAME,
+      value: token,
+      domain: hostname,
+      path: '/',
+      secure: baseURL.startsWith('https'),
+      sameSite: 'Lax'
     }]);
     await page.goto('/?lang=en');
   });

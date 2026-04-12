@@ -26,8 +26,8 @@ export default function NavBar({ lang, dict }: Props) {
   const t = (key: string) => dict[key] ?? key
 
   useEffect(() => {
-    // Check for test bypass cookie (presence is enough for navigation logic, middleware handles security)
-    const hasBypass = document.cookie.includes('test-bypass-token=playwright-local-test-secret')
+    // Check for test bypass cookie (unsigned flag set by middleware)
+    const hasBypass = document.cookie.includes('test-bypass-active=true')
     setIsBypassed(hasBypass)
 
     async function getUser() {
