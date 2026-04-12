@@ -61,10 +61,7 @@ export default async function HomePage({ searchParams }: Props) {
     { titleKey: 'home_card_algebra_title', descKey: 'home_card_algebra_desc', to: '/algebra' },
   ]
 
-  const getHref = (path: string) => {
-    if (user || isBypassed) return path
-    return `/login?next=${encodeURIComponent(path)}`
-  }
+  const getHref = (path: string) => path
 
   return (
     <section id="home-page" className="page active">

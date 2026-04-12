@@ -73,10 +73,7 @@ export default function NavBar({ lang, dict }: Props) {
     router.refresh()
   }
 
-  const getHref = (path: string) => {
-    if (path === '/' || user || isBypassed) return path
-    return `/login?next=${encodeURIComponent(path)}`
-  }
+  const getHref = (path: string) => path
 
   const isActive = (path: string) => pathname === path
 

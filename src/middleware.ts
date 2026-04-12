@@ -98,14 +98,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 3. Protection Logic
-  if (!user && !isPublicPage && !isLoginPage && !isAuthRoute && !isStaticFile && !isApiRoute) {
-    console.log(`[Middleware] Unauthenticated access to ${path}. Redirecting to /login`)
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    url.searchParams.set('next', path) // Store the intended destination
-    return NextResponse.redirect(url)
-  }
+  // 3. Protection Logic - REMOVED for SEO. Auth is handled by the AuthWall component.
+  // We no longer redirect to /login here.
 
   // If user is logged in and tries to go to login page, send to home
   if (user && isLoginPage) {

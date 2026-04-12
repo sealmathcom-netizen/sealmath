@@ -30,17 +30,22 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 }
 
+import AuthWall from '@/components/auth/AuthWall'
+
 export default async function ContactPage({ searchParams }: Props) {
   const sParams = await searchParams
   const langQuery = sParams.lang as string | undefined
   const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
   const { lang, dict, t } = await getTranslations(forceLang as Lang)
+
   return (
-    <ContactClient lang={lang} dict={dict}>
-      <h1 style={{ textAlign: 'center', fontSize: '1.8rem', marginTop: 0 }}>{t('nav_contact')}</h1>
-      <div className="feedback-intro" style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        <p>{t('meta_description_contact')}</p>
-      </div>
-    </ContactClient>
+    <AuthWall lang={lang} dict={dict}>
+      <ContactClient lang={lang} dict={dict}>
+        <h1 style={{ textAlign: 'center', fontSize: '1.8rem', marginTop: 0 }}>{t('nav_contact')}</h1>
+        <div className="feedback-intro" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <p>{t('meta_description_contact')}</p>
+        </div>
+      </ContactClient>
+    </AuthWall>
   )
 }

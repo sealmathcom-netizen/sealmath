@@ -30,15 +30,20 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 }
 
+import AuthWall from '@/components/auth/AuthWall'
+
 export default async function AlgebraPage({ searchParams }: Props) {
   const sParams = await searchParams
   const langQuery = sParams.lang as string | undefined
   const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
   const { lang, dict, t } = await getTranslations(forceLang as Lang)
+
   return (
-    <AlgebraClient lang={lang} dict={dict}>
-      <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('home_card_algebra_title')}</h1>
-      <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '2rem' }}>{t('meta_description_algebra')}</p>
-    </AlgebraClient>
+    <AuthWall lang={lang} dict={dict}>
+      <AlgebraClient lang={lang} dict={dict}>
+        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('home_card_algebra_title')}</h1>
+        <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '2rem' }}>{t('meta_description_algebra')}</p>
+      </AlgebraClient>
+    </AuthWall>
   )
 }
