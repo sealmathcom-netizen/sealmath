@@ -30,9 +30,7 @@ nav {
     position: sticky;
     top: 0;
     z-index: 2000;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    flex-wrap: wrap;
 }
 
 

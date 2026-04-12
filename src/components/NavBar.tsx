@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { createSupabaseClient } from '../utils/supabase/client'
 import type { Lang } from '../i18n/translations'
 import { setLanguage } from '../app/actions'
 import type { User } from '@supabase/supabase-js'
+import SealIcon from './auth/SealIcon'
 
 type Props = {
   lang: Lang
@@ -20,6 +21,9 @@ export default function NavBar({ lang, dict }: Props) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [isBypassed, setIsBypassed] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  
   // Memoize the client so it is created exactly once, not on every render
   const supabase = useMemo(() => createSupabaseClient(), [])
 
@@ -53,6 +57,21 @@ export default function NavBar({ lang, dict }: Props) {
     }
   }, [supabase.auth])
 
+  // Click outside listener
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowDropdown(false)
+      }
+    }
+    if (showDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showDropdown])
+
   async function onChangeLang(newLang: Lang) {
     await setLanguage(newLang)
     
@@ -69,6 +88,7 @@ export default function NavBar({ lang, dict }: Props) {
 
   async function handleSignOut() {
     await supabase.auth.signOut()
+    setShowDropdown(false)
     router.push('/')
     router.refresh()
   }
@@ -77,8 +97,12 @@ export default function NavBar({ lang, dict }: Props) {
 
   const isActive = (path: string) => pathname === path
 
+  const userAvatar = user?.user_metadata?.avatar_url
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('nav_user_generic')
+  const userEmail = user?.email || ''
+
   return (
-    <nav>
+    <nav style={{ position: 'sticky', top: 0, zIndex: 2000 }}>
       <Link href={getHref('/')} className={isActive('/') ? 'active' : ''}>
         {t('nav_home')}
       </Link>
@@ -100,22 +124,90 @@ export default function NavBar({ lang, dict }: Props) {
       </Link>
 
       {!loading && (
-        <>
+        <div style={{ position: 'relative' }} ref={menuRef}>
           {user ? (
-            <button 
-              onClick={handleSignOut} 
-              className="nav-btn-text"
-              style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', color: 'inherit' }}
-            >
-              {t('nav_signout')}
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <button 
+                onClick={() => setShowDropdown(!showDropdown)} 
+                className="nav-profile-btn"
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  padding: '4px', 
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: '50%',
+                  transition: 'background 0.2s'
+                }}
+              >
+                {userAvatar ? (
+                  <img src={userAvatar} alt="Profile" style={{ width: '32px', height: '32px', borderRadius: '50%', border: '2px solid var(--accent)' }} />
+                ) : (
+                  <SealIcon size={32} />
+                )}
+              </button>
+
+              {showDropdown && (
+                <div className="nav-dropdown" style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: lang === 'he' ? 'auto' : 0,
+                  left: lang === 'he' ? 0 : 'auto',
+                  marginTop: '10px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  borderRadius: '12px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+                  padding: '15px',
+                  minWidth: '220px',
+                  zIndex: 9999, // Maximize z-index to be on top of everything
+                  animation: 'slideDown 0.2s ease-out'
+                }}>
+                  <div style={{ marginBottom: '12px', borderBottom: '1px solid #eee', paddingBottom: '12px' }}>
+                    <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--dark)', fontSize: '0.95rem' }}>{userName}</p>
+                    <p style={{ margin: 0, color: '#666', fontSize: '0.8rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>{userEmail}</p>
+                  </div>
+                  
+                  <button 
+                    onClick={handleSignOut}
+                    style={{
+                      width: '100%',
+                      textAlign: 'start',
+                      background: 'none',
+                      border: 'none',
+                      padding: '8px 0',
+                      color: '#e74c3c',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      fontSize: '0.9rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <span>🚪</span> {t('nav_signout')}
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <Link href="/login" className={isActive('/login') ? 'active' : ''}>
               {t('nav_signin')}
             </Link>
           )}
-        </>
+        </div>
       )}
+
+      <style jsx>{`
+        .nav-profile-btn:hover {
+          background: rgba(0,0,0,0.05) !important;
+        }
+        .nav-dropdown {
+          transform-origin: top right;
+        }
+      `}</style>
 
       <select
         id="lang-switcher"

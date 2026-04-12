@@ -34,11 +34,14 @@ test.describe('Public Routes', () => {
       await expect(page).toHaveURL(/.*\/privacy/);
     });
 
-    test(`should redirect protected routes to login when unauthenticated in ${lang}`, async ({ page }) => {
+    test(`should show auth wall on protected routes when unauthenticated in ${lang}`, async ({ page }) => {
       await page.goto(`/algebra?lang=${lang}`);
       
-      // Ensure we ARE redirected to login
-      await expect(page).toHaveURL(/.*\/login/);
+      // We should NOT be redirected away (for SEO purposes)
+      await expect(page).not.toHaveURL(/.*\/login/);
+      
+      // Instead, the "Auth Wall" (login card) must be visible
+      await expect(page.locator('.login-card')).toBeVisible();
     });
   }
 });
