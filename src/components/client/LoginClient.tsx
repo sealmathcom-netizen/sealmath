@@ -129,7 +129,8 @@ export default function LoginClient({ lang, dict }: Props) {
   }
 
   return (
-    <div className="container" style={{ textAlign: 'center', marginTop: '100px', direction: isRtl ? 'rtl' : 'ltr' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh', width: '100%' }}>
+      <div className="container" style={{ textAlign: 'center', margin: '0 auto', direction: isRtl ? 'rtl' : 'ltr' }}>
       <h1>{t('login_title')}</h1>
       <p style={{ color: '#7f8c8d', marginBottom: '30px' }}>
         {t('login_subtitle')}
@@ -196,5 +197,6 @@ export default function LoginClient({ lang, dict }: Props) {
         </form>
       </div>
     </div>
-  )
+  </div>
+)
 }
