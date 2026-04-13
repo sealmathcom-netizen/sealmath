@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/i18n/server'
 import NavBar from '@/components/NavBar'
-import GlobalStorageControls from '@/components/GlobalStorageControls'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -28,7 +27,6 @@ export default async function RootLayout({
       <body>
         <div id="root">
           <NavBar lang={lang} dict={dict} />
-          <GlobalStorageControls dict={dict} />
           <main>{children}</main>
           <footer style={{ marginTop: '50px', padding: '30px 20px', borderTop: '1px solid #eee', textAlign: 'center', fontSize: '0.9rem', color: '#7f8c8d' }}>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '10px' }}>

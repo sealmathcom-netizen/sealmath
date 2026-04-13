@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { usePersistentState } from '../../hooks/usePersistentState'
 import {
   type Frac,
   calculateFrac,
@@ -33,38 +34,26 @@ export default function CaptureClient({ lang, dict, children }: Props) {
     return str
   }
 
-  const [storageAllowed, setStorageAllowed] = useState(true)
 
-  useEffect(() => {
-    const raw = localStorage.getItem('storageAllowed')
-    if (raw !== null) setStorageAllowed(raw === 'true')
+  const [gameState, setGameState, loading] = usePersistentState<{
+    target: Frac;
+    ingredients: Frac[];
+    gameOver: boolean;
+  }>('captureGameState', {
+    target: { n: 0, d: 1 },
+    ingredients: [],
+    gameOver: false
+  })
 
-    const listener = () => {
-      const updated = localStorage.getItem('storageAllowed')
-      if (updated !== null) setStorageAllowed(updated === 'true')
-    }
-    window.addEventListener('storage-allowed-changed', listener)
-    return () => window.removeEventListener('storage-allowed-changed', listener)
-  }, [])
-
-  const [captureTarget, setCaptureTarget] = useState<Frac>({ n: 0, d: 1 })
-  const [captureIngredients, setCaptureIngredients] = useState<Frac[]>([])
-
-  const [selectedIngIndices, setSelectedIngIndices] = useState<number[]>([])
-  const [selectedCaptureOp, setSelectedCaptureOp] = useState<string | null>(null)
-  const [captureGameOver, setCaptureGameOver] = useState(false)
+  // Destructure for easy access
+  const { target: captureTarget, ingredients: captureIngredients, gameOver: captureGameOver } = gameState
 
   const [feedback, setFeedback] = useState('')
   const [feedbackColor, setFeedbackColor] = useState('var(--dark)')
 
   const [showRulesCapture, setShowRulesCapture] = useState(false)
-
-  const saveFractionState = (nextGameOver: boolean, nextTarget: Frac, nextIngredients: Frac[]) => {
-    if (!storageAllowed) return
-    localStorage.setItem('captureIngredients', JSON.stringify(nextIngredients))
-    localStorage.setItem('captureTarget', JSON.stringify(nextTarget))
-    localStorage.setItem('captureGameOver', String(nextGameOver))
-  }
+  const [selectedIngIndices, setSelectedIngIndices] = useState<number[]>([])
+  const [selectedCaptureOp, setSelectedCaptureOp] = useState<string | null>(null)
 
   const checkCaptureWin = (nextSelected: number[], op: string | null) => {
     if (nextSelected.length !== 2 || !op) return
@@ -80,10 +69,9 @@ export default function CaptureClient({ lang, dict, children }: Props) {
       (res1.n === captureTarget.n && res1.d === captureTarget.d) ||
       (res2.n === captureTarget.n && res2.d === captureTarget.d)
     ) {
-      setCaptureGameOver(true)
+      setGameState(prev => ({ ...prev, gameOver: true }))
       setFeedback(t('msg_correct'))
       setFeedbackColor('var(--success)')
-      saveFractionState(true, captureTarget, captureIngredients)
     } else {
       setFeedback(t('msg_incorrect', { result: '' }).replace('{result}', ''))
       setFeedbackColor('var(--error)')
@@ -93,41 +81,24 @@ export default function CaptureClient({ lang, dict, children }: Props) {
   const initFractionCapture = () => {
     setSelectedIngIndices([])
     setSelectedCaptureOp(null)
-    setCaptureGameOver(false)
     setFeedback('')
     setFeedbackColor('var(--dark)')
 
     const { target, ingredients } = generateNewGame()
-    setCaptureTarget(target)
-    setCaptureIngredients(ingredients)
-    if (storageAllowed) saveFractionState(false, target, ingredients)
+    setGameState({
+      target,
+      ingredients,
+      gameOver: false
+    })
   }
 
-  const restoreFractionState = () => {
-    if (!storageAllowed) {
-      initFractionCapture()
-      return
-    }
-    const ing = localStorage.getItem('captureIngredients')
-    const tar = localStorage.getItem('captureTarget')
-    const gameOver = localStorage.getItem('captureGameOver')
-    if (ing && tar && gameOver !== null) {
-      const nextIngredients = JSON.parse(ing) as Frac[]
-      const nextTarget = JSON.parse(tar) as Frac
-      const over = gameOver === 'true'
-      setCaptureIngredients(nextIngredients)
-      setCaptureTarget(nextTarget)
-      setCaptureGameOver(over)
-      // Keep feedback empty on restore (legacy behavior).
-      return
-    }
-    initFractionCapture()
-  }
-
+  // Use effect once on mount to handle initial generation if empty
   useEffect(() => {
-    restoreFractionState()
+    if (!loading && captureIngredients.length === 0) {
+      initFractionCapture()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageAllowed])
+  }, [loading])
 
   const selectIng = (index: number) => {
     if (captureGameOver) return

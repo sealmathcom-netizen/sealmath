@@ -1,6 +1,7 @@
 'use client'
 
-import { useMemo, useEffect, useRef, useState } from 'react'
+import { useMemo, useEffect, useState, useRef } from 'react'
+import { usePersistentState } from '../../hooks/usePersistentState'
 import { solve24 } from '../../logic/solve24'
 import type { Lang } from '../../i18n/translations'
 
@@ -33,23 +34,9 @@ export default function GameClient({ lang, dict, children }: Props) {
     return str
   }
 
-  const [storageAllowed, setStorageAllowed] = useState(true)
 
-  useEffect(() => {
-    const raw = localStorage.getItem('storageAllowed')
-    if (raw !== null) setStorageAllowed(raw === 'true')
-
-    const listener = () => {
-      const updated = localStorage.getItem('storageAllowed')
-      if (updated !== null) setStorageAllowed(updated === 'true')
-    }
-    window.addEventListener('storage-allowed-changed', listener)
-    return () => window.removeEventListener('storage-allowed-changed', listener)
-  }, [])
-
-  const solvableHistoryRef = useRef<string[]>([])
-  const unsolvableHistoryRef = useRef<string[]>([])
-  const checkedCombinationsRef = useRef<Set<string>>(new Set())
+  const checkedCombinations = useState<Set<string>>(new Set())[0]
+  const checkedCombinationsRef = useRef(checkedCombinations)
 
   const [inputs, setInputs] = useState<number[]>(() => emptyNumbers())
   const [userExpr, setUserExpr] = useState('')
@@ -58,8 +45,9 @@ export default function GameClient({ lang, dict, children }: Props) {
   const [feedbackColor, setFeedbackColor] = useState<string>('var(--dark)')
   const [resultText, setResultText] = useState('')
 
-  const [solvableHistory, setSolvableHistory] = useState<string[]>([])
-  const [unsolvableHistory, setUnsolvableHistory] = useState<string[]>([])
+  const [solvableHistory, setSolvableHistory, historyLoading] = usePersistentState<string[]>('solvableHistory', [])
+  const [unsolvableHistory, setUnsolvableHistory] = usePersistentState<string[]>('unsolvableHistory', [])
+  const [lastViewedIndex, setLastViewedIndex] = usePersistentState<number>('lastViewedIndex', -1)
 
   // The legacy app always keeps showingUnsolvable = false (no UI to toggle).
   const [showingUnsolvable] = useState(false)
@@ -80,26 +68,17 @@ export default function GameClient({ lang, dict, children }: Props) {
     setFeedbackColor(c)
   }
 
-  // Load / reset history based on storageAllowed.
+  // Initialize inputs/index when history is loaded
   useEffect(() => {
-    const solv = storageAllowed ? JSON.parse(localStorage.getItem('solvableHistory') || '[]') : []
-    const unsolv = storageAllowed ? JSON.parse(localStorage.getItem('unsolvableHistory') || '[]') : []
-
-    solvableHistoryRef.current = solv
-    unsolvableHistoryRef.current = unsolv
-    setSolvableHistory(solv)
-    setUnsolvableHistory(unsolv)
-
-    checkedCombinationsRef.current = new Set()
-
-    if (solv.length > 0) {
-      const savedIndexRaw = localStorage.getItem('lastViewedIndex')
-      let idx = solv.length - 1
-      const savedIndex = savedIndexRaw !== null ? parseInt(savedIndexRaw) : null
-      if (savedIndex !== null && !isNaN(savedIndex) && savedIndex >= 0 && savedIndex < solv.length) idx = savedIndex
-
+    if (historyLoading) return
+    
+    if (solvableHistory.length > 0) {
+      let idx = lastViewedIndex
+      if (idx === -1 || idx >= solvableHistory.length) {
+        idx = solvableHistory.length - 1
+      }
       setCurrentHistoryIndex(idx)
-      const nums = solv[idx].split(',').map(Number)
+      const nums = solvableHistory[idx].split(',').map(Number)
       setInputs(nums)
       clearSolutionArea()
     } else {
@@ -107,8 +86,7 @@ export default function GameClient({ lang, dict, children }: Props) {
       setInputs(emptyNumbers())
       clearSolutionArea()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageAllowed])
+  }, [historyLoading, solvableHistory, lastViewedIndex])
 
   const activeList = showingUnsolvable ? unsolvableHistory : solvableHistory
   const activeListLength = activeList.length
@@ -140,19 +118,18 @@ export default function GameClient({ lang, dict, children }: Props) {
     const isSolvable = solve24(nums) !== null
 
     if (isSolvable) {
-      if (!solvableHistoryRef.current.includes(key)) {
-        const next = [...solvableHistoryRef.current, key]
-        solvableHistoryRef.current = next
+      if (!solvableHistory.includes(key)) {
+        const next = [...solvableHistory, key]
         setSolvableHistory(next)
-        if (storageAllowed) localStorage.setItem('solvableHistory', JSON.stringify(next))
-        if (!showingUnsolvable) setCurrentHistoryIndex(next.length - 1)
+        if (!showingUnsolvable) {
+          setCurrentHistoryIndex(next.length - 1)
+          setLastViewedIndex(next.length - 1)
+        }
       }
     } else {
-      if (!unsolvableHistoryRef.current.includes(key)) {
-        const next = [...unsolvableHistoryRef.current, key]
-        unsolvableHistoryRef.current = next
+      if (!unsolvableHistory.includes(key)) {
+        const next = [...unsolvableHistory, key]
         setUnsolvableHistory(next)
-        if (storageAllowed) localStorage.setItem('unsolvableHistory', JSON.stringify(next))
       }
     }
   }
@@ -164,8 +141,8 @@ export default function GameClient({ lang, dict, children }: Props) {
     const nums = activeList[nextIndex].split(',').map(Number)
     setInputs(nums)
     clearSolutionArea()
-    if (storageAllowed && !showingUnsolvable) {
-      localStorage.setItem('lastViewedIndex', String(nextIndex))
+    if (!showingUnsolvable) {
+      setLastViewedIndex(nextIndex)
     }
   }
 
@@ -180,8 +157,8 @@ export default function GameClient({ lang, dict, children }: Props) {
     setInputs(nums)
     clearSolutionArea()
     setGotoInput('')
-    if (storageAllowed && !showingUnsolvable) {
-      localStorage.setItem('lastViewedIndex', String(nextIndex))
+    if (!showingUnsolvable) {
+      setLastViewedIndex(nextIndex)
     }
   }
 
@@ -253,29 +230,27 @@ export default function GameClient({ lang, dict, children }: Props) {
       randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1)
       key = formatKey(randomNums)
 
-      if (!checkedCombinationsRef.current.has(key)) {
+      if (!checkedCombinations.has(key)) {
         const solution = solve24(randomNums)
-        checkedCombinationsRef.current.add(key)
+        checkedCombinations.add(key)
         if (solution) isSolvable = true
-        else if (!unsolvableHistoryRef.current.includes(key)) {
-          unsolvableHistoryRef.current = [...unsolvableHistoryRef.current, key]
+        else if (!unsolvableHistory.includes(key)) {
+          setUnsolvableHistory([...unsolvableHistory, key])
         }
       } else {
-        isSolvable = solvableHistoryRef.current.includes(key)
+        isSolvable = solvableHistory.includes(key)
       }
 
       attempts++
-    } while ((!isSolvable || solvableHistoryRef.current.includes(key)) && attempts < 5000)
+    } while ((!isSolvable || solvableHistory.includes(key)) && attempts < 5000)
 
-    if (isSolvable && !solvableHistoryRef.current.includes(key)) {
+    if (isSolvable && !solvableHistory.includes(key)) {
       if (updateUI) {
         setInputs(randomNums)
         registerPuzzle(randomNums)
         clearSolutionArea()
       } else {
-        const next = [...solvableHistoryRef.current, key]
-        solvableHistoryRef.current = next
-        if (storageAllowed) localStorage.setItem('solvableHistory', JSON.stringify(next))
+        setSolvableHistory([...solvableHistory, key])
       }
     } else if (updateUI) {
       updateFeedback(t('msg_not_found'), '#e74c3c')
@@ -299,19 +274,18 @@ export default function GameClient({ lang, dict, children }: Props) {
 
   useEffect(() => {
     const handleClear = () => {
-      checkedCombinationsRef.current.clear()
-      solvableHistoryRef.current = []
-      unsolvableHistoryRef.current = []
+      checkedCombinations.clear()
       setSolvableHistory([])
       setUnsolvableHistory([])
       setCurrentHistoryIndex(-1)
+      setLastViewedIndex(-1)
       setInputs(emptyNumbers())
       clearSolutionArea()
       updateFeedback(t('msg_hist_cleared'), '#e74c3c')
     }
     window.addEventListener('clear-history', handleClear)
     return () => window.removeEventListener('clear-history', handleClear)
-  }, [t])
+  }, [t, setSolvableHistory, setUnsolvableHistory, setLastViewedIndex, checkedCombinations])
 
   return (
     <section id="game-page" className="page active">

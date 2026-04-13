@@ -2,6 +2,7 @@
 'use client'
 
 import { useState, useEffect, type ReactNode } from 'react';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import type { Lang } from '../../i18n/translations';
 
 type Props = {
@@ -51,12 +52,7 @@ function AlgebraWindow({
   id: string
 }) {
   const [problem, setProblem] = useState<Problem | null>(null);
-  const [solvedCount, setSolvedCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
-    }
-    return 0;
-  });
+  const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [answer, setAnswer] = useState('');
   const [resultMsg, setResultMsg] = useState('');
   const [resultColor, setResultColor] = useState('');
@@ -82,11 +78,7 @@ function AlgebraWindow({
       setResultColor("var(--success, green)");
 
       setTimeout(() => {
-        setSolvedCount(c => {
-          const next = c + 1;
-          localStorage.setItem(`algebra_solved_${id}`, String(next));
-          return next;
-        });
+        setSolvedCount(solvedCount + 1);
         setProblem(generateProblem());
         setAnswer('');
         setResultMsg('');
@@ -216,12 +208,7 @@ function TwoStepAlgebraWindow({
   id: string
 }) {
   const [problem, setProblem] = useState<TwoStepProblem | null>(null);
-  const [solvedCount, setSolvedCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
-    }
-    return 0;
-  });
+  const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [ans1, setAns1] = useState('');
   const [ans2, setAns2] = useState('');
   const [resultMsg, setResultMsg] = useState('');
@@ -252,11 +239,7 @@ function TwoStepAlgebraWindow({
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
-        setSolvedCount(c => {
-          const next = c + 1;
-          localStorage.setItem(`algebra_solved_${id}`, String(next));
-          return next;
-        });
+        setSolvedCount(solvedCount + 1);
         setProblem(generateProblem());
         setAns1('');
         setAns2('');
@@ -417,12 +400,7 @@ function CombiningLikeTermsWindow({
   id: string
 }) {
   const [problem, setProblem] = useState<CombiningLikeTermsProblem | null>(null);
-  const [solvedCount, setSolvedCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
-    }
-    return 0;
-  });
+  const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [ans1, setAns1] = useState('');
   const [ans2, setAns2] = useState('');
   const [resultMsg, setResultMsg] = useState('');
@@ -470,11 +448,7 @@ function CombiningLikeTermsWindow({
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
-        setSolvedCount(c => {
-          const next = c + 1;
-          localStorage.setItem(`algebra_solved_${id}`, String(next));
-          return next;
-        });
+        setSolvedCount(solvedCount + 1);
         setProblem(generateProblem());
         setAns1('');
         setAns2('');
@@ -578,12 +552,7 @@ function RoundingWindow({
   id: string
 }) {
   const [problem, setProblem] = useState<RoundingProblem | null>(null);
-  const [solvedCount, setSolvedCount] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return parseInt(localStorage.getItem(`algebra_solved_${id}`) || '0', 10);
-    }
-    return 0;
-  });
+  const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [answer, setAnswer] = useState('');
   const [resultMsg, setResultMsg] = useState('');
   const [resultColor, setResultColor] = useState('');
@@ -610,11 +579,7 @@ function RoundingWindow({
       setResultColor("var(--success, green)");
 
       setTimeout(() => {
-        setSolvedCount(c => {
-          const next = c + 1;
-          localStorage.setItem(`algebra_solved_${id}`, String(next));
-          return next;
-        });
+        setSolvedCount(solvedCount + 1);
         setProblem(generateProblem());
         setAnswer('');
         setResultMsg('');
@@ -693,12 +658,7 @@ function RoundingWindow({
 }
 
 export default function AlgebraClient({ dict, children }: Props) {
-  const [activeTab, setActiveTab] = useState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike'>(() => {
-    if (typeof window !== 'undefined') {
-      return (localStorage.getItem('algebraActiveTab') as 'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike') || 'addsub';
-    }
-    return 'addsub';
-  });
+  const [activeTab, setActiveTab] = usePersistentState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike'>('algebraActiveTab', 'addsub');
   
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key
@@ -708,9 +668,6 @@ export default function AlgebraClient({ dict, children }: Props) {
     return str
   }
 
-  useEffect(() => {
-    localStorage.setItem('algebraActiveTab', activeTab);
-  }, [activeTab]);
 
   const addSubExamples = (
     <>
