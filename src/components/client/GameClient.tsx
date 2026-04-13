@@ -308,9 +308,6 @@ export default function GameClient({ lang, dict, children }: Props) {
   const puzzleDisplayNum = currentAttempt?.attemptNum || 0
   const puzzleTotalNum = 1362
 
-  if (authLoading || (isLoading && !currentAttempt)) {
-    return <div className="container" style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
-  }
 
   return (
     <>
@@ -323,7 +320,7 @@ export default function GameClient({ lang, dict, children }: Props) {
             }}
           >
             <span id="puzzle-counter" style={{ fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-              {t('puzzle_counter', { current: puzzleDisplayNum, total: puzzleTotalNum })}
+              {t('puzzle_counter', { current: puzzleDisplayNum === 0 ? '?' : puzzleDisplayNum, total: puzzleTotalNum })}
               {renderStatusCircle()}
             </span>
           </div>
