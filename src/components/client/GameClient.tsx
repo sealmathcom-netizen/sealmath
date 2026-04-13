@@ -46,8 +46,13 @@ export default function GameClient({ lang, dict, children }: Props) {
   const [resultText, setResultText] = useState('')
 
   const [solvableHistory, setSolvableHistory, historyLoading] = usePersistentState<string[]>('solvableHistory', [])
+  const solvableHistoryRef = useRef(solvableHistory)
   const [unsolvableHistory, setUnsolvableHistory] = usePersistentState<string[]>('unsolvableHistory', [])
+  const unsolvableHistoryRef = useRef(unsolvableHistory)
   const [lastViewedIndex, setLastViewedIndex] = usePersistentState<number>('lastViewedIndex', -1)
+
+  useEffect(() => { solvableHistoryRef.current = solvableHistory }, [solvableHistory])
+  useEffect(() => { unsolvableHistoryRef.current = unsolvableHistory }, [unsolvableHistory])
 
   // The legacy app always keeps showingUnsolvable = false (no UI to toggle).
   const [showingUnsolvable] = useState(false)
@@ -230,27 +235,28 @@ export default function GameClient({ lang, dict, children }: Props) {
       randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1)
       key = formatKey(randomNums)
 
-      if (!checkedCombinations.has(key)) {
+      if (!checkedCombinationsRef.current.has(key)) {
         const solution = solve24(randomNums)
-        checkedCombinations.add(key)
+        checkedCombinationsRef.current.add(key)
         if (solution) isSolvable = true
-        else if (!unsolvableHistory.includes(key)) {
-          setUnsolvableHistory([...unsolvableHistory, key])
+        else if (!unsolvableHistoryRef.current.includes(key)) {
+          unsolvableHistoryRef.current.push(key)
+          if (updateUI) setUnsolvableHistory([...unsolvableHistoryRef.current])
         }
       } else {
-        isSolvable = solvableHistory.includes(key)
+        isSolvable = solvableHistoryRef.current.includes(key)
       }
 
       attempts++
-    } while ((!isSolvable || solvableHistory.includes(key)) && attempts < 5000)
+    } while ((!isSolvable || solvableHistoryRef.current.includes(key)) && attempts < 5000)
 
-    if (isSolvable && !solvableHistory.includes(key)) {
+    if (isSolvable && !solvableHistoryRef.current.includes(key)) {
       if (updateUI) {
         setInputs(randomNums)
         registerPuzzle(randomNums)
         clearSolutionArea()
       } else {
-        setSolvableHistory([...solvableHistory, key])
+        solvableHistoryRef.current.push(key)
       }
     } else if (updateUI) {
       updateFeedback(t('msg_not_found'), '#e74c3c')
