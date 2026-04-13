@@ -13,5 +13,8 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src')
     }
+  },
+  define: {
+    'process.env.NODE_ENV': '"test"'
   }
 })

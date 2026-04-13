@@ -18,8 +18,13 @@ console.log(`[Migrate] Detected environment: ${VERCEL_ENV}`);
 console.log(`[Migrate] Target project: ${targetProject}`);
 
 if (!DB_PASSWORD) {
-  console.error('[Migrate] Error: SUPABASE_DB_PASSWORD is not set. Skipping migration.');
-  process.exit(1);
+  if (VERCEL_ENV === 'production' || VERCEL_ENV === 'preview') {
+    console.error('[Migrate] Error: SUPABASE_DB_PASSWORD is not set in a deployment environment. Failing build.');
+    process.exit(1);
+  } else {
+    console.warn('[Migrate] Warning: SUPABASE_DB_PASSWORD is not set. Skipping migration for local build.');
+    process.exit(0);
+  }
 }
 
 try {
