@@ -119,10 +119,10 @@ export default function LoginCard({ lang, dict }: Props) {
           {t('login_google')}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#b2bec3' }}>
-          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #e2e8f0' }} />
-          <span style={{ fontSize: '0.9rem', textTransform: 'uppercase' }}>{t('login_or_email')}</span>
-          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #e2e8f0' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#57606f' }}>
+          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #ced6e0' }} />
+          <span style={{ fontSize: '0.9rem', textTransform: 'uppercase', fontWeight: '600' }}>{t('login_or_email')}</span>
+          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #ced6e0' }} />
         </div>
 
         <form onSubmit={handleEmailLogin} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -133,7 +133,20 @@ export default function LoginCard({ lang, dict }: Props) {
               textAlign: isRtl ? 'right' : 'left', direction: 'ltr'
             }}
           />
-          <button type="submit" disabled={loading} className="nav-btn-text" style={{ padding: '12px', borderRadius: '12px', border: '2px solid var(--dark)', fontWeight: 'bold' }}>
+          <button 
+            type="submit" 
+            disabled={loading} 
+            style={{ 
+              padding: '12px', 
+              borderRadius: '12px', 
+              background: '#0f2a2a', 
+              color: 'white',
+              border: 'none',
+              fontWeight: 'bold',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              fontSize: '1rem'
+            }}
+          >
             {t('login_email_btn')}
           </button>
         </form>

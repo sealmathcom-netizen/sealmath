@@ -170,10 +170,10 @@ export default function LoginClient({ lang, dict }: Props) {
           {t('login_google')}
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#95a5a6' }}>
-          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #eee' }} />
-          <span>{t('login_or_email')}</span>
-          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #eee' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#57606f' }}>
+          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #ced6e0' }} />
+          <span style={{ fontSize: '0.9rem', textTransform: 'uppercase', fontWeight: '600' }}>{t('login_or_email')}</span>
+          <hr style={{ flex: 1, border: '0', borderTop: '1px solid #ced6e0' }} />
         </div>
 
         <form onSubmit={handleEmailLogin} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -191,7 +191,19 @@ export default function LoginClient({ lang, dict }: Props) {
               direction: 'ltr' // Email is always LTR
             }}
           />
-          <button type="submit" className="nav-btn-text" style={{ padding: '10px', cursor: 'pointer', borderRadius: '8px', border: '2px solid var(--dark)', fontWeight: 'bold' }}>
+          <button 
+            type="submit" 
+            style={{ 
+              padding: '12px', 
+              borderRadius: '8px', 
+              background: '#0f2a2a', 
+              color: 'white',
+              border: 'none',
+              fontWeight: 'bold', 
+              cursor: 'pointer',
+              fontSize: '1rem' 
+            }}
+          >
             {t('login_email_btn')}
           </button>
         </form>
