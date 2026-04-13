@@ -16,11 +16,24 @@ export function useAuth() {
     async function initAuth() {
       // Check Supabase
       const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-
-      // Check Checkly Bypass Cookie
-      const isBypassActive = document.cookie.includes('test-bypass-active=true')
-      setIsBypassed(isBypassActive)
+      
+      // Check Checkly Bypass Cookies (Sync with middleware)
+      const isBypassActive = document.cookie.includes('test-bypass-active=true') || 
+                             document.cookie.includes('test-bypass-token=')
+                             
+      if (isBypassActive && !user) {
+        // Provide a deterministic mock user for E2E tests
+        setUser({
+          id: '00000000-0000-0000-0000-000000000000',
+          email: 'test@example.com',
+          role: 'authenticated',
+          aud: 'authenticated',
+        } as User)
+        setIsBypassed(true)
+      } else {
+        setUser(user)
+        setIsBypassed(isBypassActive)
+      }
 
       setLoading(false)
     }

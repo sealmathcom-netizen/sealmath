@@ -39,11 +39,14 @@ export default async function Challenge24Page({ searchParams }: Props) {
   const { lang, dict, t } = await getTranslations(forceLang as Lang)
 
   return (
-    <AuthWall lang={lang} dict={dict}>
-      <GameClient lang={lang} dict={dict}>
+    <section id="game-page" className="page active">
+      <div className="container" style={{ textAlign: 'center' }}>
         <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('game_title')}</h1>
         <p style={{ color: '#7f8c8d', margin: '0.5rem 0' }}>{t('meta_description_game')}</p>
-      </GameClient>
-    </AuthWall>
+        <AuthWall lang={lang} dict={dict}>
+          <GameClient lang={lang} dict={dict} />
+        </AuthWall>
+      </div>
+    </section>
   )
 }

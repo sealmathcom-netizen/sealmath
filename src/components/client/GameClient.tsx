@@ -1,9 +1,12 @@
 'use client'
 
-import { useMemo, useEffect, useState, useRef } from 'react'
-import { usePersistentState } from '../../hooks/usePersistentState'
+import { useMemo, useEffect, useState, useRef, useCallback } from 'react'
+import { createSupabaseClient } from '@/utils/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
 import { solve24 } from '../../logic/solve24'
 import type { Lang } from '../../i18n/translations'
+
+const supabase = createSupabaseClient()
 
 type Props = {
   lang: Lang
@@ -35,8 +38,16 @@ export default function GameClient({ lang, dict, children }: Props) {
   }
 
 
-  const checkedCombinations = useState<Set<string>>(new Set())[0]
-  const checkedCombinationsRef = useRef(checkedCombinations)
+  const { user, loading: authLoading } = useAuth()
+  const [currentAttempt, setCurrentAttempt] = useState<{
+    puzzleId: number;
+    numbers: number[];
+    attemptNum: number;
+    status: boolean | null;
+  } | null>(null)
+  const [totalAttempts, setTotalAttempts] = useState(0)
+  const isFetchingRef = useRef(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   const [inputs, setInputs] = useState<number[]>(() => emptyNumbers())
   const [userExpr, setUserExpr] = useState('')
@@ -45,21 +56,8 @@ export default function GameClient({ lang, dict, children }: Props) {
   const [feedbackColor, setFeedbackColor] = useState<string>('var(--dark)')
   const [resultText, setResultText] = useState('')
 
-  const [solvableHistory, setSolvableHistory, historyLoading] = usePersistentState<string[]>('solvableHistory', [])
-  const solvableHistoryRef = useRef(solvableHistory)
-  const [unsolvableHistory, setUnsolvableHistory] = usePersistentState<string[]>('unsolvableHistory', [])
-  const unsolvableHistoryRef = useRef(unsolvableHistory)
-  const [lastViewedIndex, setLastViewedIndex] = usePersistentState<number>('lastViewedIndex', -1)
-
-  useEffect(() => { solvableHistoryRef.current = solvableHistory }, [solvableHistory])
-  useEffect(() => { unsolvableHistoryRef.current = unsolvableHistory }, [unsolvableHistory])
-
-  // The legacy app always keeps showingUnsolvable = false (no UI to toggle).
-  const [showingUnsolvable] = useState(false)
-  const [currentHistoryIndex, setCurrentHistoryIndex] = useState<number>(-1)
-
-  const [gotoInput, setGotoInput] = useState('')
   const [showRules24, setShowRules24] = useState(false)
+  const [gotoInput, setGotoInput] = useState('')
 
   const clearSolutionArea = () => {
     setUserExpr('')
@@ -73,110 +71,163 @@ export default function GameClient({ lang, dict, children }: Props) {
     setFeedbackColor(c)
   }
 
-  // Initialize inputs/index when history is loaded
-  useEffect(() => {
-    if (historyLoading) return
-    
-    if (solvableHistory.length > 0) {
-      let idx = lastViewedIndex
-      if (idx === -1 || idx >= solvableHistory.length) {
-        idx = solvableHistory.length - 1
-      }
-      setCurrentHistoryIndex(idx)
-      const nums = solvableHistory[idx].split(',').map(Number)
-      setInputs(nums)
-      clearSolutionArea()
-    } else {
-      setCurrentHistoryIndex(-1)
-      setInputs(emptyNumbers())
-      clearSolutionArea()
+  const fetchPuzzle = useCallback(async (attemptNum?: number, forceNew: boolean = false) => {
+    if (!user) {
+      setIsLoading(false)
+      return
     }
-  }, [historyLoading, solvableHistory, lastViewedIndex])
+    // Use ref to prevent parallel fetches without affecting useCallback stability
+    if (isFetchingRef.current && !forceNew) return 
 
-  const activeList = showingUnsolvable ? unsolvableHistory : solvableHistory
-  const activeListLength = activeList.length
-
-  const backDisabled = activeListLength === 0 || currentHistoryIndex <= 0
-  const nextDisabled = activeListLength === 0 || currentHistoryIndex >= activeListLength - 1
-
-  const gotoVisible = activeListLength >= 5
-  const gotoMax = activeListLength
-  const gotoParsed = parseInt(gotoInput)
-  const gotoValid = gotoVisible && !isNaN(gotoParsed) && gotoParsed >= 1 && gotoParsed <= gotoMax
-
-  const puzzleCounter = activeListLength === 0 ? t('puzzle_counter', { current: 0, total: 0 }) : t('puzzle_counter', { current: currentHistoryIndex + 1, total: activeListLength })
-
-  const inputsHaveNaN = inputs.some((v) => Number.isNaN(v))
-  const addToHistoryVisible = useMemo(() => {
-    if (inputsHaveNaN) return false
-    const nums = inputs
-    const key = formatKey(nums)
-    const isSolvable = solve24(nums) !== null
-    const list = isSolvable ? solvableHistory : unsolvableHistory
-    return !list.includes(key)
-  }, [inputsHaveNaN, inputs, solvableHistory, unsolvableHistory])
-
-  const registerPuzzle = (nums: number[]) => {
-    if (nums.some((v) => Number.isNaN(v))) return
-
-    const key = formatKey(nums)
-    const isSolvable = solve24(nums) !== null
-
-    if (isSolvable) {
-      if (!solvableHistory.includes(key)) {
-        const next = [...solvableHistory, key]
-        setSolvableHistory(next)
-        if (!showingUnsolvable) {
-          setCurrentHistoryIndex(next.length - 1)
-          setLastViewedIndex(next.length - 1)
+    isFetchingRef.current = true
+    setIsLoading(true)
+    try {
+      if (attemptNum) {
+        // Fetch specific attempt
+        const { data } = await supabase
+          .from('user_puzzles_24')
+          .select('puzzle_id, attempt_num, status, puzzles_24(numbers)')
+          .eq('user_id', user.id)
+          .eq('attempt_num', attemptNum)
+          .maybeSingle()
+        
+        if (data) {
+          const attempt = {
+            puzzleId: data.puzzle_id,
+            numbers: (data.puzzles_24 as any)?.numbers || [],
+            attemptNum: data.attempt_num,
+            status: data.status
+          }
+          setCurrentAttempt(attempt)
+          setInputs(attempt.numbers)
+          clearSolutionArea()
+        }
+      } else {
+        // Get next/current puzzle
+        const { data } = await supabase.rpc('get_next_puzzle_for_user', { 
+          p_user_id: user.id,
+          p_force_new: forceNew
+        })
+        if (data && data.length > 0) {
+          const d = data[0] as any
+          const attempt = {
+            puzzleId: d.out_puzzle_id,
+            numbers: d.out_numbers,
+            attemptNum: d.out_attempt_num,
+            status: d.out_status
+          }
+          setCurrentAttempt(attempt)
+          setInputs(attempt.numbers)
+          clearSolutionArea()
         }
       }
-    } else {
-      if (!unsolvableHistory.includes(key)) {
-        const next = [...unsolvableHistory, key]
-        setUnsolvableHistory(next)
-      }
+
+      // Update total count
+      const { count } = await supabase
+        .from('user_puzzles_24')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+      setTotalAttempts(count || 0)
+
+    } catch (err) {
+      console.error('Error fetching puzzle:', err)
+    } finally {
+      setIsLoading(false)
+      isFetchingRef.current = false
+    }
+  }, [user])
+
+  useEffect(() => {
+    // Only trigger initial fetch if we are not loading auth AND we don't have an active attempt yet
+    if (!authLoading && user && !currentAttempt && !isFetchingRef.current) {
+      fetchPuzzle()
+    }
+  }, [authLoading, user, fetchPuzzle, currentAttempt])
+
+  const submitResult = async (isCorrect: boolean) => {
+    if (!user || !currentAttempt) return
+    // Only submit if status is currently NULL
+    if (currentAttempt.status !== null) return
+
+    try {
+      await supabase.rpc('submit_puzzle_result', {
+        p_puzzle_id: currentAttempt.puzzleId,
+        p_status_bool: isCorrect,
+        p_attempt_num: currentAttempt.attemptNum
+      })
+      // Refresh status locally
+      setCurrentAttempt(prev => prev ? { ...prev, status: isCorrect } : null)
+    } catch (err) {
+      console.error('Error submitting result:', err)
     }
   }
 
-  const navigateHistory = (direction: number) => {
-    if (activeListLength === 0) return
-    const nextIndex = clamp(currentHistoryIndex + direction, 0, activeListLength - 1)
-    setCurrentHistoryIndex(nextIndex)
-    const nums = activeList[nextIndex].split(',').map(Number)
-    setInputs(nums)
-    clearSolutionArea()
-    if (!showingUnsolvable) {
-      setLastViewedIndex(nextIndex)
+  const handleManualEntry = async () => {
+    if (!user) return
+    const nums = inputs.filter(n => !Number.isNaN(n))
+    if (nums.length !== 4) return
+
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase.rpc('get_or_create_manual_puzzle', { p_numbers: nums })
+      if (data && data.length > 0) {
+        const d = data[0]
+        if (d.is_solvable) {
+          // It's solvable, redirect to that attempt
+          await fetchPuzzle(d.attempt_num)
+          updateFeedback(t('msg_solution_found_manual'), 'var(--success)')
+        } else {
+          // Unsolvable, run local check and store
+          const sol = solve24(nums)
+          if (!sol) {
+            await supabase.from('user_unsolvable_24').insert({ user_id: user.id, numbers: nums })
+            updateFeedback(t('msg_no_solution_saved'), '#e74c3c')
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error in manual entry:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const navigateAttempts = (direction: number, forceNew: boolean = false) => {
+    if (!currentAttempt) return
+    if (forceNew) {
+      fetchPuzzle(undefined, true) // Force next new puzzle
+      return
+    }
+    const nextNum = currentAttempt.attemptNum + direction
+    if (nextNum >= 1 && nextNum <= totalAttempts) {
+      fetchPuzzle(nextNum)
     }
   }
 
   const goToPuzzle = () => {
-    if (!gotoValid) {
-      updateFeedback(t('msg_enter_between', { max: activeListLength }), '#e74c3c')
-      return
-    }
-    const nextIndex = gotoParsed - 1
-    setCurrentHistoryIndex(nextIndex)
-    const nums = activeList[nextIndex].split(',').map(Number)
-    setInputs(nums)
-    clearSolutionArea()
-    setGotoInput('')
-    if (!showingUnsolvable) {
-      setLastViewedIndex(nextIndex)
+    const num = parseInt(gotoInput)
+    if (!isNaN(num) && num >= 1 && num <= totalAttempts) {
+      fetchPuzzle(num)
+      setGotoInput('')
     }
   }
 
   const runSolver = () => {
+    const inputsHaveNaN = inputs.some(n => Number.isNaN(n))
     if (inputsHaveNaN) return
     const sol = solve24(inputs)
     const solForDisplay = sol && lang === 'he' ? `\u2066${sol}\u2069` : sol
     setResultText(sol ? t('msg_solution_found', { sol: solForDisplay as string }) : t('msg_no_solution'))
-    registerPuzzle(inputs)
+    
+    // Clicking "Show Answer" always marks as FALSE in first attempt
+    if (currentAttempt?.status === null) {
+      submitResult(false)
+    }
   }
 
   const checkUserSolution = () => {
     const expr = userExpr
+    const inputsHaveNaN = inputs.some(n => Number.isNaN(n))
     if (inputsHaveNaN || !expr.trim()) return
 
     try {
@@ -205,98 +256,64 @@ export default function GameClient({ lang, dict, children }: Props) {
         updateFeedback(t('msg_use_all'), '#e74c3c')
       } else if (Math.abs(result - 24) < 0.001) {
         updateFeedback(t('msg_correct'), 'var(--success)')
+        if (currentAttempt?.status === null) {
+          submitResult(true)
+        }
       } else {
         updateFeedback(t('msg_incorrect', { result }), '#e74c3c')
+        // We don't mark as FALSE just for one wrong check, 
+        // they can keep trying.
       }
     } catch {
       updateFeedback(t('msg_invalid_expr'), '#e74c3c')
     }
   }
 
-  const manualRegister = () => {
-    if (inputsHaveNaN) return
-    registerPuzzle(inputs)
-    updateFeedback(t('msg_saved'), '#27ae60')
+  // Helper for circle rendering
+  const renderStatusCircle = () => {
+    if (!currentAttempt) return null
+    if (currentAttempt.status === true || currentAttempt.status === false) {
+      return (
+        <div style={{
+          width: 12,
+          height: 12,
+          borderRadius: '50%',
+          backgroundColor: 'var(--success)',
+          marginLeft: 8,
+          marginRight: 8,
+          display: 'inline-block',
+          verticalAlign: 'middle'
+        }} />
+      )
+    }
+    return (
+      <div style={{
+        width: 12,
+        height: 12,
+        borderRadius: '50%',
+        border: '2px solid #bdc3c7',
+        marginLeft: 8,
+        marginRight: 8,
+        display: 'inline-block',
+        verticalAlign: 'middle',
+        boxSizing: 'border-box'
+      }} />
+    )
   }
 
-  const generateSolvable = (updateUI: boolean) => {
-    if (checkedCombinationsRef.current.size >= TOTAL_POSSIBLE) {
-      if (updateUI) updateFeedback(t('msg_all_checked'), 'var(--accent)')
-      return
-    }
+  const backDisabled = !currentAttempt || currentAttempt.attemptNum <= 1
+  const nextDisabled = !currentAttempt || currentAttempt.attemptNum >= totalAttempts
+  const gotoMax = totalAttempts
+  const gotoValid = !isNaN(parseInt(gotoInput)) && parseInt(gotoInput) >= 1 && parseInt(gotoInput) <= totalAttempts
+  const puzzleDisplayNum = currentAttempt?.attemptNum || 0
+  const puzzleTotalNum = 1362
 
-    let randomNums: number[] = []
-    let key = ''
-    let isSolvable = false
-    let attempts = 0
-
-    do {
-      isSolvable = false
-      randomNums = Array.from({ length: 4 }, () => Math.floor(Math.random() * 13) + 1)
-      key = formatKey(randomNums)
-
-      if (!checkedCombinationsRef.current.has(key)) {
-        const solution = solve24(randomNums)
-        checkedCombinationsRef.current.add(key)
-        if (solution) isSolvable = true
-        else if (!unsolvableHistoryRef.current.includes(key)) {
-          unsolvableHistoryRef.current.push(key)
-          if (updateUI) setUnsolvableHistory([...unsolvableHistoryRef.current])
-        }
-      } else {
-        isSolvable = solvableHistoryRef.current.includes(key)
-      }
-
-      attempts++
-    } while ((!isSolvable || solvableHistoryRef.current.includes(key)) && attempts < 5000)
-
-    if (isSolvable && !solvableHistoryRef.current.includes(key)) {
-      if (updateUI) {
-        setInputs(randomNums)
-        registerPuzzle(randomNums)
-        clearSolutionArea()
-      } else {
-        solvableHistoryRef.current.push(key)
-      }
-    } else if (updateUI) {
-      updateFeedback(t('msg_not_found'), '#e74c3c')
-    }
+  if (authLoading || (isLoading && !currentAttempt)) {
+    return <div className="container" style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
   }
-
-  const generateAll = () => {
-    const initialCount = solvableHistoryRef.current.length
-    for (let i = 0; i < TOTAL_POSSIBLE; i++) {
-      generateSolvable(false)
-    }
-    const generatedCount = solvableHistoryRef.current.length - initialCount
-    updateFeedback(t('msg_gen_success', { count: generatedCount }), 'var(--success)')
-    setSolvableHistory([...solvableHistoryRef.current])
-    // Keep current index in-range.
-    setCurrentHistoryIndex((idx) => {
-      if (solvableHistoryRef.current.length === 0) return -1
-      return clamp(idx, 0, solvableHistoryRef.current.length - 1)
-    })
-  }
-
-  useEffect(() => {
-    const handleClear = () => {
-      checkedCombinations.clear()
-      setSolvableHistory([])
-      setUnsolvableHistory([])
-      setCurrentHistoryIndex(-1)
-      setLastViewedIndex(-1)
-      setInputs(emptyNumbers())
-      clearSolutionArea()
-      updateFeedback(t('msg_hist_cleared'), '#e74c3c')
-    }
-    window.addEventListener('clear-history', handleClear)
-    return () => window.removeEventListener('clear-history', handleClear)
-  }, [t, setSolvableHistory, setUnsolvableHistory, setLastViewedIndex, checkedCombinations])
 
   return (
-    <section id="game-page" className="page active">
-        <div className="container">
-          {children}
+    <>
           <div
             style={{
               display: 'flex',
@@ -305,8 +322,9 @@ export default function GameClient({ lang, dict, children }: Props) {
               marginBottom: 10,
             }}
           >
-            <span id="puzzle-counter" style={{ fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 'bold' }}>
-              {puzzleCounter}
+            <span id="puzzle-counter" style={{ fontSize: '0.8rem', color: '#7f8c8d', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+              {t('puzzle_counter', { current: puzzleDisplayNum, total: puzzleTotalNum })}
+              {renderStatusCircle()}
             </span>
           </div>
 
@@ -333,11 +351,10 @@ export default function GameClient({ lang, dict, children }: Props) {
           </div>
 
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn-generate" onClick={() => generateSolvable(true)}>{t('btn_new')}</button>
-            <button className="btn-generate" onClick={generateAll} style={{ backgroundColor: 'var(--accent)' }}>
-              {t('btn_gen_all')}
+            <button className="btn-generate" onClick={() => navigateAttempts(1, true)} disabled={isLoading}>
+              {t('btn_new')}
             </button>
-            <button className="btn-solve" onClick={runSolver}>{t('btn_show_ans')}</button>
+            <button className="btn-solve" onClick={runSolver} disabled={isLoading}>{t('btn_show_ans')}</button>
 
             <button
               id="btn-manual-add"
@@ -345,13 +362,12 @@ export default function GameClient({ lang, dict, children }: Props) {
               style={{
                 backgroundColor: 'var(--blue)',
                 color: 'var(--dark)',
-                opacity: addToHistoryVisible ? 0.5 : 0.5,
-                display: addToHistoryVisible ? 'inline-block' : 'none',
+                display: 'inline-block',
               }}
-              onClick={manualRegister}
-              disabled={!addToHistoryVisible}
+              onClick={handleManualEntry}
+              disabled={isLoading}
             >
-              {t('btn_add_hist')}
+              {t('btn_set_numbers')}
             </button>
 
             <button className="btn-solve btn-rules" onClick={() => setShowRules24((s) => !s)}>
@@ -376,15 +392,15 @@ export default function GameClient({ lang, dict, children }: Props) {
             <button
               id="btn-back"
               className="btn-nav"
-              onClick={() => navigateHistory(-1)}
-              disabled={backDisabled}
+              onClick={() => navigateAttempts(-1)}
+              disabled={backDisabled || isLoading}
               dangerouslySetInnerHTML={{ __html: t('btn_back') }}
             />
             <button
               id="btn-next"
               className="btn-nav"
-              onClick={() => navigateHistory(1)}
-              disabled={nextDisabled}
+              onClick={() => navigateAttempts(1)}
+              disabled={nextDisabled || isLoading}
               dangerouslySetInnerHTML={{ __html: t('btn_next') }}
             />
           </div>
@@ -392,7 +408,7 @@ export default function GameClient({ lang, dict, children }: Props) {
           <div
             id="goto-section"
             style={{
-              display: gotoVisible ? 'flex' : 'none',
+              display: totalAttempts >= 5 ? 'flex' : 'none',
               marginTop: 15,
               justifyContent: 'center',
               gap: 10,
@@ -414,7 +430,7 @@ export default function GameClient({ lang, dict, children }: Props) {
               id="btn-goto"
               className={`btn-nav ${gotoValid ? 'btn-goto-highlight' : ''}`}
               onClick={goToPuzzle}
-              disabled={!gotoValid}
+              disabled={!gotoValid || isLoading}
               style={{ width: 120, height: 40, padding: 0, margin: 0, whiteSpace: 'nowrap' }}
             >
               {t('btn_go')}
@@ -445,8 +461,7 @@ export default function GameClient({ lang, dict, children }: Props) {
           <div id="result" style={{ marginTop: 15, fontWeight: 'bold' }}>
             {resultText}
           </div>
-        </div>
-      </section>
+    </>
   )
 }
 

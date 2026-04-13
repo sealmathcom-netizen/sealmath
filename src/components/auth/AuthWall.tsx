@@ -35,7 +35,6 @@ export default function AuthWall({ children, lang, dict }: Props) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'flex-start',
-
           padding: '20px 10vw',
           background: 'rgba(255, 255, 255, 0.02)',
           animation: 'fadeIn 0.5s ease forwards'

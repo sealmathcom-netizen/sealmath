@@ -164,9 +164,7 @@ export default function CaptureClient({ lang, dict, children }: Props) {
   }
 
   return (
-    <section id="capture-page" className="page active">
-        <div className="container">
-          {children}
+    <>
           <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 20 }}>
             <button
               className="btn-solve btn-rules"
@@ -321,8 +319,7 @@ export default function CaptureClient({ lang, dict, children }: Props) {
               {t('btn_show_sol')}
             </button>
           </div>
-        </div>
-      </section>
+    </>
   )
 }
 

@@ -9,14 +9,24 @@ test.describe('Navigation', () => {
     
     // console.log(`[Test Debug] Setting bypass cookie for hostname: ${hostname}`);
     
-    await context.addCookies([{
-      name: BYPASS_COOKIE_NAME,
-      value: token,
-      domain: hostname,
-      path: '/',
-      secure: baseURL.startsWith('https'),
-      sameSite: 'Lax'
-    }]);
+    await context.addCookies([
+      {
+        name: BYPASS_COOKIE_NAME,
+        value: token,
+        domain: hostname,
+        path: '/',
+        secure: baseURL.startsWith('https'),
+        sameSite: 'Lax'
+      },
+      {
+        name: 'test-bypass-active',
+        value: 'true',
+        domain: hostname,
+        path: '/',
+        secure: baseURL.startsWith('https'),
+        sameSite: 'Lax'
+      }
+    ]);
     await page.goto('/?lang=en');
   });
 
