@@ -10,7 +10,9 @@
     "lint": "next lint",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "db:migrate": "node scripts/migrate.js",
+    "build": "npm run test:unit && npm run db:migrate && next build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
