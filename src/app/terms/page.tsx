@@ -9,6 +9,14 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
+    alternates: {
+      canonical: 'https://sealmath.com/terms',
+      languages: {
+        'en': 'https://sealmath.com/terms',
+        'he': 'https://sealmath.com/terms?lang=he',
+        'nl': 'https://sealmath.com/terms?lang=nl',
+      }
+    },
     openGraph: {
       title,
       description,

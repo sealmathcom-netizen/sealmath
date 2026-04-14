@@ -2,17 +2,23 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/i18n/server'
 import NavBar from '@/components/NavBar'
+import Script from 'next/script'
 import 'mathlive/fonts.css'
+import './style.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   const { dict } = await getTranslations()
-  const baseUrl = 'https://sealmath.com'
   const title = dict.meta_title_home
   const description = dict.meta_description_home
 
+  // We removed metadataBase because it was causing Next.js to strip query parameters 
+  // from alternates during development and rendering.
   return {
-    metadataBase: new URL(baseUrl),
     manifest: '/manifest.json',
+    icons: {
+      icon: '/favicon.png',
+      apple: '/favicon.png',
+    },
     title: {
       default: title,
       template: `%s | SealMath`,
@@ -25,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: description,
       images: [
         {
-          url: '/favicon.png',
+          url: 'https://sealmath.com/favicon.png',
           width: 512,
           height: 512,
           alt: 'SealMath Logo',
@@ -36,7 +42,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
       title: title,
       description: description,
-      images: ['/favicon.png'],
+      images: ['https://sealmath.com/favicon.png'],
     },
   }
 }
@@ -50,11 +56,6 @@ export default async function RootLayout({
 
   return (
     <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} suppressHydrationWarning={true}>
-      <head>
-        <link rel="icon" type="image/png" href="/favicon.png" />
-        <link rel="stylesheet" href="/style.css" />
-        <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" async defer></script>
-      </head>
       <body>
         <div id="root">
           <NavBar lang={lang} dict={dict} />
@@ -67,6 +68,12 @@ export default async function RootLayout({
             <p>&copy; {new Date().getFullYear()} SealMath. All rights reserved.</p>
           </footer>
         </div>
+        
+        {/* EmailJS Script */}
+        <Script 
+          src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" 
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   )

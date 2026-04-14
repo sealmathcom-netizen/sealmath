@@ -15,28 +15,41 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   
   const title = t('meta_title_capture')
   const description = t('meta_description_capture')
-  const canonical = lang === 'en' ? '/capture' : `/capture?lang=${lang}`
+  
+  const path = lang === 'en' ? '/capture' : `/capture?lang=${lang}`
+  const absUrl = `https://sealmath.com${path}`
 
   return {
     title,
     description,
     alternates: {
-      canonical,
+      canonical: absUrl,
       languages: {
-        'en': '/capture',
-        'he': '/capture?lang=he',
-        'nl': '/capture?lang=nl',
-        'x-default': '/capture',
+        'en': 'https://sealmath.com/capture',
+        'he': 'https://sealmath.com/capture?lang=he',
+        'nl': 'https://sealmath.com/capture?lang=nl',
+        'x-default': 'https://sealmath.com/capture',
       }
     },
     openGraph: {
+      type: 'website',
       title,
       description,
-      url: `https://sealmath.com${canonical}`,
+      url: absUrl,
+      images: [
+        {
+          url: 'https://sealmath.com/favicon.png',
+          width: 512,
+          height: 512,
+          alt: 'SealMath Logo',
+        },
+      ],
     },
     twitter: {
+      card: 'summary_large_image',
       title,
       description,
+      images: ['https://sealmath.com/favicon.png'],
     }
   }
 }

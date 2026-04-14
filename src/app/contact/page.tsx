@@ -15,28 +15,41 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   
   const title = t('meta_title_contact')
   const description = t('meta_description_contact')
-  const canonical = lang === 'en' ? '/contact' : `/contact?lang=${lang}`
+  
+  const path = lang === 'en' ? '/contact' : `/contact?lang=${lang}`
+  const absUrl = `https://sealmath.com${path}`
 
   return {
     title,
     description,
     alternates: {
-      canonical,
+      canonical: absUrl,
       languages: {
-        'en': '/contact',
-        'he': '/contact?lang=he',
-        'nl': '/contact?lang=nl',
-        'x-default': '/contact',
+        'en': 'https://sealmath.com/contact',
+        'he': 'https://sealmath.com/contact?lang=he',
+        'nl': 'https://sealmath.com/contact?lang=nl',
+        'x-default': 'https://sealmath.com/contact',
       }
     },
     openGraph: {
+      type: 'website',
       title,
       description,
-      url: `https://sealmath.com${canonical}`,
+      url: absUrl,
+      images: [
+        {
+          url: 'https://sealmath.com/favicon.png',
+          width: 512,
+          height: 512,
+          alt: 'SealMath Logo',
+        },
+      ],
     },
     twitter: {
+      card: 'summary_large_image',
       title,
       description,
+      images: ['https://sealmath.com/favicon.png'],
     }
   }
 }

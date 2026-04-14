@@ -15,28 +15,41 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   
   const title = t('meta_title_game')
   const description = t('meta_description_game')
-  const canonical = lang === 'en' ? '/24-challenge' : `/24-challenge?lang=${lang}`
+  
+  const path = lang === 'en' ? '/24-challenge' : `/24-challenge?lang=${lang}`
+  const absUrl = `https://sealmath.com${path}`
 
   return {
     title,
     description,
     alternates: {
-      canonical,
+      canonical: absUrl,
       languages: {
-        'en': '/24-challenge',
-        'he': '/24-challenge?lang=he',
-        'nl': '/24-challenge?lang=nl',
-        'x-default': '/24-challenge',
+        'en': 'https://sealmath.com/24-challenge',
+        'he': 'https://sealmath.com/24-challenge?lang=he',
+        'nl': 'https://sealmath.com/24-challenge?lang=nl',
+        'x-default': 'https://sealmath.com/24-challenge',
       }
     },
     openGraph: {
+      type: 'website',
       title,
       description,
-      url: `https://sealmath.com${canonical}`,
+      url: absUrl,
+      images: [
+        {
+          url: 'https://sealmath.com/favicon.png',
+          width: 512,
+          height: 512,
+          alt: 'SealMath Logo',
+        },
+      ],
     },
     twitter: {
+      card: 'summary_large_image',
       title,
       description,
+      images: ['https://sealmath.com/favicon.png'],
     }
   }
 }
