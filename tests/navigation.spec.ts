@@ -27,7 +27,7 @@ test.describe('Navigation', () => {
         sameSite: 'Lax'
       }
     ]);
-    await page.goto('/?lang=en');
+    await page.goto('/');
   });
 
   test('should load homepage with hero section', async ({ page }) => {

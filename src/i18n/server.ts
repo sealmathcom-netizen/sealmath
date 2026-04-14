@@ -16,7 +16,7 @@ export async function getLanguage(): Promise<Lang> {
 export async function getTranslations(forcedLang?: Lang) {
   const lang = forcedLang || await getLanguage()
   
-  const dict = translations[lang]
+  const dict = translations[lang] || translations['en']
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key
     for (const [k, v] of Object.entries(params)) {

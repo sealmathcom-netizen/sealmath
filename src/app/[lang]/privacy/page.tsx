@@ -1,32 +1,44 @@
 import { getTranslations } from '@/i18n/server'
+import { Lang } from '@/i18n/translations'
 import type { Metadata } from 'next'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { dict } = await getTranslations()
+interface Props {
+  params: Promise<{ lang: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang: langParam } = await params
+  const { dict, lang } = await getTranslations(langParam as Lang)
   const title = `${dict.nav_privacy} | SealMath`
   const description = 'Learn how SealMath handles your personal data and protects your privacy when using our math tools.'
   
+  const baseUrl = 'https://sealmath.com'
+  const path = lang === 'en' ? '/privacy' : `/${lang}/privacy`
+  const absUrl = `${baseUrl}${path}`
+
   return {
     title,
     description,
     alternates: {
-      canonical: 'https://sealmath.com/privacy',
+      canonical: absUrl,
       languages: {
-        'en': 'https://sealmath.com/privacy',
-        'he': 'https://sealmath.com/privacy?lang=he',
-        'nl': 'https://sealmath.com/privacy?lang=nl',
+        'en': `${baseUrl}/privacy`,
+        'he': `${baseUrl}/he/privacy`,
+        'nl': `${baseUrl}/nl/privacy`,
+        'x-default': `${baseUrl}/privacy`,
       }
     },
     openGraph: {
       title,
       description,
-      url: 'https://sealmath.com/privacy',
+      url: absUrl,
     }
   }
 }
 
-export default async function PrivacyPage() {
-  const { dict } = await getTranslations()
+export default async function PrivacyPage({ params }: Props) {
+  const { lang: langParam } = await params
+  const { dict } = await getTranslations(langParam as Lang)
   const t = (key: string) => dict[key] ?? key
 
   return (

@@ -40,7 +40,7 @@ test.describe('Games', () => {
           sameSite: 'Lax'
         }
       ]);
-      await page.goto('/24-challenge?lang=en');
+      await page.goto('/24-challenge');
       await page.evaluate(() => localStorage.clear());
     });
 
@@ -82,7 +82,7 @@ test.describe('Games', () => {
         secure: baseURL.startsWith('https'),
         sameSite: 'Lax'
       }]);
-      await page.goto('/capture?lang=en');
+      await page.goto('/capture');
       await page.evaluate(() => localStorage.clear());
     });
 

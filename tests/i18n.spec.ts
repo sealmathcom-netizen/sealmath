@@ -18,25 +18,29 @@ test.describe('Internationalization (i18n)', () => {
   });
 
   test('should switch languages correctly', async ({ page }) => {
-    await page.goto('/?lang=en');
+    await page.goto('/');
 
     // 1. Initial English check (homepage)
     await expect(page.locator('.home-hero-title')).toContainText('Master Math');
 
     // 2. Switch to Hebrew
     await page.selectOption('#lang-switcher', 'he');
+    await expect(page).toHaveURL(/\/he$/);
     await expect(page.locator('.home-hero-title')).toContainText('לימדו מתמטיקה');
 
     // 3. Switch to Dutch
     await page.selectOption('#lang-switcher', 'nl');
+    await expect(page).toHaveURL(/\/nl$/);
     await expect(page.locator('.home-hero-title')).toContainText('Leer Wiskunde');
 
-    // 4. Persistence check after reload (lang is in URL and localStorage)
+    // 4. Persistence check after reload
     await page.reload();
+    await expect(page).toHaveURL(/\/nl$/);
     await expect(page.locator('.home-hero-title')).toContainText('Leer Wiskunde');
 
     // 5. Switch back to English
     await page.selectOption('#lang-switcher', 'en');
+    await expect(page).toHaveURL(/\/$/);
     await expect(page.locator('.home-hero-title')).toContainText('Master Math');
   });
 });

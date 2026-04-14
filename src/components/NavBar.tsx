@@ -74,15 +74,32 @@ export default function NavBar({ lang, dict }: Props) {
 
   async function onChangeLang(newLang: Lang) {
     await setLanguage(newLang)
+    const currentPath = pathname ?? '/'
+    // Split the pathname to check for existing locale
+    const segments = currentPath.split('/')
+    // Current supported locales are 'he' and 'nl'. 'en' is the default.
+    const isCurrentLocalePath = segments[1] === 'he' || segments[1] === 'nl'
     
-    const params = new URLSearchParams(searchParams?.toString() ?? '')
+    let newPathname = currentPath
     if (newLang === 'en') {
-      params.delete('lang')
+      if (isCurrentLocalePath) {
+        // Remove the locale segment: /he/algebra -> /algebra
+        newPathname = '/' + segments.slice(2).join('/')
+      }
     } else {
-      params.set('lang', newLang)
+      if (isCurrentLocalePath) {
+        // Replace the locale segment: /he/algebra -> /nl/algebra
+        segments[1] = newLang
+        newPathname = segments.join('/')
+      } else {
+        // Add the locale segment: /algebra -> /he/algebra
+        newPathname = `/${newLang}${currentPath === '/' ? '' : currentPath}`
+      }
     }
-    const query = params.toString()
-    router.replace(`${pathname}${query ? `?${query}` : ''}`)
+
+    // Preserve search params
+    const query = searchParams?.toString()
+    router.replace(`${newPathname}${query ? `?${query}` : ''}`)
     router.refresh()
   }
 
@@ -92,9 +109,15 @@ export default function NavBar({ lang, dict }: Props) {
     router.refresh()
   }
 
-  const getHref = (path: string) => path
+  const getHref = (path: string) => {
+    if (lang === 'en') return path
+    return `/${lang}${path === '/' ? '' : path}`
+  }
 
-  const isActive = (path: string) => pathname === path
+  const isActive = (path: string) => {
+    const localizedPath = getHref(path)
+    return pathname === localizedPath
+  }
 
   const userAvatar = user?.user_metadata?.avatar_url
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || t('nav_user_generic')

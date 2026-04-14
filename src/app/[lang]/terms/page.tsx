@@ -1,32 +1,44 @@
 import { getTranslations } from '@/i18n/server'
+import { Lang } from '@/i18n/translations'
 import type { Metadata } from 'next'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { dict } = await getTranslations()
+interface Props {
+  params: Promise<{ lang: string }>
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang: langParam } = await params
+  const { dict, lang } = await getTranslations(langParam as Lang)
   const title = `${dict.nav_terms} | SealMath`
   const description = 'The standard terms of service for using SealMath tools and games.'
   
+  const baseUrl = 'https://sealmath.com'
+  const path = lang === 'en' ? '/terms' : `/${lang}/terms`
+  const absUrl = `${baseUrl}${path}`
+
   return {
     title,
     description,
     alternates: {
-      canonical: 'https://sealmath.com/terms',
+      canonical: absUrl,
       languages: {
-        'en': 'https://sealmath.com/terms',
-        'he': 'https://sealmath.com/terms?lang=he',
-        'nl': 'https://sealmath.com/terms?lang=nl',
+        'en': `${baseUrl}/terms`,
+        'he': `${baseUrl}/he/terms`,
+        'nl': `${baseUrl}/nl/terms`,
+        'x-default': `${baseUrl}/terms`,
       }
     },
     openGraph: {
       title,
       description,
-      url: 'https://sealmath.com/terms',
+      url: absUrl,
     }
   }
 }
 
-export default async function TermsPage() {
-  const { dict } = await getTranslations()
+export default async function TermsPage({ params }: Props) {
+  const { lang: langParam } = await params
+  const { dict } = await getTranslations(langParam as Lang)
   const t = (key: string) => dict[key] ?? key
 
   return (

@@ -8,7 +8,8 @@ test.describe('Public Routes', () => {
 
   for (const lang of LANGUAGES) {
     test(`should allow access to home page without login in ${lang}`, async ({ page }) => {
-      const response = await page.goto(`/?lang=${lang}`);
+      const path = lang === 'en' ? '/' : `/${lang}`;
+      const response = await page.goto(path);
       expect(response?.ok()).toBeTruthy();
       
       // Ensure we are not redirected to login
@@ -17,25 +18,28 @@ test.describe('Public Routes', () => {
     });
 
     test(`should allow access to terms page without login in ${lang}`, async ({ page }) => {
-      const response = await page.goto(`/terms?lang=${lang}`);
+      const path = lang === 'en' ? '/terms' : `/${lang}/terms`;
+      const response = await page.goto(path);
       expect(response?.ok()).toBeTruthy();
       
       // Ensure we are not redirected to login
       await expect(page).not.toHaveURL(/.*\/login/);
-      await expect(page).toHaveURL(/.*\/terms/);
+      await expect(page).toHaveURL(new RegExp(`.*${path}`));
     });
 
     test(`should allow access to privacy page without login in ${lang}`, async ({ page }) => {
-      const response = await page.goto(`/privacy?lang=${lang}`);
+      const path = lang === 'en' ? '/privacy' : `/${lang}/privacy`;
+      const response = await page.goto(path);
       expect(response?.ok()).toBeTruthy();
       
       // Ensure we are not redirected to login
       await expect(page).not.toHaveURL(/.*\/login/);
-      await expect(page).toHaveURL(/.*\/privacy/);
+      await expect(page).toHaveURL(new RegExp(`.*${path}`));
     });
 
     test(`should show auth wall on protected routes when unauthenticated in ${lang}`, async ({ page }) => {
-      await page.goto(`/algebra?lang=${lang}`);
+      const path = lang === 'en' ? '/algebra' : `/${lang}/algebra`;
+      await page.goto(path);
       
       // We should NOT be redirected away (for SEO purposes)
       await expect(page).not.toHaveURL(/.*\/login/);

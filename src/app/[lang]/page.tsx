@@ -7,20 +7,19 @@ import { createSupabaseServerClient } from '@/utils/supabase/server'
 import { verifyBypassToken, BYPASS_COOKIES } from '@/utils/test-bypass'
 
 interface Props {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  params: Promise<{ lang: string }>
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const sParams = await searchParams
-  const langQuery = sParams.lang as string | undefined
-  const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
-  const { t, lang } = await getTranslations(forceLang as Lang)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang: langParam } = await params
+  const { t, lang } = await getTranslations(langParam as Lang)
   
   const title = t('meta_title_home')
   const description = t('meta_description_home')
   
-  const path = lang === 'en' ? '' : `/?lang=${lang}`
-  const absUrl = `https://sealmath.com${path}`
+  const baseUrl = 'https://sealmath.com'
+  const path = lang === 'en' ? '' : `/${lang}`
+  const absUrl = `${baseUrl}${path}`
 
   return {
     title,
@@ -28,10 +27,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
     alternates: {
       canonical: absUrl,
       languages: {
-        'en': 'https://sealmath.com',
-        'he': 'https://sealmath.com/?lang=he',
-        'nl': 'https://sealmath.com/?lang=nl',
-        'x-default': 'https://sealmath.com',
+        'en': baseUrl,
+        'he': `${baseUrl}/he`,
+        'nl': `${baseUrl}/nl`,
+        'x-default': baseUrl,
       }
     },
     openGraph: {
@@ -39,14 +38,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       title,
       description,
       url: absUrl,
-      images: [
-        {
-          url: 'https://sealmath.com/favicon.png',
-          width: 512,
-          height: 512,
-          alt: 'SealMath Logo',
-        },
-      ],
+      images: ['https://sealmath.com/favicon.png'],
     },
     twitter: {
       card: 'summary_large_image',
@@ -57,11 +49,9 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 }
 
-export default async function HomePage({ searchParams }: Props) {
-  const sParams = await searchParams
-  const langQuery = sParams.lang as string | undefined
-  const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
-  const { t } = await getTranslations(forceLang as Lang)
+export default async function HomePage({ params }: Props) {
+  const { lang: langParam } = await params
+  const { t, lang } = await getTranslations(langParam as Lang)
 
   let user = null
   let isBypassed = false
@@ -85,7 +75,7 @@ export default async function HomePage({ searchParams }: Props) {
     { titleKey: 'home_card_algebra_title', descKey: 'home_card_algebra_desc', to: '/algebra' },
   ]
 
-  const getHref = (path: string) => path
+  const getHref = (path: string) => lang === 'en' ? path : `/${lang}${path}`
 
   return (
     <section id="home-page" className="page active">

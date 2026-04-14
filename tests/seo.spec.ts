@@ -78,14 +78,14 @@ test.describe('SEO & Metadata', () => {
       if (lang === 'en' || lang === 'x-default') {
         expect(cleanHref).toBe('https://sealmath.com');
       } else {
-        expect(cleanHref).toBe(`https://sealmath.com/?lang=${lang}`);
+        expect(cleanHref).toBe(`https://sealmath.com/${lang}`);
       }
     }
   });
 
   test('Algebra page has correct localized metadata and alternates', async ({ page }) => {
     // Navigate to Hebrew version of Algebra
-    await page.goto('/algebra?lang=he');
+    await page.goto('/he/algebra');
     
     // Check Title (Hebrew)
     await expect(page).toHaveTitle(/יסודות האלגברה/);
@@ -96,11 +96,11 @@ test.describe('SEO & Metadata', () => {
 
     // Canonical for Hebrew Algebra
     const canonical = await page.locator('link[rel="canonical"]').getAttribute('href');
-    expect(canonical).toBe('https://sealmath.com/algebra?lang=he');
+    expect(canonical).toBe('https://sealmath.com/he/algebra');
     
     // Alternates for Algebra page
     const heAlternate = page.locator('link[rel="alternate"][hreflang="he"]');
-    expect(await heAlternate.getAttribute('href')).toBe('https://sealmath.com/algebra?lang=he');
+    expect(await heAlternate.getAttribute('href')).toBe('https://sealmath.com/he/algebra');
     
     const enAlternate = page.locator('link[rel="alternate"][hreflang="en"]');
     expect(await enAlternate.getAttribute('href')).toBe('https://sealmath.com/algebra');
