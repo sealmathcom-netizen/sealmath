@@ -1,9 +1,20 @@
 import { getTranslations } from '@/i18n/server'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy | SealMath',
-  description: 'Learn how SealMath handles your personal data and protects your privacy when using our math tools.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { dict } = await getTranslations()
+  const title = `${dict.nav_privacy} | SealMath`
+  const description = 'Learn how SealMath handles your personal data and protects your privacy when using our math tools.'
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: 'https://sealmath.com/privacy',
+    }
+  }
 }
 
 export default async function PrivacyPage() {

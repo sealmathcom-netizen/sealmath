@@ -13,19 +13,30 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
   const { t, lang } = await getTranslations(forceLang as Lang)
   
-  const canonical = lang === 'en' ? 'https://sealmath.com/algebra' : `https://sealmath.com/algebra?lang=${lang}`
+  const title = t('meta_title_algebra')
+  const description = t('meta_description_algebra')
+  const canonical = lang === 'en' ? '/algebra' : `/algebra?lang=${lang}`
 
   return {
-    title: t('meta_title_algebra'),
-    description: t('meta_description_algebra'),
+    title,
+    description,
     alternates: {
       canonical,
       languages: {
-        'he': 'https://sealmath.com/algebra?lang=he',
-        'en': 'https://sealmath.com/algebra',
-        'nl': 'https://sealmath.com/algebra?lang=nl',
-        'x-default': 'https://sealmath.com/algebra',
+        'en': '/algebra',
+        'he': '/algebra?lang=he',
+        'nl': '/algebra?lang=nl',
+        'x-default': '/algebra',
       }
+    },
+    openGraph: {
+      title,
+      description,
+      url: `https://sealmath.com${canonical}`,
+    },
+    twitter: {
+      title,
+      description,
     }
   }
 }

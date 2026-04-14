@@ -119,7 +119,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Homepage
     meta_title_home: 'SealMath – Free Interactive Math Games & Learning Tools',
-    meta_description_home: 'Learn math the fun way with SealMath! Free interactive games, algebra practice, fraction challenges, and mental math puzzles for students of all ages.',
+    meta_description_home: 'Master essential math skills with SealMath. Free interactive games and step-by-step tools designed to make learning math fun and easy for students of all ages.',
     home_hero_title: 'Master Math the Fun Way 🦭',
     home_hero_subtitle: 'Interactive games and tools that make learning math exciting — for students of all ages.',
     home_card_24_title: '🎯 24 Challenge',
@@ -257,7 +257,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Homepage
     meta_title_home: 'SealMath – משחקי מתמטיקה אינטראקטיביים וכלי למידה חינמיים',
-    meta_description_home: 'למדו מתמטיקה בדרך מהנה עם SealMath! משחקים אינטראקטיביים, תרגול אלגברה, אתגרי שברים וחידות חשבון מנטלי לתלמידים בכל הגילאים.',
+    meta_description_home: 'שפרו את מיומנויות המתמטיקה עם SealMath. משחקים אינטראקטיביים חינמיים וכלים צעד-אחר-צעד שנועדו להפוך את למידת המתמטיקה למהנה וקלה לתלמידים בכל הגילאים.',
     home_hero_title: 'לימדו מתמטיקה בדרך מהנה 🦭',
     home_hero_subtitle: 'משחקים וכלים אינטראקטיביים שהופכים את לימוד המתמטיקה למרתק — לתלמידים בכל הגילאים.',
     home_card_24_title: '🎯 אתגר ה-24',
@@ -395,7 +395,7 @@ export const translations: Record<Lang, Record<string, string>> = {
 
     // Homepage
     meta_title_home: 'SealMath – Gratis Interactieve Wiskundespellen & Leertools',
-    meta_description_home: 'Leer wiskunde op een leuke manier met SealMath! Gratis interactieve spellen, algebra-oefeningen, breukenuitdagingen en hoofdrekenpuzzels voor leerlingen van alle leeftijden.',
+    meta_description_home: 'Beheers essentiële wiskundevaardigheden met SealMath. Gratis interactieve spellen en stapsgewijze tools ontworpen om wiskunde leuk en gemakkelijk te maken voor leerlingen van alle leeftijden.',
     home_hero_title: 'Leer Wiskunde op een Leuke Manier 🦭',
     home_hero_subtitle: 'Interactieve spellen en tools die het leren van wiskunde spannend maken — voor leerlingen van alle leeftijden.',
     home_card_24_title: '🎯 24 Uitdaging',

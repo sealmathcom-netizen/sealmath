@@ -5,9 +5,39 @@ import NavBar from '@/components/NavBar'
 import 'mathlive/fonts.css'
 
 export async function generateMetadata(): Promise<Metadata> {
+  const { dict } = await getTranslations()
+  const baseUrl = 'https://sealmath.com'
+  const title = dict.meta_title_home
+  const description = dict.meta_description_home
+
   return {
-    metadataBase: new URL('https://sealmath.com'),
+    metadataBase: new URL(baseUrl),
     manifest: '/manifest.json',
+    title: {
+      default: title,
+      template: `%s | SealMath`,
+    },
+    description: description,
+    openGraph: {
+      type: 'website',
+      siteName: 'SealMath',
+      title: title,
+      description: description,
+      images: [
+        {
+          url: '/favicon.png',
+          width: 512,
+          height: 512,
+          alt: 'SealMath Logo',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: title,
+      description: description,
+      images: ['/favicon.png'],
+    },
   }
 }
 

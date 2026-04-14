@@ -13,19 +13,30 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const forceLang = (langQuery === 'he' || langQuery === 'nl' || langQuery === 'en') ? langQuery : undefined
   const { t, lang } = await getTranslations(forceLang as Lang)
   
-  const canonical = lang === 'en' ? 'https://sealmath.com/24-challenge' : `https://sealmath.com/24-challenge?lang=${lang}`
+  const title = t('meta_title_game')
+  const description = t('meta_description_game')
+  const canonical = lang === 'en' ? '/24-challenge' : `/24-challenge?lang=${lang}`
 
   return {
-    title: t('meta_title_game'),
-    description: t('meta_description_game'),
+    title,
+    description,
     alternates: {
       canonical,
       languages: {
-        'he': 'https://sealmath.com/24-challenge?lang=he',
-        'en': 'https://sealmath.com/24-challenge',
-        'nl': 'https://sealmath.com/24-challenge?lang=nl',
-        'x-default': 'https://sealmath.com/24-challenge',
+        'en': '/24-challenge',
+        'he': '/24-challenge?lang=he',
+        'nl': '/24-challenge?lang=nl',
+        'x-default': '/24-challenge',
       }
+    },
+    openGraph: {
+      title,
+      description,
+      url: `https://sealmath.com${canonical}`,
+    },
+    twitter: {
+      title,
+      description,
     }
   }
 }

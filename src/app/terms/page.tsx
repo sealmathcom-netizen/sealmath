@@ -1,9 +1,20 @@
 import { getTranslations } from '@/i18n/server'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service | SealMath',
-  description: 'The standard terms of service for using SealMath tools and games.',
+export async function generateMetadata(): Promise<Metadata> {
+  const { dict } = await getTranslations()
+  const title = `${dict.nav_terms} | SealMath`
+  const description = 'The standard terms of service for using SealMath tools and games.'
+  
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: 'https://sealmath.com/terms',
+    }
+  }
 }
 
 export default async function TermsPage() {
