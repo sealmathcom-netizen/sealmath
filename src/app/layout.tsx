@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/i18n/server'
 import NavBar from '@/components/NavBar'
+import 'mathlive/fonts.css'
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -18,7 +19,7 @@ export default async function RootLayout({
   const { lang, dict } = await getTranslations()
 
   return (
-    <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'}>
+    <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} suppressHydrationWarning={true}>
       <head>
         <link rel="icon" type="image/png" href="/favicon.png" />
         <link rel="stylesheet" href="/style.css" />

@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import MathInput from '../common/MathInput';
 import type { Lang } from '../../i18n/translations';
 
 type Props = {
@@ -214,9 +215,11 @@ function TwoStepAlgebraWindow({
   const [resultMsg, setResultMsg] = useState('');
   const [resultColor, setResultColor] = useState('');
   const [showExample, setShowExample] = useState(false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
 
   useEffect(() => {
     setProblem(generateProblem());
+    setIsSolutionShown(false);
   }, [generateProblem]);
 
   useEffect(() => {
@@ -259,6 +262,7 @@ function TwoStepAlgebraWindow({
     setAns1(String(problem.step1Ans));
     setAns2(String(Math.round(problem.step2Ans * 100) / 100));
     setResultMsg('');
+    setIsSolutionShown(true);
   };
 
   if (!problem) return null;
@@ -293,7 +297,7 @@ function TwoStepAlgebraWindow({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
           <span style={{ width: '80px', textAlign: 'right' }}>{problem.step1Prefix}</span>
           <input
-            type="number" step="any" value={ans1} onChange={e => setAns1(e.target.value)}
+            type="number" step="any" value={ans1} onChange={e => { setAns1(e.target.value); setIsSolutionShown(false); }}
             style={{ padding: '8px', fontSize: '1.4rem', width: '100px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
             onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
           />
@@ -302,15 +306,21 @@ function TwoStepAlgebraWindow({
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
           <span style={{ width: '80px', textAlign: 'right' }}>{problem.step2Prefix}</span>
           <input
-            type="number" step="any" value={ans2} onChange={e => setAns2(e.target.value)}
+            type="number" step="any" value={ans2} onChange={e => { setAns2(e.target.value); setIsSolutionShown(false); }}
             style={{ padding: '8px', fontSize: '1.4rem', width: '100px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
             onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
           />
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <button className="btn-check" onClick={checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem' }}>
-            {t('algebra_check_ans')}
+          <button className="btn-check" onClick={isSolutionShown ? () => {
+            setProblem(generateProblem());
+            setAns1('');
+            setAns2('');
+            setIsSolutionShown(false);
+            setResultMsg('');
+          } : checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
+            {isSolutionShown ? (t('algebra_next_exercise') || 'Next') : t('algebra_check_ans')}
           </button>
           <button className="btn-check" onClick={showSolution} style={{ maxWidth: '160px', fontSize: '1.1rem', background: '#95a5a6' }}>
             {t('btn_show_sol')}
@@ -335,6 +345,21 @@ type CombiningLikeTermsProblem = {
   b: number;
   isAdd: boolean;
   variable: string;
+};
+
+type Rational = {
+  num: number;
+  den: number;
+};
+
+type CombiningFractionLikeTermsProblem = {
+  q: string;
+  variable: string;
+  isAdd: boolean;
+  left: Rational;
+  right: Rational;
+  unsimplified: Rational;
+  simplified: Rational;
 };
 
 type RoundingProblem = {
@@ -386,6 +411,188 @@ function generateCombiningLikeTermsProblem(): CombiningLikeTermsProblem {
   };
 }
 
+function gcd(a: number, b: number): number {
+  let x = Math.abs(a);
+  let y = Math.abs(b);
+  while (y !== 0) {
+    const tmp = y;
+    y = x % y;
+    x = tmp;
+  }
+  return x || 1;
+}
+
+function normalizeRational(num: number, den: number): Rational {
+  if (den === 0) return { num, den };
+  const sign = den < 0 ? -1 : 1;
+  const g = gcd(num, den);
+  return { num: sign * (num / g), den: Math.abs(den / g) };
+}
+
+function rationalToCoeffText(r: Rational, variable: string): string {
+  if (r.den === 1) return `${r.num}${variable}`;
+  return `${r.num}/${r.den}${variable}`;
+}
+
+function FractionText({ num, den }: Rational) {
+  return (
+    <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1, verticalAlign: 'middle', marginInline: '2px' }}>
+      <span style={{ fontSize: '0.8em', padding: '0 4px' }}>{num}</span>
+      <span style={{ width: '100%', borderTop: '2px solid currentColor', margin: '2px 0' }} />
+      <span style={{ fontSize: '0.8em', padding: '0 4px' }}>{den}</span>
+    </span>
+  );
+}
+
+function splitSignedNumerator(rawNum: number | string): { sign: 1 | -1; absNum: number } {
+  const n = typeof rawNum === 'number' ? rawNum : Number(rawNum);
+  if (Number.isNaN(n)) return { sign: 1, absNum: 0 };
+  return { sign: n < 0 ? -1 : 1, absNum: Math.abs(n) };
+}
+
+function SignedFractionText({ num, den }: Rational) {
+  const { sign, absNum } = splitSignedNumerator(num);
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+      {sign < 0 && <span>-</span>}
+      <FractionText num={absNum} den={den} />
+    </span>
+  );
+}
+
+
+function FractionTerm({ coeff, variable }: { coeff: Rational; variable: string }) {
+  if (coeff.den === 1) {
+    return <span>{coeff.num}{variable}</span>;
+  }
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+      <SignedFractionText num={coeff.num} den={coeff.den} />
+      <span>{variable}</span>
+    </span>
+  );
+}
+
+function FractionLikePrompt({ problem }: { problem: CombiningFractionLikeTermsProblem }) {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <FractionTerm coeff={problem.left} variable={problem.variable} />
+      <span>{problem.isAdd ? '+' : '-'}</span>
+      <FractionTerm coeff={problem.right} variable={problem.variable} />
+    </span>
+  );
+}
+
+function FractionRowPreview({ value, variable }: { value: string; variable: string }) {
+  const normalized = value.replace(/\s+/g, '');
+  if (!normalized) return null;
+
+  const renderFraction = (num: string, den: string, key: string) => (
+    <SignedFractionText key={key} num={Number(num)} den={Number(den)} />
+  );
+
+  const tokens: ReactNode[] = [];
+  let index = 0;
+
+  while (index < normalized.length) {
+    const rest = normalized.slice(index);
+
+    const fractionVarMatch = rest.match(/^(-?\d+)\/(\d+)([a-z])/i);
+    if (fractionVarMatch) {
+      tokens.push(
+        <span key={`fv-${index}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+          {renderFraction(fractionVarMatch[1], fractionVarMatch[2], `f-${index}`)}
+          <span>{fractionVarMatch[3]}</span>
+        </span>
+      );
+      index += fractionVarMatch[0].length;
+      continue;
+    }
+
+    const varFractionMatch = rest.match(/^([a-z])\((-?\d+)\/(\d+)([\+\-])(-?\d+)\/(\d+)\)$/i);
+    if (varFractionMatch) {
+      tokens.push(
+        <span key={`vf-${index}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+          <span>{varFractionMatch[1]}</span>
+          <span>(</span>
+          {renderFraction(varFractionMatch[2], varFractionMatch[3], `l-${index}`)}
+          <span>{varFractionMatch[4]}</span>
+          {renderFraction(varFractionMatch[5], varFractionMatch[6], `r-${index}`)}
+          <span>)</span>
+        </span>
+      );
+      index += varFractionMatch[0].length;
+      continue;
+    }
+
+    const parenFractionVarMatch = rest.match(/^\((-?\d+)\/(\d+)([\+\-])(-?\d+)\/(\d+)\)([a-z])$/i);
+    if (parenFractionVarMatch) {
+      tokens.push(
+        <span key={`pfv-${index}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', flexWrap: 'wrap' }}>
+          <span>(</span>
+          {renderFraction(parenFractionVarMatch[1], parenFractionVarMatch[2], `l-${index}`)}
+          <span>{parenFractionVarMatch[3]}</span>
+          {renderFraction(parenFractionVarMatch[4], parenFractionVarMatch[5], `r-${index}`)}
+          <span>)</span>
+          <span>{parenFractionVarMatch[6]}</span>
+        </span>
+      );
+      index += parenFractionVarMatch[0].length;
+      continue;
+    }
+
+    const simpleVarMatch = rest.match(/^(-?\d+)([a-z])/i);
+    if (simpleVarMatch) {
+      tokens.push(<span key={`sv-${index}`}>{simpleVarMatch[1]}{simpleVarMatch[2]}</span>);
+      index += simpleVarMatch[0].length;
+      continue;
+    }
+
+    const char = rest[0];
+    tokens.push(<span key={`c-${index}`}>{char === '/' ? '\u00F7' : char}</span>);
+    index += 1;
+  }
+
+  return (
+    <div style={{ minHeight: '34px', borderRadius: '6px', background: '#f8f9fb', border: '1px solid #dfe6e9', padding: '8px 10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--mono)', fontSize: '1.15rem', direction: 'ltr', color: 'var(--dark)' }}>
+      {tokens.length > 0 ? tokens : <span style={{ color: '#95a5a6' }}>{variable}</span>}
+    </div>
+  );
+}
+
+function generateCombiningFractionLikeTermsProblem(): CombiningFractionLikeTermsProblem {
+  const variableOptions = ['x', 'y', 't', 'd'];
+  const variable = variableOptions[Math.floor(Math.random() * variableOptions.length)];
+  const isAdd = Math.random() > 0.5;
+
+  let left: Rational = { num: 1, den: 2 };
+  let right: Rational = { num: 1, den: 3 };
+  let attempts = 0;
+
+  // Guarantee at least one non-trivial fraction in the exercise prompt.
+  while (attempts < 50) {
+    const den1 = Math.floor(Math.random() * 5) + 2; // 2-6
+    const den2 = Math.floor(Math.random() * 5) + 2; // 2-6
+    const num1 = Math.floor(Math.random() * 7) + 1; // 1-7
+    const num2 = Math.floor(Math.random() * 7) + 1; // 1-7
+
+    left = normalizeRational(num1, den1);
+    right = normalizeRational(num2, den2);
+
+    if (left.den !== 1 || right.den !== 1) break;
+    attempts += 1;
+  }
+
+  const unsNum = isAdd ? (left.num * right.den + right.num * left.den) : (left.num * right.den - right.num * left.den);
+  const unsDen = left.den * right.den;
+  const unsimplified = { num: unsNum, den: unsDen };
+  const simplified = normalizeRational(unsNum, unsDen);
+
+  const q = `${left.num}/${left.den}${variable} ${isAdd ? '+' : '-'} ${right.num}/${right.den}${variable}`;
+
+  return { q, variable, isAdd, left, right, unsimplified, simplified };
+}
+
 function CombiningLikeTermsWindow({ 
   generateProblem, 
   title, 
@@ -406,9 +613,11 @@ function CombiningLikeTermsWindow({
   const [resultMsg, setResultMsg] = useState('');
   const [resultColor, setResultColor] = useState('');
   const [showExample, setShowExample] = useState(false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
 
   useEffect(() => {
     setProblem(generateProblem());
+    setIsSolutionShown(false);
   }, [generateProblem]);
 
   useEffect(() => {
@@ -468,6 +677,7 @@ function CombiningLikeTermsWindow({
     setAns1(`${problem.variable}(${problem.a} ${problem.isAdd ? '+' : '-'} ${problem.b})`);
     setAns2(`${problem.isAdd ? (problem.a + problem.b) : (problem.a - problem.b)}${problem.variable}`);
     setResultMsg('');
+    setIsSolutionShown(true);
   };
 
   if (!problem) return null;
@@ -501,7 +711,7 @@ function CombiningLikeTermsWindow({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
           <input
-            type="text" value={ans1} onChange={e => setAns1(e.target.value)}
+            type="text" value={ans1} onChange={e => { setAns1(e.target.value); setIsSolutionShown(false); }}
             placeholder={`${problem.variable}(a + b)`}
             style={{ padding: '8px', fontSize: '1.4rem', width: '200px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
             onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
@@ -510,7 +720,7 @@ function CombiningLikeTermsWindow({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px', direction: 'ltr', fontFamily: 'var(--mono)', fontSize: '1.5rem' }}>
           <input
-            type="text" value={ans2} onChange={e => setAns2(e.target.value)}
+            type="text" value={ans2} onChange={e => { setAns2(e.target.value); setIsSolutionShown(false); }}
             placeholder={`result${problem.variable}`}
             style={{ padding: '8px', fontSize: '1.4rem', width: '200px', textAlign: 'center', borderRadius: '6px', border: '2px solid #ccc' }}
             onKeyDown={e => e.key === 'Enter' && checkBothAnswers()}
@@ -518,8 +728,14 @@ function CombiningLikeTermsWindow({
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <button className="btn-check" onClick={checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem' }}>
-            {t('algebra_check_ans')}
+          <button className="btn-check" onClick={isSolutionShown ? () => {
+            setProblem(generateProblem());
+            setAns1('');
+            setAns2('');
+            setIsSolutionShown(false);
+            setResultMsg('');
+          } : checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
+            {isSolutionShown ? (t('algebra_next_exercise') || 'Next') : t('algebra_check_ans')}
           </button>
           <button className="btn-check" onClick={showSolution} style={{ maxWidth: '160px', fontSize: '1.1rem', background: '#95a5a6' }}>
             {t('btn_show_sol')}
@@ -537,6 +753,266 @@ function CombiningLikeTermsWindow({
     </div>
   );
 }
+
+function CombiningFractionLikeTermsWindow({
+  generateProblem,
+  title,
+  exampleContent,
+  t,
+  id
+}: {
+  generateProblem: () => CombiningFractionLikeTermsProblem,
+  title: string,
+  exampleContent: ReactNode,
+  t: any,
+  id: string
+}) {
+  const [problem, setProblem] = useState<CombiningFractionLikeTermsProblem | null>(null);
+  const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
+  const [rowValues, setRowValues] = useState<string[]>(['']);
+  const [resultMsg, setResultMsg] = useState('');
+  const [resultColor, setResultColor] = useState('');
+  const [showExample, setShowExample] = useState(false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
+
+  useEffect(() => {
+    setProblem(generateProblem());
+    setRowValues(['']);
+    setResultMsg('');
+    setIsSolutionShown(false);
+  }, [generateProblem]);
+
+  useEffect(() => {
+    const handleClear = () => setSolvedCount(0);
+    window.addEventListener('clear-history', handleClear);
+    return () => window.removeEventListener('clear-history', handleClear);
+  }, []);
+
+  const latexToPlain = (latex: string) => {
+    return latex
+      .replace(/\\text\{([^}]*)\}/g, '$1')
+      .replace(/\\(enspace|quad|qquad| )/g, ' ')
+      .replace(/(\d+)\\frac/g, '$1 \\frac')
+      .replace(/\\frac(?:\{([^{}]*)\}|(\d))(?:\{([^{}]*)\}|(\d))/g, (match, p1, p2, p3, p4) => {
+        const num = p1 === undefined ? p2 : p1;
+        const den = p3 === undefined ? p4 : p3;
+        return `${num}/${den}`;
+      })
+      .replace(/\\left\(/g, '(')
+      .replace(/\\right\)/g, ')')
+      .replace(/\\cdot/g, '*')
+      .replace(/\{/g, '')
+      .replace(/\}/g, '')
+      .replace(/\\/g, '');
+  };
+
+  const updateRow = (idx: number, val: string) => {
+    setRowValues(prev => prev.map((rv, i) => (i === idx ? val : rv)));
+    setResultMsg('');
+    setIsSolutionShown(false);
+  };
+
+  const addRow = () => {
+    setRowValues([...rowValues, '']);
+  };
+
+  const removeRow = (idx: number) => {
+    if (rowValues.length > 1) {
+      setRowValues(rowValues.filter((_, i) => i !== idx));
+    }
+  };
+
+  const evaluateRationalCoeff = (val: string, v: string): Rational | null => {
+    const plain = latexToPlain(val);
+    const s = plain.trim().toLowerCase().replace(/\s+/g, ' ');
+    if (!s.includes(v)) {
+      if (s === '0' || s === '0.0') return { num: 0, den: 1 };
+      return null;
+    }
+
+    const parseCoeffValue = (coeff: string): number | null => {
+      const c = coeff.trim();
+      const mixed = c.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
+      if (mixed) {
+        const whole = Number(mixed[1]);
+        const n = Number(mixed[2]);
+        const d = Number(mixed[3]);
+        const sign = whole < 0 || c.startsWith('-') ? -1 : 1;
+        return sign * (Math.abs(whole) + n/d);
+      }
+      const frac = c.match(/^(-?\d+)\/(\d+)$/);
+      if (frac) return Number(frac[1]) / Number(frac[2]);
+      if (c === '' || c === '+') return 1;
+      if (c === '-') return -1;
+      const int = c.match(/^(-?\d+)$/);
+      if (int) return Number(int[1]);
+      return null;
+    };
+
+    const factoredMatch = s.match(/^\(([^)]+)\)([a-z])$/i) || s.match(/^([a-z])\(([^)]+)\)$/i);
+    if (factoredMatch) {
+      const inner = factoredMatch[1].replace(/\s+/g, '');
+      const parts = inner.match(/(-?\d+)\/(\d+)([\+\-])(-?\d+)\/(\d+)/);
+      if (parts) {
+        const n1 = Number(parts[1]), d1 = Number(parts[2]), op = parts[3], n2 = Number(parts[4]), d2 = Number(parts[5]);
+        const resNum = (op === '+') ? (n1 * d2 + n2 * d1) : (n1 * d2 - n2 * d1);
+        return { num: resNum, den: d1 * d2 };
+      }
+    }
+
+    let totalValue = 0;
+    let hasFoundAny = false;
+    const segments = s.split(/([\+\-])/).filter(t => t.trim() !== '');
+    const signedTerms: string[] = [];
+    for (let i = 0; i < segments.length; i++) {
+        if (segments[i] === '+' || segments[i] === '-') {
+            signedTerms.push(segments[i] + (segments[i+1] || ''));
+            i++;
+        } else {
+            signedTerms.push(segments[i]);
+        }
+    }
+
+    for (const term of signedTerms) {
+      if (term.includes(v)) {
+        const coeffStr = term.replace(v, '').trim();
+        const val = parseCoeffValue(coeffStr);
+        if (val !== null) {
+          totalValue += val;
+          hasFoundAny = true;
+        } else {
+          return null;
+        }
+      }
+    }
+
+    if (!hasFoundAny) return null;
+    return { num: totalValue, den: 1 };
+  };
+
+  const checkAnswers = () => {
+    if (!problem) return;
+    if (rowValues.some(r => r.trim() === '')) return;
+
+    const v = problem.variable;
+    const targetVal = problem.simplified.num / problem.simplified.den;
+    let ok = true;
+
+    for (const rowVal of rowValues) {
+      const rat = evaluateRationalCoeff(rowVal, v);
+      if (!rat) { ok = false; break; }
+      const val = rat.num / rat.den;
+      if (Math.abs(val - targetVal) > 1e-9) { ok = false; break; }
+    }
+
+    if (ok) {
+      setResultMsg(t('algebra_correct'));
+      setResultColor("var(--success, green)");
+      setTimeout(() => {
+        setSolvedCount(solvedCount + 1);
+        setProblem(generateProblem());
+        setRowValues(['']);
+        setResultMsg('');
+      }, 1000);
+    } else {
+      setResultMsg(t('algebra_incorrect'));
+      setResultColor("var(--error, red)");
+    }
+  };
+
+  const showSolution = () => {
+    if (!problem) return;
+    const sol = `${problem.simplified.num}/${problem.simplified.den}${problem.variable}`;
+    setRowValues([sol]);
+    setIsSolutionShown(true);
+  };
+
+  if (!problem) return null;
+
+  return (
+    <div className="rules-box" style={{ flex: 1, textAlign: 'center', marginTop: '0', position: 'relative', minHeight: '400px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px', flexWrap: 'wrap', gap: '10px' }}>
+        <h3 style={{ margin: '0', fontSize: '1.4rem', color: 'var(--dark)' }}>{title}</h3>
+        <button
+          onClick={() => setShowExample(!showExample)}
+          style={{ padding: '8px 12px', borderRadius: '6px', background: showExample ? '#dcdde1' : 'var(--accent)', color: showExample ? '#333' : '#fff', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+        >
+          {showExample ? t('algebra_hide_examples') : t('algebra_show_examples')}
+        </button>
+      </div>
+
+      {showExample && (
+        <div style={{ textAlign: 'start', background: '#fdfaf6', border: '1px solid #e9d8c4', borderRadius: '8px', padding: '15px', marginBottom: '20px' }}>
+          {exampleContent}
+        </div>
+      )}
+
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+        <p id="level" style={{ fontWeight: 'bold', color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '5px' }}>
+          {t('algebra_level').replace('{count}', String(solvedCount))}
+        </p>
+
+        <div className="question" style={{ fontSize: '36px', margin: '20px 0', fontFamily: 'var(--mono)', color: 'var(--dark)', direction: 'ltr', display: 'flex', justifyContent: 'center' }}>
+          <FractionLikePrompt problem={problem} />
+        </div>
+
+        <div style={{ width: '100%', maxWidth: '420px', display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '10px', alignItems: 'flex-start' }}>
+          {rowValues.map((val, idx) => (
+            <div key={idx} style={{ display: 'flex', gap: '8px', alignItems: 'center', direction: 'ltr', width: '100%' }}>
+              <div style={{ 
+                flex: 1, 
+                borderRadius: '8px', 
+                border: '2px solid #ccc', 
+                background: '#fff', 
+                minHeight: '52px', 
+                display: 'flex', 
+                alignItems: 'center',
+                padding: '0 8px'
+              }}>
+                <MathInput 
+                  value={val} 
+                  onChange={(v) => updateRow(idx, v)}
+                  placeholder={idx === 0 ? "..." : ""}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {idx === rowValues.length - 1 && (
+                  <button className="btn-check" onClick={addRow} style={{ padding: '8px', width: '40px', background: '#3498db', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>+</button>
+                )}
+                {rowValues.length > 1 && (
+                  <button className="btn-check" onClick={() => removeRow(idx)} style={{ padding: '8px', width: '40px', background: '#e74c3c', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>-</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+          <button className="btn-check" onClick={isSolutionShown ? () => {
+            setProblem(generateProblem());
+            setRowValues(['']);
+            setIsSolutionShown(false);
+            setResultMsg('');
+          } : checkAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
+            {isSolutionShown ? (t('algebra_next_exercise') || 'Next') : t('algebra_check_ans')}
+          </button>
+          <button className="btn-check" onClick={showSolution} style={{ maxWidth: '160px', fontSize: '1.1rem', background: '#95a5a6' }}>
+            {t('btn_show_sol')}
+          </button>
+        </div>
+
+        <div style={{ minHeight: '30px', marginTop: '15px' }}>
+          {resultMsg && (
+            <p className="result" style={{ margin: 0, fontWeight: 'bold', color: resultColor, fontSize: '1.1rem' }}>
+              {resultMsg}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function RoundingWindow({ 
   generateProblem, 
@@ -658,7 +1134,7 @@ function RoundingWindow({
 }
 
 export default function AlgebraClient({ dict, children }: Props) {
-  const [activeTab, setActiveTab] = usePersistentState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike'>('algebraActiveTab', 'addsub');
+  const [activeTab, setActiveTab] = usePersistentState<'addsub' | 'muldiv' | 'rounding' | 'twostep' | 'combinelike' | 'fractionlike'>('algebraActiveTab', 'addsub');
   
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key
@@ -716,8 +1192,27 @@ export default function AlgebraClient({ dict, children }: Props) {
     </>
   );
 
+  const fractionLikeExamples = (
+    <>
+      <p style={{ fontSize: '0.95rem', lineHeight: '1.5', margin: '0 0 10px', color: '#555' }} dangerouslySetInnerHTML={{ __html: t('algebra_fraction_like_desc') }} />
+      <ul style={{ fontSize: '0.95rem', lineHeight: '1.6', margin: '0', paddingInlineStart: '20px', color: '#555' }}>
+        <li style={{ marginBottom: '10px' }} dangerouslySetInnerHTML={{ __html: t('algebra_fraction_like_ex1') }} />
+      </ul>
+    </>
+  );
+
   return (
     <section className="page active" id="algebra-page" style={{ paddingBottom: '60px' }}>
+      <style>{`
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none !important;
+          margin: 0 !important;
+        }
+        input[type=number] {
+          -moz-appearance: textfield !important;
+        }
+      `}</style>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
         {children}
 
@@ -820,6 +1315,25 @@ export default function AlgebraClient({ dict, children }: Props) {
             >
               {t('algebra_btn_combinelike')}
             </button>
+            <button
+              onClick={() => setActiveTab('fractionlike')}
+              style={{
+                padding: '18px 15px',
+                background: activeTab === 'fractionlike' ? 'var(--accent)' : '#ecf0f1',
+                color: activeTab === 'fractionlike' ? '#fff' : '#2c3e50',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                fontSize: '1.1rem',
+                textAlign: 'center',
+                boxShadow: activeTab === 'fractionlike' ? '0 6px 15px rgba(142, 68, 173, 0.3)' : '0 2px 4px rgba(0,0,0,0.05)',
+                transition: 'all 0.2s',
+                transform: activeTab === 'fractionlike' ? 'scale(1.02)' : 'scale(1)'
+              }}
+            >
+              {t('algebra_btn_fraction_like')}
+            </button>
           </div>
 
           {/* Main Content Area */}
@@ -866,6 +1380,15 @@ export default function AlgebraClient({ dict, children }: Props) {
                 title={t('algebra_btn_combinelike')} 
                 generateProblem={generateCombiningLikeTermsProblem} 
                 exampleContent={combineLikeExamples}
+                t={t}
+              />
+            )}
+            {activeTab === 'fractionlike' && (
+              <CombiningFractionLikeTermsWindow
+                id="fractionlike"
+                title={t('algebra_btn_fraction_like')}
+                generateProblem={generateCombiningFractionLikeTermsProblem}
+                exampleContent={fractionLikeExamples}
                 t={t}
               />
             )}

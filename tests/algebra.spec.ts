@@ -27,6 +27,7 @@ test.describe('Algebra Basics', () => {
     await expect(page.getByRole('button', { name: 'Rounding' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Simple Equations' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Combining Like Terms' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Fractions + Like Terms' })).toBeVisible();
   });
 
   test('should toggle examples', async ({ page }) => {
@@ -60,14 +61,16 @@ test.describe('Algebra Basics', () => {
 
   test('should use "Show Solution" in simple equations', async ({ page }) => {
     await page.click('button:has-text("Simple Equations")', { force: true });
-    // This button might be intercepted by the sticky nav or move due to layout shift
+    
+    const firstQuestion = await page.locator('.question').innerText();
     await page.click('text=Show Solution', { force: true });
     
     const inputs = page.locator('input[type="number"]');
     await expect(inputs.first()).not.toHaveValue('');
     await expect(inputs.last()).not.toHaveValue('');
     
-    await page.click('text=Check Answer', { force: true });
-    await expect(page.locator('text=Correct!')).toBeVisible();
+    await page.click('text=Next Exercise', { force: true });
+    const secondQuestion = await page.locator('.question').innerText();
+    expect(secondQuestion).not.toBe(firstQuestion);
   });
 });
