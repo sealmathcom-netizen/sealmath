@@ -215,7 +215,7 @@ export default function NavBar({ lang, dict }: Props) {
               )}
             </div>
           ) : (
-            <Link href="/login" className={isActive('/login') ? 'active' : ''}>
+            <Link href={getHref('/login')} className={isActive('/login') ? 'active' : ''}>
               {t('nav_signin')}
             </Link>
           )}
