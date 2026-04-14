@@ -630,27 +630,38 @@ function CombiningLikeTermsWindow({
     if (!problem) return;
     if (ans1.trim() === '' || ans2.trim() === '') return;
 
-    // Normalize ans1: Step 1 expects "variable(a+b)" or "(a+b)variable" etc.
     const v = problem.variable;
     const a = problem.a;
     const b = problem.b;
-    const op = problem.isAdd ? '+' : '-';
     
     const normalizedAns1 = ans1.replace(/\s+/g, '').toLowerCase();
+    const resultNum = problem.isAdd ? (a + b) : (a - b);
     
-    const validFormats = [
-      `${v}(${a}${op}${b})`,
-      `${v}(${b}${op}${a})`,
-      `(${a}${op}${b})${v}`,
-      `(${b}${op}${a})${v}`
-    ];
-
-    const isStep1Correct = validFormats.includes(normalizedAns1);
+    // Step 1: Flexible factoring check. Must be equivalent to (a+b)v and show parentheses.
+    let isStep1Correct = false;
+    if (normalizedAns1.includes(v) && normalizedAns1.includes('(')) {
+      try {
+        // Prepare string for JS evaluation: 
+        // 1. Handle implicit multiplication before parentheses and between variable/number
+        let expr = normalizedAns1
+          .replace(new RegExp(`(\\d)${v}`, 'g'), '$1*(1)')
+          .replace(new RegExp(v, 'g'), '(1)')
+          .replace(/(\d)(\()/g, '$1*$2')
+          .replace(/(\))(\d)/g, '$1*$2')
+          .replace(/(\))(\()/g, '$1*$2');
+        
+        if (/^[0-9\+\-\*\/\(\)\.]*$/.test(expr)) {
+          const val = Function('"use strict";return (' + expr + ')')();
+          if (val === resultNum) isStep1Correct = true;
+        }
+      } catch (e) {
+        isStep1Correct = false;
+      }
+    }
     
     // Step 2: Full simplified expression like "13x"
     const normalizedAns2 = ans2.replace(/\s+/g, '').toLowerCase();
-    const resultNum = problem.isAdd ? (a + b) : (a - b);
-    const expectedAns2 = `${resultNum}${v}`;
+    const expectedAns2 = resultNum === 0 ? "0" : `${resultNum}${v}`;
     const isStep2Correct = normalizedAns2 === expectedAns2;
 
     if (isStep1Correct && isStep2Correct) {
@@ -674,8 +685,9 @@ function CombiningLikeTermsWindow({
 
   const showSolution = () => {
     if (!problem) return;
+    const resultNum = problem.isAdd ? (problem.a + problem.b) : (problem.a - problem.b);
     setAns1(`${problem.variable}(${problem.a} ${problem.isAdd ? '+' : '-'} ${problem.b})`);
-    setAns2(`${problem.isAdd ? (problem.a + problem.b) : (problem.a - problem.b)}${problem.variable}`);
+    setAns2(resultNum === 0 ? "0" : `${resultNum}${problem.variable}`);
     setResultMsg('');
     setIsSolutionShown(true);
   };
@@ -798,6 +810,7 @@ function CombiningFractionLikeTermsWindow({
         const den = p3 === undefined ? p4 : p3;
         return `${num}/${den}`;
       })
+      .replace(/(\d+)\s+(\d+)\/(\d+)/g, '($1+$2/$3)') // mixed fraction to (a+b/c)
       .replace(/\\left\(/g, '(')
       .replace(/\\right\)/g, ')')
       .replace(/\\cdot/g, '*')
@@ -824,70 +837,35 @@ function CombiningFractionLikeTermsWindow({
 
   const evaluateRationalCoeff = (val: string, v: string): Rational | null => {
     const plain = latexToPlain(val);
-    const s = plain.trim().toLowerCase().replace(/\s+/g, ' ');
-    if (!s.includes(v)) {
-      if (s === '0' || s === '0.0') return { num: 0, den: 1 };
-      return null;
-    }
+    const s = plain.trim().toLowerCase().replace(/\s+/g, '');
+    
+    // Check if it's purely '0'
+    if (s === '0') return { num: 0, den: 1 };
+    
+    // Safety check for variable
+    if (!s.includes(v)) return null;
 
-    const parseCoeffValue = (coeff: string): number | null => {
-      const c = coeff.trim();
-      const mixed = c.match(/^(-?\d+)\s+(\d+)\/(\d+)$/);
-      if (mixed) {
-        const whole = Number(mixed[1]);
-        const n = Number(mixed[2]);
-        const d = Number(mixed[3]);
-        const sign = whole < 0 || c.startsWith('-') ? -1 : 1;
-        return sign * (Math.abs(whole) + n/d);
-      }
-      const frac = c.match(/^(-?\d+)\/(\d+)$/);
-      if (frac) return Number(frac[1]) / Number(frac[2]);
-      if (c === '' || c === '+') return 1;
-      if (c === '-') return -1;
-      const int = c.match(/^(-?\d+)$/);
-      if (int) return Number(int[1]);
-      return null;
-    };
-
-    const factoredMatch = s.match(/^\(([^)]+)\)([a-z])$/i) || s.match(/^([a-z])\(([^)]+)\)$/i);
-    if (factoredMatch) {
-      const inner = factoredMatch[1].replace(/\s+/g, '');
-      const parts = inner.match(/(-?\d+)\/(\d+)([\+\-])(-?\d+)\/(\d+)/);
-      if (parts) {
-        const n1 = Number(parts[1]), d1 = Number(parts[2]), op = parts[3], n2 = Number(parts[4]), d2 = Number(parts[5]);
-        const resNum = (op === '+') ? (n1 * d2 + n2 * d1) : (n1 * d2 - n2 * d1);
-        return { num: resNum, den: d1 * d2 };
-      }
-    }
-
-    let totalValue = 0;
-    let hasFoundAny = false;
-    const segments = s.split(/([\+\-])/).filter(t => t.trim() !== '');
-    const signedTerms: string[] = [];
-    for (let i = 0; i < segments.length; i++) {
-        if (segments[i] === '+' || segments[i] === '-') {
-            signedTerms.push(segments[i] + (segments[i+1] || ''));
-            i++;
-        } else {
-            signedTerms.push(segments[i]);
-        }
-    }
-
-    for (const term of signedTerms) {
-      if (term.includes(v)) {
-        const coeffStr = term.replace(v, '').trim();
-        const val = parseCoeffValue(coeffStr);
-        if (val !== null) {
-          totalValue += val;
-          hasFoundAny = true;
-        } else {
-          return null;
+    try {
+      // Prepare string for JS evaluation: 
+      // Handle implicit multiplication and variable replacement
+      let expr = s
+        .replace(new RegExp(`(\\d)${v}`, 'g'), '$1*(1)') // 4t -> 4*(1)
+        .replace(new RegExp(v, 'g'), '(1)')             // t -> (1)
+        .replace(/(\d)(\()/g, '$1*$2')                  // 4( -> 4*(
+        .replace(/(\))(\d)/g, '$1*$2')                  // )4 -> )*4
+        .replace(/(\))(\()/g, '$1*$2');                 // )( -> )*(
+      
+      // Safety filter for permitted mathematical characters
+      if (/^[0-9\+\-\*\/\(\)\.]*$/.test(expr)) {
+        const value = Function('"use strict";return (' + expr + ')')();
+        if (!isNaN(value)) {
+           // Return as Rational. Denominator 1 is fine since checkAnswers compares numerically.
+           return { num: value, den: 1 };
         }
       }
-    }
+    } catch (e) {}
 
-    if (!hasFoundAny) return null;
-    return { num: totalValue, den: 1 };
+    return null;
   };
 
   const checkAnswers = () => {
@@ -922,7 +900,13 @@ function CombiningFractionLikeTermsWindow({
 
   const showSolution = () => {
     if (!problem) return;
-    const sol = `${problem.simplified.num}/${problem.simplified.den}${problem.variable}`;
+    const { num, den } = problem.simplified;
+    const v = problem.variable;
+    let sol = "";
+    if (num === 0) sol = "0";
+    else if (den === 1) sol = `${num}${v}`;
+    else sol = `${num}/${den}${v}`;
+    
     setRowValues([sol]);
     setIsSolutionShown(true);
   };
