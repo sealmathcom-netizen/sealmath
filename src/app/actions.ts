@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { Resend } from 'resend'
 import { verifyBypassToken, BYPASS_COOKIES } from '../utils/test-bypass'
+import { MAX_ATTACHMENT_SIZE_MB } from '../utils/shared-config'
 
 export async function setLanguage(lang: string) {
   const cookieStore = await cookies()
@@ -42,9 +43,9 @@ export async function sendFeedback(formData: FormData) {
 
     if (file && file.size > 0 && file.name !== 'undefined') {
       console.log(`[Contact Action] Processing attachment: ${file.name} (${file.size} bytes)`)
-      // 5MB Limit
-      if (file.size > 5 * 1024 * 1024) {
-        return { success: false, error: 'File size too large (max 5MB)' }
+      // Global Limit check
+      if (file.size > MAX_ATTACHMENT_SIZE_MB * 1024 * 1024) {
+        return { success: false, error: `File size too large (max ${MAX_ATTACHMENT_SIZE_MB}MB)` }
       }
 
       const arrayBuffer = await file.arrayBuffer()
