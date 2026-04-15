@@ -68,8 +68,9 @@ export default function ContactClient({ dict, children }: Props) {
           {children}
 
           <form id="contact-form" onSubmit={send}>
-            <label>{t('lbl_name')}</label>
+            <label htmlFor="name-input">{t('lbl_name')}</label>
             <input
+              id="name-input"
               type="text"
               name="from_name"
               value={name}
@@ -79,8 +80,9 @@ export default function ContactClient({ dict, children }: Props) {
               style={{ textAlign: hasHebrewText(name) ? 'right' : 'left' }}
             />
 
-            <label>{t('lbl_email')}</label>
+            <label htmlFor="email-input">{t('lbl_email')}</label>
             <input
+              id="email-input"
               type="email"
               name="reply_to"
               value={email}
@@ -90,8 +92,9 @@ export default function ContactClient({ dict, children }: Props) {
               style={{ textAlign: hasHebrewText(email) ? 'right' : 'left' }}
             />
 
-            <label>{t('lbl_message')}</label>
+            <label htmlFor="message-input">{t('lbl_message')}</label>
             <textarea
+              id="message-input"
               name="message"
               rows={4}
               value={message}
@@ -101,8 +104,9 @@ export default function ContactClient({ dict, children }: Props) {
               style={{ textAlign: hasHebrewText(message) ? 'right' : 'left' }}
             />
 
-            <label>{t('lbl_attachment')}</label>
+            <label htmlFor="attachment-input">{t('lbl_attachment')}</label>
             <input
+              id="attachment-input"
               type="file"
               name="attachment"
               ref={fileRef}

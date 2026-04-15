@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { Resend } from 'resend'
+import { verifyBypassToken, BYPASS_COOKIES } from '../utils/test-bypass'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -17,6 +18,17 @@ export async function sendFeedback(formData: FormData) {
   const file = formData.get('attachment') as File | null
 
   try {
+    // Check for E2E Test Bypass
+    const cookieStore = await cookies()
+    const bypassToken = cookieStore.get(BYPASS_COOKIES.TOKEN)?.value
+    const isBypassed = await verifyBypassToken(bypassToken)
+
+    if (isBypassed) {
+      console.log('[Resend Mock]: Test bypass detected. Skipping real email send.')
+      // Simulate slight delay for realism
+      await new Promise(resolve => setTimeout(resolve, 500))
+      return { success: true, mock: true }
+    }
     const attachments: any[] = []
 
     if (file && file.size > 0) {
