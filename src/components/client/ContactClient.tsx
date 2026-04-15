@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import type { Lang } from '../../i18n/translations'
+import { sendFeedback } from '../../app/actions'
 
 type Props = {
   lang: Lang
@@ -40,7 +41,6 @@ export default function ContactClient({ dict, children }: Props) {
 
     try {
       const formData = new FormData(e.currentTarget)
-      const { sendFeedback } = await import('../../app/actions')
       const result = await sendFeedback(formData)
 
       if (result.success) {
