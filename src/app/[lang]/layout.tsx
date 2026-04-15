@@ -86,12 +86,6 @@ export default async function RootLayout({
             <p>&copy; {new Date().getFullYear()} SealMath. All rights reserved.</p>
           </footer>
         </div>
-        
-        {/* EmailJS Script */}
-        <Script 
-          src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" 
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import type { Lang } from '../../i18n/translations'
 
 type Props = {
@@ -28,25 +28,7 @@ export default function ContactClient({ dict, children }: Props) {
   const [status, setStatus] = useState('')
   const [statusColor, setStatusColor] = useState<string>('var(--dark)')
   const [isSending, setIsSending] = useState(false)
-
-  useEffect(() => {
-    const PUBLIC_KEY = '52VtQNv4lmH3Jg7fP'
-
-    // Wait briefly for the CDN to load.
-    let attempts = 0
-    const interval = window.setInterval(() => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emailjs = (window as any).emailjs
-      if (emailjs?.init) {
-        emailjs.init({ publicKey: PUBLIC_KEY })
-        window.clearInterval(interval)
-      }
-      attempts++
-      if (attempts > 25) window.clearInterval(interval)
-    }, 200)
-
-    return () => window.clearInterval(interval)
-  }, [])
+  const fileRef = useRef<HTMLInputElement>(null)
 
   const send = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -56,25 +38,23 @@ export default function ContactClient({ dict, children }: Props) {
     setStatus(t('msg_sending'))
     setStatusColor('var(--dark)')
 
-    const SERVICE_ID = 'service_lq91rap'
-    const TEMPLATE_ID = 'template_n4ns66m'
-
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const emailjs = (window as any).emailjs
-      if (!emailjs || !emailjs.sendForm) {
-        throw new Error('emailjs is not available')
+      const formData = new FormData(e.currentTarget)
+      const { sendFeedback } = await import('../../app/actions')
+      const result = await sendFeedback(formData)
+
+      if (result.success) {
+        setStatus(t('msg_sent_success'))
+        setStatusColor('var(--success)')
+        setName('')
+        setEmail('')
+        setMessage('')
+        if (fileRef.current) fileRef.current.value = ''
+      } else {
+        throw new Error(result.error as string)
       }
-
-      const formEl = e.currentTarget
-      await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, formEl)
-
-      setStatus(t('msg_sent_success'))
-      setStatusColor('var(--success)')
-      setName('')
-      setEmail('')
-      setMessage('')
-    } catch {
+    } catch (err) {
+      console.error('[ContactClient Error]:', err)
       setStatus(t('msg_sent_fail'))
       setStatusColor('var(--error)')
     } finally {
@@ -119,6 +99,21 @@ export default function ContactClient({ dict, children }: Props) {
               required
               dir={hasHebrewText(message) ? 'rtl' : 'ltr'}
               style={{ textAlign: hasHebrewText(message) ? 'right' : 'left' }}
+            />
+
+            <label>{t('lbl_attachment')}</label>
+            <input
+              type="file"
+              name="attachment"
+              ref={fileRef}
+              accept=".pdf,.docx,.doc,.png,.jpg,.jpeg,.webp,.svg,.txt"
+              style={{ 
+                padding: '10px', 
+                border: '2px dashed #ccc', 
+                borderRadius: '8px',
+                background: '#f9f9f9',
+                cursor: 'pointer'
+              }}
             />
 
             <button type="submit" className="btn-submit" disabled={isSending}>
