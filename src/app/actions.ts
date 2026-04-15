@@ -57,7 +57,7 @@ export async function sendFeedback(formData: FormData) {
     }
 
     const { data, error } = await resend.emails.send({
-      from: 'SealMath <noreply@sealmath.com>',
+      from: 'Feedback Form <noreply@sealmath.com>',
       to: ['sealmathcom@gmail.com'],
       subject: `New Feedback from ${name}`,
       replyTo: email || '',
