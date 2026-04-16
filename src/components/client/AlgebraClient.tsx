@@ -240,6 +240,26 @@ function TwoStepAlgebraWindow({
     return () => window.removeEventListener('clear-history', handleClear);
   }, []);
 
+  const handleNextProblem = () => {
+    const nextProb = generateProblem();
+    const nextId = generateExerciseId();
+    exerciseIdRef.current = nextId;
+    setProblem(nextProb);
+    setAns1('');
+    setAns2('');
+    setIsSolutionShown(false);
+    setResultMsg('');
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: nextId,
+      exercise_type: id,
+      question: nextProb.q,
+      outcome: null
+    });
+  };
+
   const checkBothAnswers = () => {
     if (!problem) return;
     if (ans1.trim() === '' || ans2.trim() === '') return;
@@ -365,13 +385,7 @@ function TwoStepAlgebraWindow({
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <button className="btn-check" onClick={isSolutionShown ? () => {
-            setProblem(generateProblem());
-            setAns1('');
-            setAns2('');
-            setIsSolutionShown(false);
-            setResultMsg('');
-          } : checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
+          <button className="btn-check" onClick={isSolutionShown ? handleNextProblem : checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
             {isSolutionShown ? (t('algebra_next_exercise') || 'Next') : t('algebra_check_ans')}
           </button>
           <button className="btn-check" onClick={showSolution} style={{ maxWidth: '160px', fontSize: '1.1rem', background: '#95a5a6' }}>
@@ -574,6 +588,26 @@ function CombiningLikeTermsWindow({
     return () => window.removeEventListener('clear-history', handleClear);
   }, []);
 
+  const handleNextProblem = () => {
+    const nextProb = generateProblem();
+    const nextId = generateExerciseId();
+    exerciseIdRef.current = nextId;
+    setProblem(nextProb);
+    setAns1('');
+    setAns2('');
+    setIsSolutionShown(false);
+    setResultMsg('');
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: nextId,
+      exercise_type: id,
+      question: nextProb.q,
+      outcome: null
+    });
+  };
+
   const checkBothAnswers = () => {
     if (!problem) return;
     if (ans1.trim() === '' || ans2.trim() === '') return;
@@ -700,13 +734,7 @@ function CombiningLikeTermsWindow({
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <button className="btn-check" onClick={isSolutionShown ? () => {
-            setProblem(generateProblem());
-            setAns1('');
-            setAns2('');
-            setIsSolutionShown(false);
-            setResultMsg('');
-          } : checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
+          <button className="btn-check" onClick={isSolutionShown ? handleNextProblem : checkBothAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
             {isSolutionShown ? (t('algebra_next_exercise') || 'Next') : t('algebra_check_ans')}
           </button>
           <button className="btn-check" onClick={showSolution} style={{ maxWidth: '160px', fontSize: '1.1rem', background: '#95a5a6' }}>
@@ -777,6 +805,26 @@ function CombiningFractionLikeTermsWindow({
     window.addEventListener('clear-history', handleClear);
     return () => window.removeEventListener('clear-history', handleClear);
   }, []);
+
+  const handleNextProblem = () => {
+    const nextProb = generateProblem();
+    const nextId = generateExerciseId();
+    exerciseIdRef.current = nextId;
+    setProblem(nextProb);
+    setRowValues(['']);
+    setResultMsg('');
+    setIsSolutionShown(false);
+    setSimplificationError(false);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: nextId,
+      exercise_type: id,
+      question: JSON.stringify(nextProb),
+      outcome: null
+    });
+  };
 
   const updateRow = (idx: number, val: string) => {
     const isActuallyNew = val !== rowValues[idx];
@@ -1067,12 +1115,7 @@ function CombiningFractionLikeTermsWindow({
         </div>
 
         <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-          <button className="btn-check" onClick={isSolutionShown ? () => {
-            setProblem(generateProblem());
-            setRowValues(['']);
-            setIsSolutionShown(false);
-            setResultMsg('');
-          } : checkAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
+          <button className="btn-check" onClick={isSolutionShown ? handleNextProblem : checkAnswers} style={{ maxWidth: '160px', fontSize: '1.1rem', background: isSolutionShown ? '#27ae60' : undefined }}>
             {isSolutionShown ? (t('algebra_next_exercise') || 'Next') : t('algebra_check_ans')}
           </button>
           <button className="btn-check" onClick={showSolution} style={{ maxWidth: '160px', fontSize: '1.1rem', background: '#95a5a6' }}>
