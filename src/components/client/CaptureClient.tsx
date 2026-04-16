@@ -199,23 +199,6 @@ export default function CaptureClient({ lang, dict, children }: Props) {
             </div>
           </div>
 
-          <div
-            id="expr-preview"
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 15,
-              margin: '15px 0',
-              fontSize: '1.4rem',
-              minHeight: 48,
-              fontWeight: 'bold',
-              color: 'var(--accent)',
-            }}
-          >
-            {preview}
-          </div>
-
           <div id="fraction-board" className="fraction-board">
             <div id="ing-slot-0">
               {captureIngredients[0] ? (
@@ -292,6 +275,24 @@ export default function CaptureClient({ lang, dict, children }: Props) {
                 </div>
               ) : null}
             </div>
+          </div>
+
+          <div
+            id="expr-preview"
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: 15,
+              margin: '15px 0',
+              fontSize: '1.4rem',
+              minHeight: 48,
+              fontWeight: 'bold',
+              color: 'var(--accent)',
+              direction: 'ltr'
+            }}
+          >
+            {preview}
           </div>
 
           <div id="capture-feedback" style={{ marginTop: 20, fontWeight: 'bold', minHeight: 24, color: feedbackColor }}>
