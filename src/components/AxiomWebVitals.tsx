@@ -1,19 +1,16 @@
 'use client'
 
 import { useReportWebVitals } from 'next/web-vitals'
+import { logToAxiom } from '../utils/logger'
 
 export function AxiomWebVitals() {
   useReportWebVitals((metric) => {
-    fetch('/api/axiom', {
-      method: 'POST',
-      body: JSON.stringify({
-        level: 'info', // Explicitly set level
-        source: 'web-vitals',
-        pathname: window.location.pathname,
-        ...metric
-      }),
-      keepalive: true,
-    }).catch(() => {});
+    logToAxiom({
+      level: 'info',
+      source: 'web-vitals',
+      pathname: window.location.pathname,
+      ...metric
+    });
   })
 
   return null
