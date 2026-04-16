@@ -17,6 +17,9 @@ type Props = {
 }
 
 function FracView({ f }: { f: Frac }) {
+  if (f.d === 1) {
+    return <span style={{ fontSize: '1.4rem' }}>{f.n}</span>
+  }
   return (
     <div className="frac">
       <span className="n">{f.n}</span>
