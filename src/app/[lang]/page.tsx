@@ -93,6 +93,26 @@ export default async function HomePage({ params }: Props) {
           </Link>
         ))}
       </div>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'EducationalOrganization',
+            name: 'SealMath',
+            url: 'https://sealmath.com',
+            logo: 'https://sealmath.com/favicon.png',
+            description: t('meta_description_home'),
+            applicationCategory: 'EducationalApplication',
+            operatingSystem: 'Any',
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+            },
+          }),
+        }}
+      />
     </section>
   )
 }

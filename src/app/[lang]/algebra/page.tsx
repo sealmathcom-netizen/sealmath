@@ -55,7 +55,7 @@ export default async function AlgebraPage({ params }: Props) {
   return (
     <AuthWall lang={lang} dict={dict}>
       <AlgebraClient lang={lang} dict={dict}>
-        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('home_card_algebra_title')}</h1>
+        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('algebra_page_title')}</h1>
         <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '2rem' }}>{t('meta_description_algebra')}</p>
       </AlgebraClient>
     </AuthWall>

@@ -55,7 +55,7 @@ export default async function CapturePage({ params }: Props) {
   return (
     <section id="capture-page" className="page active">
       <div className="container" style={{ textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('home_card_capture_title')}</h1>
+        <h1 style={{ margin: 0, fontSize: '1.8rem' }}>{t('capture_page_title')}</h1>
         <p style={{ color: '#7f8c8d', margin: '0.5rem 0' }}>{t('meta_description_capture')}</p>
         <AuthWall lang={lang} dict={dict}>
           <CaptureClient lang={lang} dict={dict} />

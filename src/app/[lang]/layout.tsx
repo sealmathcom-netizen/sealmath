@@ -32,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ lang: str
       template: `%s | SealMath`,
     },
     description: description,
+    keywords: dict.meta_keywords ? dict.meta_keywords.split(',').map(s => s.trim()) : [],
     alternates: {
       canonical,
       languages: {
