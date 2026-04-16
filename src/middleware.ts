@@ -87,14 +87,16 @@ export async function middleware(request: NextRequest) {
       const user = data?.user || null
       
       // SUCCESS LOG
-      logToAxiom({
-        level: 'info',
-        message: 'Middleware path access',
-        pathname,
-        method: request.method,
-        userId: user?.id || 'anonymous',
-        source: 'middleware'
-      });
+      if (!isBypassed) {
+        logToAxiom({
+          level: 'info',
+          message: 'Middleware path access',
+          pathname,
+          method: request.method,
+          userId: user?.id || 'anonymous',
+          source: 'middleware'
+        });
+      }
 
       if (user && isLoginPage) {
         const url = request.nextUrl.clone()
@@ -103,13 +105,15 @@ export async function middleware(request: NextRequest) {
       }
     } catch (err) {
       // ERROR LOG
-      logToAxiom({
-        level: 'error',
-        message: 'Middleware exception',
-        pathname,
-        error: err instanceof Error ? err.message : String(err),
-        source: 'middleware'
-      });
+      if (!isBypassed) {
+        logToAxiom({
+          level: 'error',
+          message: 'Middleware exception',
+          pathname,
+          error: err instanceof Error ? err.message : String(err),
+          source: 'middleware'
+        });
+      }
     }
   }
 

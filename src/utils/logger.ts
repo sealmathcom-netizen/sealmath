@@ -1,6 +1,15 @@
 export async function logToAxiom(data: any) {
   const isBrowser = typeof window !== 'undefined';
   
+  // Disable logging in E2E tests/webdrivers or when explicitly disabled
+  if (isBrowser && (window.navigator.webdriver || localStorage.getItem('test-mode') === 'true')) {
+    return;
+  }
+
+  if (process.env.NEXT_PUBLIC_TEST_MODE === 'true' || process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   // Always log to console locally for debugging
   const now = new Date().toISOString();
   

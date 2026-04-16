@@ -34,7 +34,7 @@ export default defineConfig({
   webServer: isCheckly 
     ? undefined 
     : {
-        command: 'npm run dev',
+        command: 'NEXT_PUBLIC_TEST_MODE=true npm run dev',
         url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
       },

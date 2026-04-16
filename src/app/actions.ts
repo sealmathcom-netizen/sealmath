@@ -18,6 +18,11 @@ export async function sendFeedback(formData: FormData) {
   const message = formData.get('message') as string
   const file = formData.get('attachment') as File | null
 
+  // Check for E2E Test Bypass early
+  const cookieStore = await cookies()
+  const bypassToken = cookieStore.get(BYPASS_COOKIES.TOKEN)?.value
+  const isBypassed = await verifyBypassToken(bypassToken)
+
   console.log(`[Contact Action] New message from ${name} (${email})`)
 
   let userId = 'anonymous'
@@ -29,33 +34,31 @@ export async function sendFeedback(formData: FormData) {
     // Ignore auth errors for logging
   }
 
-  await logToAxiom({
-    level: 'info',
-    message: '[Contact Action] New feedback submission',
-    name,
-    email,
-    userId,
-    source: 'server-action'
-  })
+  if (!isBypassed) {
+    await logToAxiom({
+      level: 'info',
+      message: '[Contact Action] New feedback submission',
+      name,
+      email,
+      userId,
+      source: 'server-action'
+    })
+  }
 
   try {
     const resendApiKey = process.env.RESEND_API_KEY
     if (!resendApiKey) {
       console.error('[Contact Action] RESEND_API_KEY is missing!')
-      await logToAxiom({ level: 'error', message: 'RESEND_API_KEY missing', source: 'server-action' })
+      if (!isBypassed) {
+        await logToAxiom({ level: 'error', message: 'RESEND_API_KEY missing', source: 'server-action' })
+      }
       return { success: false, error: 'Server configuration error' }
     }
 
     const resend = new Resend(resendApiKey)
 
-    // Check for E2E Test Bypass
-    const cookieStore = await cookies()
-    const bypassToken = cookieStore.get(BYPASS_COOKIES.TOKEN)?.value
-    const isBypassed = await verifyBypassToken(bypassToken)
-
     if (isBypassed) {
       console.log('[Resend Mock]: Test bypass detected. Skipping real email send.')
-      await logToAxiom({ level: 'info', message: '[Resend Mock]: Test bypass detected', userId, source: 'server-action' })
       await new Promise(resolve => setTimeout(resolve, 500))
       return { success: true, mock: true }
     }
@@ -73,6 +76,7 @@ export async function sendFeedback(formData: FormData) {
       attachments.push({
         filename: file.name,
         content: buffer,
+        contentType: file.type,
       })
     }
 
@@ -87,16 +91,22 @@ export async function sendFeedback(formData: FormData) {
 
     if (error) {
       console.error('[Contact Action] Resend API Error:', error)
-      await logToAxiom({ level: 'error', message: '[Contact Action] Resend API Error', error, userId, source: 'server-action' })
+      if (!isBypassed) {
+        await logToAxiom({ level: 'error', message: '[Contact Action] Resend API Error', error, userId, source: 'server-action' })
+      }
       return { success: false, error: error.message }
     }
 
     console.log('[Contact Action] Email sent successfully:', data?.id)
-    await logToAxiom({ level: 'info', message: '[Contact Action] Email sent successfully', dataId: data?.id, userId, source: 'server-action' })
+    if (!isBypassed) {
+      await logToAxiom({ level: 'info', message: '[Contact Action] Email sent successfully', dataId: data?.id, userId, source: 'server-action' })
+    }
     return { success: true, data }
   } catch (error: any) {
     console.error('[Contact Action] Exception:', error)
-    await logToAxiom({ level: 'error', message: '[Contact Action] Exception', error: error.message || error, userId, source: 'server-action' })
+    if (!isBypassed) {
+      await logToAxiom({ level: 'error', message: '[Contact Action] Exception', error: error.message || error, userId, source: 'server-action' })
+    }
     return { success: false, error: error.message || 'Unknown error' }
   }
 }
