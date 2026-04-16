@@ -4,6 +4,8 @@ import { cookies } from 'next/headers'
 import { Resend } from 'resend'
 import { verifyBypassToken, BYPASS_COOKIES } from '../utils/test-bypass'
 import { MAX_ATTACHMENT_SIZE_MB } from '../utils/shared-config'
+import { createSupabaseServerClient } from '../utils/supabase/server'
+import { logToAxiom } from '../utils/logger'
 
 export async function setLanguage(lang: string) {
   const cookieStore = await cookies()
@@ -17,6 +19,23 @@ export async function sendFeedback(formData: FormData) {
   const file = formData.get('attachment') as File | null
 
   console.log(`[Contact Action] New message from ${name} (${email})`)
+
+  let userId = 'anonymous'
+  try {
+    const supabase = await createSupabaseServerClient()
+    const { data } = await supabase.auth.getUser()
+    userId = data.user?.id || 'anonymous'
+  } catch (e) {
+    // Ignore auth errors for logging
+  }
+
+  await logToAxiom({
+    message: '[Contact Action] New feedback submission',
+    name,
+    email,
+    userId,
+    source: 'server-action'
+  })
 
   try {
     const resendApiKey = process.env.RESEND_API_KEY
@@ -34,6 +53,7 @@ export async function sendFeedback(formData: FormData) {
 
     if (isBypassed) {
       console.log('[Resend Mock]: Test bypass detected. Skipping real email send.')
+      await logToAxiom({ message: '[Resend Mock]: Test bypass detected', userId, source: 'server-action' })
       // Simulate slight delay for realism
       await new Promise(resolve => setTimeout(resolve, 500))
       return { success: true, mock: true }
@@ -43,7 +63,6 @@ export async function sendFeedback(formData: FormData) {
 
     if (file && file.size > 0 && file.name !== 'undefined') {
       console.log(`[Contact Action] Processing attachment: ${file.name} (${file.size} bytes)`)
-      // Global Limit check
       if (file.size > MAX_ATTACHMENT_SIZE_MB * 1024 * 1024) {
         return { success: false, error: `File size too large (max ${MAX_ATTACHMENT_SIZE_MB}MB)` }
       }
@@ -67,13 +86,16 @@ export async function sendFeedback(formData: FormData) {
 
     if (error) {
       console.error('[Contact Action] Resend API Error:', error)
+      await logToAxiom({ message: '[Contact Action] Resend API Error', error, userId, source: 'server-action' })
       return { success: false, error: error.message }
     }
 
     console.log('[Contact Action] Email sent successfully:', data?.id)
+    await logToAxiom({ message: '[Contact Action] Email sent successfully', dataId: data?.id, userId, source: 'server-action' })
     return { success: true, data }
   } catch (error: any) {
     console.error('[Contact Action] Exception:', error)
+    await logToAxiom({ message: '[Contact Action] Exception', error: error.message || error, userId, source: 'server-action' })
     return { success: false, error: error.message || 'Unknown error' }
   }
 }

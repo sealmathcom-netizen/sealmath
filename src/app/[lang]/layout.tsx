@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getTranslations } from '@/i18n/server'
 import NavBar from '@/components/NavBar'
-import Script from 'next/script'
 import { type Lang } from '@/i18n/translations'
+import { AxiomWebVitals } from '@/components/AxiomWebVitals'
 import 'mathlive/fonts.css'
 import '../style.css'
 
@@ -75,6 +75,7 @@ export default async function RootLayout({
   return (
     <html lang={lang} dir={lang === 'he' ? 'rtl' : 'ltr'} suppressHydrationWarning={true}>
       <body>
+        <AxiomWebVitals />
         <div id="root">
           <NavBar lang={lang} dict={dict} />
           <main>{children}</main>
