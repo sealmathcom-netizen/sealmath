@@ -1,0 +1,147 @@
+
+ RUN  v4.1.4 /Users/aryeh/WebstormProjects/sealmath
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should accept correctly simplified fractions
+[DEBUG] checkFractionSimplification { userInput: '\\frac{1}{2}x', mathString: '(1)/(2)*x' }
+[DEBUG] node.toString() (1) / (2) * x
+[DEBUG] checkFractionSimplification { userInput: '0.5x', mathString: '0.5*x' }
+[DEBUG] node.toString() 0.5 * x
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should reject unsimplified fractions
+[DEBUG] checkFractionSimplification { userInput: '\\frac{2}{4}x', mathString: '(2)/(4)*x' }
+[DEBUG] node.toString() (2) / (4) * x
+[DEBUG] checkFractionSimplification { userInput: '\\frac{4}{8}x', mathString: '(4)/(8)*x' }
+[DEBUG] node.toString() (4) / (8) * x
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should reject uncombined terms
+[DEBUG] checkFractionSimplification {
+  userInput: '\\frac{1}{4}x + \\frac{1}{4}x',
+  mathString: '(1)/(4)*x + (1)/(4)*x'
+}
+[DEBUG] node.toString() (1) / (4) * x + (1) / (4) * x
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should handle standalone variables (x vs 1x)
+[DEBUG] checkFractionSimplification { userInput: 'x', mathString: 'x' }
+[DEBUG] node.toString() x
+[DEBUG] checkFractionSimplification { userInput: '1x', mathString: '1*x' }
+[DEBUG] node.toString() 1 * x
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should accept mixed numbers as long as the fraction part is simplified
+[DEBUG] checkFractionSimplification { userInput: '1\\frac{1}{2}x', mathString: '((1)+(1)/(2))*x' }
+[DEBUG] node.toString() ((1) + (1) / (2)) * x
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should handle negative mixed numbers
+[DEBUG] checkFractionSimplification { userInput: '-1\\frac{1}{2}x', mathString: '-((1)+(1)/(2))*x' }
+[DEBUG] node.toString() -((1) + (1) / (2)) * x
+
+stdout | src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should handle the specific -7/20y case from regressions
+[DEBUG] checkFractionSimplification { userInput: '-\\frac{7}{20}y', mathString: '-(7)/(20)*y' }
+[DEBUG] node.toString() -(7) / (20) * y
+
+ ❯ src/utils/math/evaluators.test.ts (11 tests | 6 failed) 36ms
+       × should handle standard fractions 2ms
+       × should handle shorthand fractions 0ms
+       × should handle mixed numbers 0ms
+       × should prevent variable entrapment in denominator 0ms
+       ✓ should accept correctly simplified fractions 21ms
+       ✓ should reject unsimplified fractions 3ms
+       ✓ should reject uncombined terms 1ms
+       ✓ should handle standalone variables (x vs 1x) 1ms
+       × should accept mixed numbers as long as the fraction part is simplified 3ms
+       × should handle negative mixed numbers 2ms
+       ✓ should handle the specific -7/20y case from regressions 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > latexToMathJS parser > should handle standard fractions
+TypeError: latexToMathJS is not a function
+ ❯ src/utils/math/evaluators.test.ts:16:14
+     14|   describe('latexToMathJS parser', () => {
+     15|     it('should handle standard fractions', () => {
+     16|       expect(latexToMathJS('\\frac{1}{2}x', 'x')).toBe('(1/2)*x');
+       |              ^
+     17|       expect(latexToMathJS('\\frac{3}{4}y', 'y')).toBe('(3/4)*y');
+     18|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > latexToMathJS parser > should handle shorthand fractions
+TypeError: latexToMathJS is not a function
+ ❯ src/utils/math/evaluators.test.ts:21:14
+     19|
+     20|     it('should handle shorthand fractions', () => {
+     21|       expect(latexToMathJS('\\frac12x', 'x')).toBe('(1/2)*x');
+       |              ^
+     22|     });
+     23|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > latexToMathJS parser > should handle mixed numbers
+TypeError: latexToMathJS is not a function
+ ❯ src/utils/math/evaluators.test.ts:26:14
+     24|     it('should handle mixed numbers', () => {
+     25|       // Mixed fraction logic replaces whole with (whole + num/den)
+     26|       expect(latexToMathJS('1\\frac{1}{2}x', 'x')).toBe('(1 + 1/2)*x');
+       |              ^
+     27|       expect(latexToMathJS('-1\\frac{1}{2}x', 'x')).toBe('(-1 - 1/2)*x…
+     28|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > latexToMathJS parser > should prevent variable entrapment in denominator
+TypeError: latexToMathJS is not a function
+ ❯ src/utils/math/evaluators.test.ts:32:22
+     30|     it('should prevent variable entrapment in denominator', () => {
+     31|       // Logic should ensure -7/20y is NOT interpreted as -7/(20y)
+     32|       const result = latexToMathJS('-\\frac{7}{20}y', 'y');
+       |                      ^
+     33|       expect(result).toBe('-(7/20)*y');
+     34|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should accept mixed numbers as long as the fraction part is simplified
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/utils/math/evaluators.test.ts:63:85
+     61|       // 3/2x can be 1 1/2x
+     62|       const targetThreeHalves: Rational = { num: 3, den: 2 };
+     63|       expect(checkFractionSimplification('1\\frac{1}{2}x', targetThree…
+       |                                                                                     ^
+     64|       expect(checkFractionSimplification('1\\frac{2}{4}x', targetThree…
+     65|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/utils/math/evaluators.test.ts > Math Evaluators - Fraction Simplification > checkFractionSimplification > should handle negative mixed numbers
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/utils/math/evaluators.test.ts:69:89
+     67|     it('should handle negative mixed numbers', () => {
+     68|       const targetNegThreeHalves: Rational = { num: -3, den: 2 };
+     69|       expect(checkFractionSimplification('-1\\frac{1}{2}x', targetNegT…
+       |                                                                                         ^
+     70|     });
+     71|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 5 passed (11)
+   Start at  22:08:19
+   Duration  646ms (transform 17ms, setup 0ms, import 230ms, tests 36ms, environment 267ms)
+

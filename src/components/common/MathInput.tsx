@@ -10,6 +10,8 @@ if (typeof window !== 'undefined') {
 interface MathInputProps {
   value: string;
   onChange: (value: string) => void;
+  onFocus?: () => void;
+  onEnter?: () => void;
   style?: React.CSSProperties;
   className?: string;
   placeholder?: string;
@@ -26,9 +28,7 @@ declare global {
   }
 }
 
-
-
-export default function MathInput({ value, onChange, style, className, placeholder, readonly }: MathInputProps) {
+export default function MathInput({ value, onChange, onFocus, onEnter, style, className, placeholder, readonly }: MathInputProps) {
   const mfRef = useRef<any>(null);
 
   useEffect(() => {
@@ -47,15 +47,32 @@ export default function MathInput({ value, onChange, style, className, placehold
     }
 
     const handleInput = (e: any) => {
-      // Return LaTeX value
       onChange(e.target.value);
     };
 
+    const handleFocus = () => {
+      if (onFocus) onFocus();
+    };
+
+    const handleKeyDown = (e: any) => {
+      if (e.key === 'Enter') {
+        if (onEnter) {
+          e.preventDefault();
+          onEnter();
+        }
+      }
+    };
+
     mf.addEventListener('input', handleInput);
+    mf.addEventListener('focusin', handleFocus);
+    mf.addEventListener('keydown', handleKeyDown);
+
     return () => {
       mf.removeEventListener('input', handleInput);
+      mf.removeEventListener('focusin', handleFocus);
+      mf.removeEventListener('keydown', handleKeyDown);
     };
-  }, [placeholder, readonly, onChange]);
+  }, [placeholder, readonly, onChange, onFocus, onEnter]);
 
   // Update value when it changes externally
   useEffect(() => {

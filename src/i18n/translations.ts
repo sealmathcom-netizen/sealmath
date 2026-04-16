@@ -115,6 +115,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_fraction_like_err_mid: '❌ An intermediate row is not valid.',
     algebra_fraction_like_err_final: '❌ Final result is incorrect.',
     algebra_fraction_like_err_need_fraction: '❌ Use at least one non-trivial fraction (not /1).',
+    algebra_fraction_not_simplified: '❌ Please simplify your final answer.',
+    algebra_final_result: 'Final Result',
+    algebra_step_label: 'Step',
     algebra_rounding_prompt: 'Round {num} to {count} decimal places:',
     algebra_rounding_prompt_whole: 'Round {num} to the nearest whole number:',
 
@@ -254,6 +257,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_fraction_like_err_mid: '❌ אחת משורות הביניים אינה תקינה.',
     algebra_fraction_like_err_final: '❌ התוצאה הסופית שגויה.',
     algebra_fraction_like_err_need_fraction: '❌ יש להשתמש לפחות בשבר לא טריוויאלי אחד (לא /1).',
+    algebra_fraction_not_simplified: '❌ נא לפשט את התוצאה הסופית.',
+    algebra_final_result: 'תוצאה סופית',
+    algebra_step_label: 'שלב',
     algebra_rounding_prompt: 'עגלו את {num} ל-{count} ספרות עשרוניות:',
     algebra_rounding_prompt_whole: 'עגלו את {num} למספר השלם הקרוב ביותר:',
 
@@ -393,6 +399,9 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_fraction_like_err_mid: '❌ Een tussenstap is niet geldig.',
     algebra_fraction_like_err_final: '❌ Het eindresultaat is onjuist.',
     algebra_fraction_like_err_need_fraction: '❌ Gebruik minstens één niet-triviale breuk (niet /1).',
+    algebra_fraction_not_simplified: '❌ Vereenvoudig je definitieve antwoord.',
+    algebra_final_result: 'Eindresultaat',
+    algebra_step_label: 'Stap',
     algebra_rounding_prompt: 'Rond {num} af op {count} decimalen:',
     algebra_rounding_prompt_whole: 'Rond {num} af op het dichtstbijzijnde gehele getal:',
 
