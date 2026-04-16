@@ -146,6 +146,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     login_email_placeholder: 'your@email.com',
     login_email_btn: 'Send Email Link',
     login_msg_check_email: 'Check your email for the sign-in link!',
+    footer_rights: 'All rights reserved.',
   },
   he: {
     nav_home: 'בית',
@@ -292,6 +293,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     login_email_placeholder: 'your@email.com',
     login_email_btn: 'שלחו קישור לאימייל',
     login_msg_check_email: 'בדקו את האימייל שלכם עבור קישור ההתחברות!',
+    footer_rights: 'כל הזכויות שמורות.',
   },
   nl: {
     nav_home: 'Home',
@@ -438,6 +440,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     login_email_placeholder: 'jouw@email.com',
     login_email_btn: 'E-maillink verzenden',
     login_msg_check_email: 'Controleer je e-mail voor de inloglink!',
+    footer_rights: 'Alle rechten voorbehouden.',
   },
 }
 

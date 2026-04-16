@@ -85,7 +85,7 @@ export default async function RootLayout({
               <Link href={lang === 'en' ? '/privacy' : `/${lang}/privacy`} style={{ color: 'inherit', textDecoration: 'none' }}>{dict.nav_privacy}</Link>
               <Link href={lang === 'en' ? '/terms' : `/${lang}/terms`} style={{ color: 'inherit', textDecoration: 'none' }}>{dict.nav_terms}</Link>
             </div>
-            <p>&copy; {new Date().getFullYear()} SealMath. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} SealMath. {dict.footer_rights}</p>
           </footer>
         </div>
       </body>
