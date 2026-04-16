@@ -52,7 +52,10 @@ export async function middleware(request: NextRequest) {
      response.cookies.set('preferredLang', DEFAULT_LANGUAGE, { path: '/' })
   }
 
-  // 3. Test Bypass
+  // 3. Test Bypass & Geo
+  const country = request.headers.get('x-vercel-ip-country') || (request as any).geo?.country || 'unknown'
+  response.cookies.set('userCountry', country, { path: '/', maxAge: 31536000 }) // 1 year cache
+
   const bypassToken = request.cookies.get(BYPASS_COOKIES.TOKEN)?.value
   const isBypassed = await verifyBypassToken(bypassToken)
   
@@ -94,6 +97,7 @@ export async function middleware(request: NextRequest) {
           pathname,
           method: request.method,
           userId: user?.id || 'anonymous',
+          country,
           source: 'middleware'
         });
       }
@@ -111,6 +115,7 @@ export async function middleware(request: NextRequest) {
           message: 'Middleware exception',
           pathname,
           error: err instanceof Error ? err.message : String(err),
+          country,
           source: 'middleware'
         });
       }

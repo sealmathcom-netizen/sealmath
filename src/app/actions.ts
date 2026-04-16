@@ -22,6 +22,7 @@ export async function sendFeedback(formData: FormData) {
   const cookieStore = await cookies()
   const bypassToken = cookieStore.get(BYPASS_COOKIES.TOKEN)?.value
   const isBypassed = await verifyBypassToken(bypassToken)
+  const country = cookieStore.get('userCountry')?.value || 'unknown'
 
   console.log(`[Contact Action] New message from ${name} (${email})`)
 
@@ -41,6 +42,7 @@ export async function sendFeedback(formData: FormData) {
       name,
       email,
       userId,
+      country,
       source: 'server-action'
     })
   }
@@ -50,7 +52,7 @@ export async function sendFeedback(formData: FormData) {
     if (!resendApiKey) {
       console.error('[Contact Action] RESEND_API_KEY is missing!')
       if (!isBypassed) {
-        await logToAxiom({ level: 'error', message: 'RESEND_API_KEY missing', source: 'server-action' })
+        await logToAxiom({ level: 'error', message: 'RESEND_API_KEY missing', country, source: 'server-action' })
       }
       return { success: false, error: 'Server configuration error' }
     }
@@ -92,20 +94,20 @@ export async function sendFeedback(formData: FormData) {
     if (error) {
       console.error('[Contact Action] Resend API Error:', error)
       if (!isBypassed) {
-        await logToAxiom({ level: 'error', message: '[Contact Action] Resend API Error', error, userId, source: 'server-action' })
+        await logToAxiom({ level: 'error', message: '[Contact Action] Resend API Error', error, userId, country, source: 'server-action' })
       }
       return { success: false, error: error.message }
     }
 
     console.log('[Contact Action] Email sent successfully:', data?.id)
     if (!isBypassed) {
-      await logToAxiom({ level: 'info', message: '[Contact Action] Email sent successfully', dataId: data?.id, userId, source: 'server-action' })
+      await logToAxiom({ level: 'info', message: '[Contact Action] Email sent successfully', dataId: data?.id, userId, country, source: 'server-action' })
     }
     return { success: true, data }
   } catch (error: any) {
     console.error('[Contact Action] Exception:', error)
     if (!isBypassed) {
-      await logToAxiom({ level: 'error', message: '[Contact Action] Exception', error: error.message || error, userId, source: 'server-action' })
+      await logToAxiom({ level: 'error', message: '[Contact Action] Exception', error: error.message || error, userId, country, source: 'server-action' })
     }
     return { success: false, error: error.message || 'Unknown error' }
   }

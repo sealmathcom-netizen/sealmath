@@ -16,10 +16,17 @@ export async function logToAxiom(data: any) {
   if (isBrowser) {
     // Client-side: Proxy through our own API route
     try {
+      const countryStr = document.cookie.split('; ').find(row => row.startsWith('userCountry='))?.split('=')[1] || 'unknown';
+      
+      const payload = {
+        ...data,
+        country: data.country || countryStr
+      };
+
       await fetch('/api/axiom', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
         keepalive: true
       });
     } catch (err) {
