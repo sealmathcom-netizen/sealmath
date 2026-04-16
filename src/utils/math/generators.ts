@@ -9,6 +9,19 @@ import {
 } from './types';
 
 /**
+ * Formats a coefficient and variable pedagogically (e.g., 1x -> x, -1x -> -x, 2/1x -> 2x)
+ */
+function formatTerm(c: Rational, v: string): string {
+  if (c.num === 0) return '0';
+  if (c.den === 1) {
+    if (c.num === 1) return v;
+    if (c.num === -1) return `-${v}`;
+    return `${c.num}${v}`;
+  }
+  return `${c.num}/${c.den}${v}`;
+}
+
+/**
  * Common Greatest Common Divisor
  */
 export function gcd(a: number, b: number): number {
@@ -151,7 +164,7 @@ export function generateCombiningFractionLikeTermsProblem(): CombiningFractionLi
   const unsimplified = { num: unsNum, den: unsDen };
   const simplified = normalizeRational(unsNum, unsDen);
 
-  const q = `${left.num}/${left.den}${variable} ${isAdd ? '+' : '-'} ${right.num}/${right.den}${variable}`;
+  const q = `${formatTerm(left, variable)} ${isAdd ? '+' : '-'} ${formatTerm(right, variable)}`;
 
   return { q, variable, isAdd, left, right, unsimplified, simplified, a: simplified.num / simplified.den };
 }

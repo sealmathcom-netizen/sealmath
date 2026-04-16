@@ -7,13 +7,13 @@ export function AxiomWebVitals() {
     fetch('/api/axiom', {
       method: 'POST',
       body: JSON.stringify({
+        level: 'info', // Explicitly set level
         source: 'web-vitals',
         pathname: window.location.pathname,
         ...metric
       }),
-      // Use keepalive to ensure the request is sent even if the page is closed
       keepalive: true,
-    }).catch(() => {}); // Sink errors
+    }).catch(() => {});
   })
 
   return null

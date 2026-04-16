@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl
   const host = request.headers.get('host')
   
-  // 0. Domain Normalization (Enforce localhost over 127.0.0.1)
+  // 0. Domain Normalization
   if (host?.includes('127.0.0.1')) {
     const url = request.nextUrl.clone()
     url.host = host.replace('127.0.0.1', 'localhost')
@@ -31,7 +31,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // If no locale in path and not a static/api route, rewrite to default lang
   const isApiRoute = pathname.startsWith('/api')
   const isAuthRoute = pathname.startsWith('/auth')
   const isAxiomRoute = pathname.startsWith('/_axiom')
@@ -43,10 +42,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(url)
   }
 
-  // 2. Prepare response and Supabase client
-  let response = NextResponse.next({
-    request,
-  })
+  let response = NextResponse.next({ request })
 
   // Language Cookie
   if (pathnameHasLocale) {
@@ -74,8 +70,6 @@ export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 
-  let user = null
-
   if (supabaseUrl && supabaseAnonKey && !isStaticFile) {
     try {
       const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -90,10 +84,11 @@ export async function middleware(request: NextRequest) {
       })
 
       const { data } = await supabase.auth.getUser()
-      user = data?.user || null
+      const user = data?.user || null
       
-      // LOG TO AXIOM
+      // SUCCESS LOG
       logToAxiom({
+        level: 'info',
         message: 'Middleware path access',
         pathname,
         method: request.method,
@@ -101,15 +96,21 @@ export async function middleware(request: NextRequest) {
         source: 'middleware'
       });
 
+      if (user && isLoginPage) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/'
+        return NextResponse.redirect(url)
+      }
     } catch (err) {
-      console.error(`[Middleware] Auth error:`, err)
+      // ERROR LOG
+      logToAxiom({
+        level: 'error',
+        message: 'Middleware exception',
+        pathname,
+        error: err instanceof Error ? err.message : String(err),
+        source: 'middleware'
+      });
     }
-  }
-
-  if (user && isLoginPage) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
   }
 
   return response

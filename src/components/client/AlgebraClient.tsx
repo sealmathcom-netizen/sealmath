@@ -4,6 +4,9 @@ import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import MathInput from '../common/MathInput';
 import type { Lang } from '../../i18n/translations';
+import { logToAxiom } from '../../utils/logger';
+
+const generateExerciseId = () => Math.random().toString(36).substring(2, 15);
 
 import { ComputeEngine } from "@cortex-js/compute-engine";
 const ce = new ComputeEngine();
@@ -45,9 +48,23 @@ function AlgebraWindow({
   const [resultColor, setResultColor] = useState('');
   const [showExample, setShowExample] = useState(false);
 
+  const exerciseIdRef = useRef('');
+
   useEffect(() => {
-    setProblem(generateProblem());
-  }, [generateProblem]);
+    const newProblem = generateProblem();
+    const newId = generateExerciseId();
+    exerciseIdRef.current = newId;
+    setProblem(newProblem);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: newId,
+      exercise_type: id,
+      question: newProblem.q,
+      outcome: null
+    });
+  }, [generateProblem, id]);
 
   useEffect(() => {
     const handleClear = () => setSolvedCount(0);
@@ -59,13 +76,38 @@ function AlgebraWindow({
     if (!problem) return;
     if (answer.trim() === '') return;
 
-    if (MathEngine.checkNumeric(answer, problem.a)) {
+    const isCorrect = MathEngine.checkNumeric(answer, problem.a);
+    const outcome = isCorrect ? 'correct' : 'incorrect';
+
+    logToAxiom({
+      level: 'info',
+      message: 'Solution checked',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      answer,
+      outcome,
+    });
+
+    if (isCorrect) {
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
 
       setTimeout(() => {
         setSolvedCount(solvedCount + 1);
-        setProblem(generateProblem());
+        const nextProb = generateProblem();
+        const nextId = generateExerciseId();
+        exerciseIdRef.current = nextId;
+        setProblem(nextProb);
+
+        logToAxiom({
+          level: 'info',
+          message: 'Exercise created',
+          exercise_id: nextId,
+          exercise_type: id,
+          question: nextProb.q,
+          outcome: null
+        });
+
         setAnswer('');
         setResultMsg('');
       }, 1000);
@@ -173,10 +215,24 @@ function TwoStepAlgebraWindow({
   const [showExample, setShowExample] = useState(false);
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
+  const exerciseIdRef = useRef('');
+
   useEffect(() => {
-    setProblem(generateProblem());
+    const newProblem = generateProblem();
+    const newId = generateExerciseId();
+    exerciseIdRef.current = newId;
+    setProblem(newProblem);
     setIsSolutionShown(false);
-  }, [generateProblem]);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: newId,
+      exercise_type: id,
+      question: newProblem.q,
+      outcome: null
+    });
+  }, [generateProblem, id]);
 
   useEffect(() => {
     const handleClear = () => setSolvedCount(0);
@@ -190,13 +246,37 @@ function TwoStepAlgebraWindow({
 
     const isPhase1Correct = MathEngine.checkNumeric(ans1, problem.step1Ans);
     const isPhase2Correct = MathEngine.checkNumeric(ans2, problem.step2Ans);
+    const isCorrect = isPhase1Correct && isPhase2Correct;
+    const outcome = isCorrect ? 'correct' : 'incorrect';
 
-    if (isPhase1Correct && isPhase2Correct) {
+    logToAxiom({
+      level: 'info',
+      message: 'Solution checked',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      steps: [ans1, ans2],
+      outcome,
+    });
+
+    if (isCorrect) {
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
         setSolvedCount(solvedCount + 1);
-        setProblem(generateProblem());
+        const nextProb = generateProblem();
+        const nextId = generateExerciseId();
+        exerciseIdRef.current = nextId;
+        setProblem(nextProb);
+
+        logToAxiom({
+          level: 'info',
+          message: 'Exercise created',
+          exercise_id: nextId,
+          exercise_type: id,
+          question: nextProb.q,
+          outcome: null
+        });
+
         setAns1('');
         setAns2('');
         setResultMsg('');
@@ -216,6 +296,15 @@ function TwoStepAlgebraWindow({
     setAns2(String(Math.round(problem.step2Ans * 100) / 100));
     setResultMsg('');
     setIsSolutionShown(true);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Solution shown',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      outcome: 'not solved',
+      solution: `Step1: ${ans1}, Step2: ${ans2}`,
+    });
   };
 
   if (!problem) return null;
@@ -335,7 +424,10 @@ function SignedFractionText({ num, den }: Rational) {
 
 
 function FractionTerm({ coeff, variable }: { coeff: Rational; variable: string }) {
+  if (coeff.num === 0) return <span>0</span>;
   if (coeff.den === 1) {
+    if (coeff.num === 1) return <span>{variable}</span>;
+    if (coeff.num === -1) return <span>-{variable}</span>;
     return <span>{coeff.num}{variable}</span>;
   }
   return (
@@ -457,10 +549,24 @@ function CombiningLikeTermsWindow({
   const [showExample, setShowExample] = useState(false);
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
+  const exerciseIdRef = useRef('');
+
   useEffect(() => {
-    setProblem(generateProblem());
+    const newProblem = generateProblem();
+    const newId = generateExerciseId();
+    exerciseIdRef.current = newId;
+    setProblem(newProblem);
     setIsSolutionShown(false);
-  }, [generateProblem]);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: newId,
+      exercise_type: id,
+      question: newProblem.q,
+      outcome: null
+    });
+  }, [generateProblem, id]);
 
   useEffect(() => {
     const handleClear = () => setSolvedCount(0);
@@ -472,18 +578,39 @@ function CombiningLikeTermsWindow({
     if (!problem) return;
     if (ans1.trim() === '' || ans2.trim() === '') return;
 
-    // Step 1: Use the safe Algebraic Evaluator
     const phase1 = MathEngine.checkAlgebraicExpression(ans1, problem.variable, problem.a);
-    
-    // Step 2: Use Numeric Check for the final result
     const phase2 = MathEngine.checkAlgebraicExpression(ans2, problem.variable, problem.a);
+    const isCorrect = phase1.isCorrect && phase2.isCorrect;
+    const outcome = isCorrect ? 'correct' : 'incorrect';
 
-    if (phase1.isCorrect && phase2.isCorrect) {
+    logToAxiom({
+      level: 'info',
+      message: 'Solution checked',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      steps: [ans1, ans2],
+      outcome,
+    });
+
+    if (isCorrect) {
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
         setSolvedCount(solvedCount + 1);
-        setProblem(generateProblem());
+        const nextProb = generateProblem();
+        const nextId = generateExerciseId();
+        exerciseIdRef.current = nextId;
+        setProblem(nextProb);
+
+        logToAxiom({
+          level: 'info',
+          message: 'Exercise created',
+          exercise_id: nextId,
+          exercise_type: id,
+          question: nextProb.q,
+          outcome: null
+        });
+
         setAns1('');
         setAns2('');
         setResultMsg('');
@@ -504,6 +631,15 @@ function CombiningLikeTermsWindow({
     setAns2(resultNum === 0 ? "0" : `${resultNum}${problem.variable}`);
     setResultMsg('');
     setIsSolutionShown(true);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Solution shown',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      outcome: 'not solved',
+      solution: `Step1: ${ans1}, Step2: ${ans2}`,
+    });
   };
 
   if (!problem) return null;
@@ -614,13 +750,27 @@ function CombiningFractionLikeTermsWindow({
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [simplificationError, setSimplificationError] = useState(false);
 
+  const exerciseIdRef = useRef('');
+
   useEffect(() => {
-    setProblem(generateProblem());
+    const newProblem = generateProblem();
+    const newId = generateExerciseId();
+    exerciseIdRef.current = newId;
+    setProblem(newProblem);
     setRowValues(['']);
     setResultMsg('');
     setIsSolutionShown(false);
     setSimplificationError(false);
-  }, [generateProblem]);
+
+    logToAxiom({
+      level: 'info',
+      message: 'Exercise created',
+      exercise_id: newId,
+      exercise_type: id,
+      question: JSON.stringify(newProblem), // More complex object, stringify for safety
+      outcome: null
+    });
+  }, [generateProblem, id]);
 
   useEffect(() => {
     const handleClear = () => setSolvedCount(0);
@@ -731,26 +881,58 @@ function CombiningFractionLikeTermsWindow({
       if (!rat) { ok = false; break; }
       const val = rat.num / rat.den;
 
-      // Numeric check for all rows
       if (Math.abs(val - targetVal) > 1e-9) { ok = false; break; }
 
-      // Strict simplification check for the LAST row only
       if (i === rowValues.length - 1) {
         if (!MathEngine.checkFractionSimplification(rowVal, problem.simplified, v)) {
           setResultMsg(t('algebra_fraction_not_simplified') || 'Please simplify your final answer.');
           setResultColor("var(--error, red)");
           setSimplificationError(true);
+
+          logToAxiom({
+            level: 'info',
+            message: 'Solution checked',
+            exercise_id: exerciseIdRef.current,
+            exercise_type: id,
+            steps: rowValues,
+            outcome: 'incorrect',
+            comment: 'not simplified'
+          });
+
           return;
         }
       }
     }
+
+    const outcome = ok ? 'correct' : 'incorrect';
+    logToAxiom({
+      level: 'info',
+      message: 'Solution checked',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      steps: rowValues,
+      outcome,
+    });
 
     if (ok) {
       setResultMsg(t('algebra_correct'));
       setResultColor("var(--success, green)");
       setTimeout(() => {
         setSolvedCount(solvedCount + 1);
-        setProblem(generateProblem());
+        const nextProb = generateProblem();
+        const nextId = generateExerciseId();
+        exerciseIdRef.current = nextId;
+        setProblem(nextProb);
+
+        logToAxiom({
+          level: 'info',
+          message: 'Exercise created',
+          exercise_id: nextId,
+          exercise_type: id,
+          question: JSON.stringify(nextProb),
+          outcome: null
+        });
+
         setRowValues(['']);
         setResultMsg('');
       }, 1000);
@@ -777,6 +959,15 @@ function CombiningFractionLikeTermsWindow({
     setIsSolutionShown(true);
     setSimplificationError(false);
     setResultMsg('');
+
+    logToAxiom({
+      level: 'info',
+      message: 'Solution shown',
+      exercise_id: exerciseIdRef.current,
+      exercise_type: id,
+      outcome: 'not solved',
+      solution: typeof sol !== 'undefined' ? sol : 'Logged in steps',
+    });
   };
 
   if (!problem) return null;
