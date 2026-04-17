@@ -187,11 +187,6 @@ export function checkEquationStep(step: string, targetRoot: number): boolean {
 }
 
 /**
- * Checks if the user correctly showed the distribution step (e.g., x(5 + 3))
- */
-
-
-/**
  * Checks the final simplified result of combining like terms (e.g., 8x)
  */
 

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { checkFractionSimplification, latexToMathJS } from './evaluators';
+import { it, expect, describe } from 'vitest';
+import { checkFractionSimplification, latexToMathJS, checkEquationStep, isEquationFullySolved } from './evaluators';
 import { Rational } from './types';
 
 describe('Math Evaluators - Fraction Simplification', () => {
@@ -97,4 +97,23 @@ describe('Math Evaluators - Fraction Simplification', () => {
       expect(checkFractionSimplification('-\\frac{7}{20}y', target, 'y')).toBe(true);
     });
   });
+
+  describe('checkEquationStep - Multi-Step Regressions', () => {
+    it('should validate 3x = 6 mathematically instead of string matching', () => {
+       // In issue report: 3x + 11 = 17 => x = 2
+       // The student inputs "3x = 6" then "x = 2"
+       
+       // Step 1: 3x = 6
+       expect(checkEquationStep('3x = 6', 2)).toBe(true);
+       expect(isEquationFullySolved('3x = 6', 'x')).toBe(false);
+       
+       // Step 2: x = 2
+       expect(checkEquationStep('x = 2', 2)).toBe(true);
+       expect(isEquationFullySolved('x = 2', 'x')).toBe(true);
+       
+       // Fails when equations are destructively combined due to old UI bug (e.g., 3x=6 = 3x=6)
+       expect(checkEquationStep('3x=6 = 3x=6', 2)).toBe(false);
+    });
+  });
 });
+

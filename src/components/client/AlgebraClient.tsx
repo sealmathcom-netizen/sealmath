@@ -166,7 +166,22 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent }: any)
   useEffect(() => { nextProb(); }, [generateProblem]);
 
   const check = () => {
-    const isCorrect = steps.every((s, i) => MathEngine.checkEquationStep(`${s} = ${problem.steps[i]}`, 1.2345));
+    let isCorrect = true;
+    for (let i = 0; i < steps.length; i++) {
+       const s = steps[i];
+       if (!s || !s.includes('=')) { isCorrect = false; break; }
+       if (!MathEngine.checkEquationStep(s, problem.a)) { isCorrect = false; break; }
+    }
+    
+    // Add fully solved check for the final step to ensure they reach the explicit final form
+    if (isCorrect && steps.length > 0) {
+      if (!MathEngine.isEquationFullySolved(steps[steps.length - 1], problem.variable || 'x')) {
+         setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
+         setMsgColor('orange');
+         return;
+      }
+    }
+
     if (isCorrect) { setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, 3000); }
     else { setMsg(t('algebra_incorrect')); setMsgColor('red'); }
   };
