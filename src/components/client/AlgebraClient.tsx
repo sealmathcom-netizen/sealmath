@@ -224,9 +224,14 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
     }
 
     let isCorrect = false;
+    let notFullySolved = false;
     if (id === 'complex') {
       if (lastRow.includes('=')) {
         isCorrect = MathEngine.checkEquationStep(lastRow, problem.a);
+        if (isCorrect && !MathEngine.isEquationFullySolved(lastRow, problem.variable || 'x')) {
+          isCorrect = false;
+          notFullySolved = true;
+        }
       } else {
         isCorrect = MathEngine.checkNumeric(lastRow, problem.a);
       }
@@ -236,8 +241,14 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
       isCorrect = MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345);
     }
     
-    if (isCorrect) { setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, 3000); }
-    else { setMsg(t('algebra_incorrect')); setMsgColor('red'); }
+    if (notFullySolved) {
+      setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
+      setMsgColor('orange');
+    } else if (isCorrect) { 
+      setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, 3000); 
+    } else { 
+      setMsg(t('algebra_incorrect')); setMsgColor('red'); 
+    }
   };
 
   if (!problem) return null;

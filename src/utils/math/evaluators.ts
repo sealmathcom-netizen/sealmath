@@ -195,3 +195,23 @@ export function checkEquationStep(step: string, targetRoot: number): boolean {
  * Checks the final simplified result of combining like terms (e.g., 8x)
  */
 
+export function isEquationFullySolved(step: string, variable: string = 'x'): boolean {
+  if (!step || !step.includes('=')) return false;
+  const parts = step.split('=');
+  if (parts.length !== 2) return false;
+  
+  const cleanSide = (s: string) => {
+     return s.replace(/\\text\{[^{}]*\}/g, '').replace(/\s/g, '').trim();
+  };
+  
+  const p0 = cleanSide(parts[0]);
+  const p1 = cleanSide(parts[1]);
+  
+  if (p0 === variable) {
+     return !p1.includes(variable);
+  } else if (p1 === variable) {
+     return !p0.includes(variable);
+  }
+  
+  return false;
+}

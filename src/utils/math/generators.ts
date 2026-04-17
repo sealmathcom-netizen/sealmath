@@ -86,7 +86,7 @@ export function generateComplexEquationProblem(): any {
       step: step1
     };
 
-    if (Math.abs(coeffX.num) === 1 && coeffX.den === 1) {
+    if (coeffX.num === 1 && coeffX.den === 1) {
        return { ...base, steps: [step1] };
     }
     return { ...base, steps: [step1, step2] };
