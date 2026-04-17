@@ -71,22 +71,26 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_ingredients: 'Cork Ingredients',
     btn_new_capture: 'New Capture',
     rules_title_24: 'How to Play: 24 Challenge',
-    rules_text_24:
-      '• Use each number exactly once.\n• Operations: Addition (+), Subtraction (-), Multiplication (*), Division (/).\n• Parentheses ( ) are allowed.',
+    rules_text_24: `• Use each number exactly once.
+• Operations: Addition (+), Subtraction (-), Multiplication (*), Division (/).
+• Parentheses ( ) are allowed.`,
     rules_title_capture: 'How to Play: Fraction Capture',
-    rules_text_capture:
-      '• Pick exactly 2 ingredient fractions.\n• Select an operator (+, -, *, /).\n• The goal is to reach the Target Fraction in the Pot.\n• Example: 1/2 + 1/4 = 3/4.\n• Order matters for Subtraction and Division!',
+    rules_text_capture: `• Pick exactly 2 ingredient fractions.
+• Select an operator (+, -, *, /).
+• The goal is to reach the Target Fraction in the Pot.
+• Example: 1/2 + 1/4 = 3/4.
+• Order matters for Subtraction and Division!`,
     msg_sol_is: 'Solution: {sol}',
     nav_algebra: 'Algebra Basics',
     algebra_title: '🦭 Algebra Basics',
     algebra_btn_addsub: 'Addition & Subtraction',
     algebra_btn_muldiv: 'Multiplication & Division',
     algebra_show_examples: 'Show Examples',
-    algebra_hide_examples: 'Hide Examples',
+    algebra_hide_examples: 'Hide Examples', algebra_solution_steps: 'Solution Steps',
     algebra_level: 'Solved: {count}',
     algebra_check_ans: 'Check Answer',
     algebra_correct: '✅ Correct! Seal is happy 🦭',
-    algebra_incorrect: '❌ Try again — think step by step',
+    algebra_incorrect: '❌ Incorrect. Try again — think step by step',
     algebra_addsub_desc: 'When solving an equation, your goal is to get <strong>x</strong> by itself. You do this by performing the <strong>opposite mathematical operation</strong> on both sides of the equal sign.',
     algebra_addsub_ex1: '<strong>Example 1:</strong> <code style="font-family: var(--mono)">x + 3 = 5</code> <br/>Since 3 is being <em>added</em> to x, we do the opposite: <strong>subtract 3</strong> from both sides.<br/><code style="font-family: var(--mono)">x = 5 - 3 ➔ x = 2</code>',
     algebra_addsub_ex2: '<strong>Example 2:</strong> <code style="font-family: var(--mono)">x - 4 = 6</code> <br/>Since 4 is being <em>subtracted</em> from x, we do the opposite: <strong>add 4</strong> to both sides.<br/><code style="font-family: var(--mono)">x = 6 + 4 ➔ x = 10</code>',
@@ -120,15 +124,42 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_fraction_like_err_final: '❌ Final result is incorrect.',
     algebra_fraction_like_err_need_fraction: '❌ Use at least one non-trivial fraction (not /1).',
     algebra_fraction_not_simplified: '❌ Please simplify your final answer.',
+    msg_must_show_steps: 'Multi-step equation: Please show at least one intermediate step.',
     algebra_final_result: 'Final Result',
     algebra_step_label: 'Step',
-    algebra_rounding_prompt: 'Round {num} to {count} decimal places:',
-    algebra_rounding_prompt_whole: 'Round {num} to the nearest whole number:',
+    algebra_rounding_prompt: `Round {num} to {count} decimal places: `,
+    algebra_rounding_prompt_whole: `Round {num} to the nearest whole number: `,
+
+    algebra_btn_complex: `Equation with one variable` ,
+    algebra_btn_word_problem: 'Word Problems', algebra_btn_final_exam: 'Final Exam',
+    algebra_complex_desc: 'Solve equations by simplifying terms and isolating the variable in logical steps.',
+    
+    algebra_complex_ex1: '<strong>Example 1:</strong> <code style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>Step 1:</strong> Simplify to <code style="font-family: var(--mono)">x + 3 = 7</code>.<br/><strong>Step 2:</strong> Solve for x: <code style="font-family: var(--mono)">x = 4</code>.',
+    algebra_complex_ex2: '<strong>Example 2:</strong> <code style="font-family: var(--mono)">0 = -9x - 5 + 3x + 35</code> <br/><strong>Step 1:</strong> Combine like terms to get <code style="font-family: var(--mono)">6x = 30</code>.<br/><strong>Step 2:</strong> Solve for x: <code style="font-family: var(--mono)">x = 5</code>.',
+    algebra_complex_ex3: '<strong>Example 3:</strong> <code style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>Step 1:</strong> Combine terms: <code style="font-family: var(--mono)">-16 = -x - 8</code>.<br/><strong>Step 2:</strong> Final answer: <code style="font-family: var(--mono)">x = 8</code>.',
+
+    algebra_word_prob_desc: 'Translate real-world problems into equations and solve for the unknown variable.',
+    word_prob_1: 'Ron is {0} years older than Dan. The sum of their ages is {1}. Find Dan\'s age (x).',
+    word_prob_2: 'A pen costs {0} dollars more than a pencil. 3 pens and 2 pencils cost {1} dollars. Find the cost of a pencil.',
+    word_prob_3: 'The sum of three consecutive whole numbers is {0}. Find the smallest number.',
+    word_prob_4: 'In a rectangle, the length is {0} cm more than the width. The perimeter is {1} cm. Find the width.',
+    word_prob_5: 'Sara started with {0} dollars and saves {1} dollars each week. After how many weeks will she have {2} dollars?',
+    word_prob_6: 'A train travels at {0} km/h for some time, and then at {1} km/h more for 2 hours. Total distance is {2} km. Find the initial time.',
+    word_prob_7: 'There are {0} five-cent coins and some ten-cent coins. Total value is {1} cents. Find the number of ten-cent coins.',
+    word_prob_8: 'Gil has {0} more marbles than Tal. Together they have {1}. Find Tal\'s marbles.',
+    word_prob_9: 'A pizza slice costs {0} shekels, and a drink costs {1}. 4 drinks and some slices cost {2}. Find the number of slices.',
+    word_prob_10: 'In a class, there are {0} more girls than boys. Total students is {1}. Find the number of boys.',
+    word_prob_11: 'A book costs x, another costs {0} more, and a third costs twice the first. Total is {1}. Find x.',
+    word_prob_12: 'An employee earns {0} per hour plus a {1} bonus. Total pay is {2}. Find hours worked.',
+    word_prob_13: 'On a farm, there are cows and {0} more chickens than cows. Total legs is {1}. Find the number of cows.',
+    word_prob_14: 'Red candy is {0} less than 3 times Blue candy. Total is {1}. Find Blue candy.',
+    word_prob_15: 'Tree B is {0} taller than A, and C is {1} taller than B. Total height is {2}. Find A.',
+
 
     // Homepage
     meta_title_home: 'SealMath – Free Online Math Learning & Games for Kids',
     meta_description_home: 'Learn math the fun way with SealMath! Free interactive games, algebra tools, and mental math puzzles designed to help students master learning math online.',
-    home_hero_title: 'Learn Math the Fun Way 🦭',
+    home_hero_title: 'Master Math',
     home_hero_subtitle: 'Interactive games and tools that make learning math exciting — for students and kids of all ages.',
     home_card_24_title: '🎯 24 Challenge',
     home_card_24_desc: 'Sharpen your mental math! Combine four numbers using +, −, ×, ÷ to make exactly 24.',
@@ -147,7 +178,14 @@ export const translations: Record<Lang, Record<string, string>> = {
     login_email_btn: 'Send Email Link',
     login_msg_check_email: 'Check your email for the sign-in link!',
     footer_rights: 'All rights reserved.',
-  },
+      step_recorded: '✓ Step Recorded. Now solve for x.',
+    solve_for_x: `Now solve for x: `,
+    placeholder_equation: `Equation...`,
+    placeholder_x: 'x = ...',
+    error_equation_variable_missing: '❌ The equation must include the variable x!',
+    exam_finish: 'Finish Exam',
+    exam_score: 'Your Score: {score}%',
+},
   he: {
     nav_home: 'בית',
     nav_game: 'אתגר ה-24',
@@ -190,7 +228,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     meta_description_algebra: 'למדו איך לפתור משוואות ליניאריות צעד אחר צעד. תרגלו משוואות של חיבור, חיסור, כפל וחילוק עם משוב אינטראקטיבי.',
     game_page_title: '🎯 לומדים חשבון מנטלי: אתגר ה-24',
     capture_page_title: '🧩 לומדים שברים: לכידת שברים',
-    algebra_page_title: '📐 לומדים אלגברה: יסודות האלגברה',
+    algebra_page_title: 'אלגברה בסיסית',
     meta_keywords: 'משחקי מתמטיקה, לימוד מתמטיקה, כלי מתמטיקה בחינם, תרגול אלגברה, משחקי שברים, אתגר ה-24, משחקים לימודיים, מתמטיקה לילדים, לימוד חשבון, לימוד שברים',
 
     // JS Feedback Messages
@@ -218,18 +256,22 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_ingredients: 'מרכיבי השעם',
     btn_new_capture: 'לכידה חדשה',
     rules_title_24: 'איך משחקים: אתגר ה-24',
-    rules_text_24:
-      '• השתמש בכל מספר פעם אחת בדיוק.\n• פעולות: חיבור (+), חיסור (-), כפל (*), חילוק (/).\n• ניתן להשתמש בסוגריים ( ).',
+    rules_text_24: `• השתמש בכל מספר פעם אחת בדיוק.
+• פעולות: חיבור (+), חיסור (-), כפל (*), חילוק (/).
+• ניתן להשתמש בסוגריים ( ).`,
     rules_title_capture: 'איך משחקים: לכידת שברים',
-    rules_text_capture:
-      '• בחר בדיוק 2 מרכיבי שברים.\n• בחר פעולת חשבון (+, -, *, /).\n• המטרה היא להגיע לשבר המטרה המוצג בכד.\n• דוגמה: 1/2 + 1/4 = 3/4.\n• הסדר משנה בחיסור ובחילוק!',
+    rules_text_capture: `• בחר בדיוק 2 מרכיבי שברים.
+• בחר פעולת חשבון (+, -, *, /).
+• המטרה היא להגיע לשבר המטרה המוצג בכד.
+• דוגמה: 1/2 + 1/4 = 3/4.
+• הסדר משנה בחיסור ובחילוק!`,
     msg_sol_is: 'פתרון: {sol}',
     nav_algebra: 'יסודות האלגברה',
-    algebra_title: '🦭 אלגברה בסיסית',
+    algebra_title: 'אלגברה בסיסית',
     algebra_btn_addsub: 'חיבור וחיסור',
     algebra_btn_muldiv: 'כפל וחילוק',
     algebra_show_examples: 'הצג דוגמאות',
-    algebra_hide_examples: 'הסתר דוגמאות',
+    algebra_hide_examples: 'הסתר דוגמאות', algebra_solution_steps: 'שלבי הפתרון',
     algebra_level: 'נפתרו: {count}',
     algebra_check_ans: 'בדוק תשובה',
     algebra_correct: '✅ נכון! כלב הים שמח 🦭',
@@ -252,6 +294,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_combinelike_err2: '❌ שלב 1 נכון, אבל שלב 2 שגוי. נסה שוב!',
     algebra_btn_rounding: 'עיגול מספרים',
     algebra_btn_fraction_like: 'שברים וכינוס איברים',
+    msg_must_show_steps: 'משוואה רב-שלבית: אנא הראה לפחות שלב ביניים אחד.',
     algebra_rounding_desc: 'עיגול מספרים עשרוניים עוזר לנו לפשט מספרים תוך שמירה על ערך קרוב למקור. אם הספרה מימין למקום העיגול היא 5 ומעלה - מעגלים למעלה; אם היא פחות מ-5 - משאירים את הספרה כפי שהיא.',
     algebra_rounding_ex1: '<strong>דוגמה 1:</strong> עגלו את <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.459</code> ל-2 ספרות אחרי הנקודה. <br/>נסתכל על הספרה השלישית (9). כיוון שהיא 5 ומעלה, ה-5 הופך ל-6: ➔ <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.46</code>.',
     algebra_rounding_ex2: '<strong>דוגמה 2:</strong> עגלו את <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.444</code> ל-2 ספרות עשרוניות. <br/>נסתכל על הספרה השלישית (4). כיוון שהיא פחות מ-5, הספרה השנייה נשארת ללא שינוי: ➔ <code dir="ltr" style="font-family: var(--mono); display: inline-block;">5.44</code>.',
@@ -269,8 +312,34 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_fraction_not_simplified: '❌ נא לפשט את התוצאה הסופית.',
     algebra_final_result: 'תוצאה סופית',
     algebra_step_label: 'שלב',
-    algebra_rounding_prompt: 'עגלו את {num} ל-{count} ספרות עשרוניות:',
-    algebra_rounding_prompt_whole: 'עגלו את {num} למספר השלם הקרוב ביותר:',
+    algebra_rounding_prompt: `עגלו את {num} ל-{count} ספרות עשרוניות: `,
+    algebra_rounding_prompt_whole: `עגלו את {num} למספר השלם הקרוב ביותר: `,
+
+    algebra_btn_complex: `משוואות מורכבות`,
+    algebra_btn_word_problem: 'בעיות מילוליות', algebra_btn_final_exam: 'מבחן מסכם',
+    algebra_complex_desc: 'פתרו משוואות על ידי כינוס איברים ובידוד הנעלם בשלבים לוגיים.',
+    
+    algebra_complex_ex1: '<strong>דוגמה 1:</strong> <code dir="ltr" style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>שלב 1:</strong> נפשט ל- <code dir="ltr" style="font-family: var(--mono)">x + 3 = 7</code>.<br/><strong>שלב 2:</strong> נפתור עבור x: <code dir="ltr" style="font-family: var(--mono)">x = 4</code>.',
+    algebra_complex_ex2: '<strong>דוגמה 2:</strong> <code dir="ltr" style="font-family: var(--mono)">0 = -9x - 5 + 3x + 35</code> <br/><strong>שלב 1:</strong> נכנס איברים לו- <code dir="ltr" style="font-family: var(--mono)">6x = 30</code>.<br/><strong>שלב 2:</strong> נפתור עבור x: <code dir="ltr" style="font-family: var(--mono)">x = 5</code>.',
+    algebra_complex_ex3: '<strong>דוגמה 3:</strong> <code dir="ltr" style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>שלב 1:</strong> נכנס איברים: <code dir="ltr" style="font-family: var(--mono)">-16 = -x - 8</code>.<br/><strong>שלב 2:</strong> תשובה סופית: <code dir="ltr" style="font-family: var(--mono)">x = 8</code>.',
+
+    algebra_word_prob_desc: 'תרגום בעיות מהחיים למשוואות ופתרון המשתנה הנעלם.',
+    word_prob_1: 'רון מבוגר ב-{0} שנים מדן. סכום הגילאים שלהם הוא {1}. מהו הגיל של דן (x)?',
+    word_prob_2: 'עט עולה ב-{0} שקלים יותר מעיפרון. 3 עטים ו-2 עפרונות עולים {1} שקלים. מהו מחיר עיפרון?',
+    word_prob_3: 'סכום שלושה מספרים שלמים עוקבים הוא {0}. מצאו את המספר הקטן ביותר.',
+    word_prob_4: 'במלבן, האורך גדול ב-{0} ס"מ מהרוחב. ההיקף הוא {1} ס"מ. מצאו את הרוחב.',
+    word_prob_5: 'לשרה היו {0} שקלים והיא חוסכת {1} שקלים בכל שבוע. אחרי כמה שבועות יהיו לה {2} שקלים?',
+    word_prob_6: 'רכבת נוסעת ב-{0} קמ"ש זמן מה, ואז ב-{1} קמ"ש יותר במשך שעתיים. המרחק הכולל הוא {2} ק"מ. מצאו את הזמן ההתחלתי.',
+    word_prob_7: 'ישנם {0} מטבעות של 5 אגורות וכמה מטבעות של 10 אגורות. הערך הכולל הוא {1} אגורות. מצאו את מספר המטבעות של 10 אגורות.',
+    word_prob_8: 'לגיל יש {0} גולות יותר מאשר לטל. ביחד יש להם {1}. כמה גולות יש לטל?',
+    word_prob_9: 'משולש פיצה עולה {0} שקלים, ושתייה עולה {1}. 4 משקאות וכמה משולשים עולים {2}. מצאו את מספר המשולשים.',
+    word_prob_10: 'בכיתה יש {0} בנות יותר מבנים. סך הכל {1} תלמידים. מצאו את מספר הבנים.',
+    word_prob_11: 'ספר עולה x, ספר שני עולה ב-{0} יותר, וספר שלישי עולה פי 2 מהראשון. הסכום הוא {1}. מצאו את x.',
+    word_prob_12: 'עובד מרוויח {0} לשעה פלוס בונוס של {1}. השכר הכולל הוא {2}. מצאו את שעות העבודה.',
+    word_prob_13: 'בחווה יש פרות ו-{0} תרנגולות יותר מאשר פרות. סך כל הרגליים הוא {1}. מצאו את מספר הפרות.',
+    word_prob_14: 'מספר הסוכריות האדומות קטן ב-{0} מפי 3 מהסוכריות הכחולות. סך הכל יש {1}. מצאו כמה סוכריות כחולות.',
+    word_prob_15: 'עץ ב\' גבוה ב-{0} מעץ א\', ועץ ג\' גבוה ב-{1} מעץ ב\'. הגובה הכולל הוא {2}. מצאו את גובה עץ א\'.',
+
 
     // Homepage
     meta_title_home: 'SealMath – משחקי מתמטיקה ולמידה מקוונת בחינם לילדים',
@@ -294,7 +363,14 @@ export const translations: Record<Lang, Record<string, string>> = {
     login_email_btn: 'שלחו קישור לאימייל',
     login_msg_check_email: 'בדקו את האימייל שלכם עבור קישור ההתחברות!',
     footer_rights: 'כל הזכויות שמורות.',
-  },
+      step_recorded: '✓ השלב נקלט. כעת מצאו את x.',
+    solve_for_x: `כעת מצאו את x: `,
+    placeholder_equation: `משוואה...`,
+    placeholder_x: '... = x',
+    error_equation_variable_missing: '❌ המשוואה חייבת לכלול את המשתנה x!',
+    exam_finish: 'סיים מבחן',
+    exam_score: 'הציון שלך: {score}%',
+},
   nl: {
     nav_home: 'Home',
     nav_game: '24 Uitdaging',
@@ -365,11 +441,15 @@ export const translations: Record<Lang, Record<string, string>> = {
     lbl_ingredients: 'Kurkingrediënten',
     btn_new_capture: 'Nieuwe Vangst',
     rules_title_24: 'Hoe te Spelen: 24 Uitdaging',
-    rules_text_24:
-      '• Gebruik elk getal precies één keer.\n• Bewerkingen: Optellen (+), Aftrekken (-), Vermenigvuldigen (*), Delen (/).\n• Haakjes ( ) zijn toegestaan.',
+    rules_text_24: `• Gebruik elk getal precies één keer.
+• Bewerkingen: Optellen (+), Aftrekken (-), Vermenigvuldigen (*), Delen (/).
+• Haakjes ( ) zijn toegestaan.`,
     rules_title_capture: 'Hoe te Spelen: Breuken Vangen',
-    rules_text_capture:
-      '• Kies precies 2 breuken.\n• Selecteer een bewerking (+, -, *, /).\n• Het doel is de Doelbreuk in de Pot te bereiken.\n• Voorbeeld: 1/2 + 1/4 = 3/4.\n• De volgorde telt bij Aftrekken en Delen!',
+    rules_text_capture: `• Kies precies 2 breuken.
+• Selecteer een bewerking (+, -, *, /).
+• Het doel is de Doelbreuk in de Pot te bereiken.
+• Voorbeeld: 1/2 + 1/4 = 3/4.
+• De volgorde telt bij Aftrekken en Delen!`,
     msg_sol_is: 'Oplossing: {sol}',
     nav_algebra: 'Algebra Basis',
     algebra_title: '🦭 Algebra Basis',
@@ -414,10 +494,33 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_fraction_like_err_final: '❌ Het eindresultaat is onjuist.',
     algebra_fraction_like_err_need_fraction: '❌ Gebruik minstens één niet-triviale breuk (niet /1).',
     algebra_fraction_not_simplified: '❌ Vereenvoudig je definitieve antwoord.',
+    msg_must_show_steps: 'Meerstapvergelijking: laat a.u.b. ten minste één tussenstap zien.',
     algebra_final_result: 'Eindresultaat',
     algebra_step_label: 'Stap',
-    algebra_rounding_prompt: 'Rond {num} af op {count} decimalen:',
-    algebra_rounding_prompt_whole: 'Rond {num} af op het dichtstbijzijnde gehele getal:',
+    algebra_rounding_prompt: `Rond {num} af op {count} decimalen: `,
+    algebra_rounding_prompt_whole: `Rond {num} af op het dichtstbijzijnde gehele getal: `,
+
+    algebra_btn_complex: `Complexe vergelijkingen`,
+    algebra_btn_word_problem: 'Verhaaltjessommen', algebra_btn_final_exam: 'Eindexamen',
+    algebra_complex_desc: 'Los vergelijkingen met haakjes zoals <strong>2(x + 3) = 14</strong> op in twee hoofdstappen.',
+    algebra_complex_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>Stap 1:</strong> Deel door 2 om <code style="font-family: var(--mono)">x + 3 = 7</code> te krijgen.<br/><strong>Stap 2:</strong> Trek 3 af om <code style="font-family: var(--mono)">x = 4</code> te krijgen.',
+    algebra_word_prob_desc: 'Vertaal alledaagse problemen naar vergelijkingen en de onbekende variabele op.',
+    word_prob_1: 'Ron is {0} jaar ouder dan Dan. De som van hun leeftijden is {1}. Vind de leeftijd van Dan (x).',
+    word_prob_2: 'Een pen kost {0} euro meer dan een potlood. 3 pennen en 2 potloden kosten {1} euro. Vind de prijs van een potlood.',
+    word_prob_3: 'De som van drie opeenvolgende gehele getallen is {0}. Vind het kleinste getal.',
+    word_prob_4: 'In een rechthoek is de lengte {0} cm langer dan de breedte. De omtrek is {1} cm. Vind de breedte.',
+    word_prob_5: 'Sara begon met {0} euro en spaart {1} euro per week. Na hoeveel weken heeft ze {2} euro?',
+    word_prob_6: 'Een trein rijdt enige tijd met {0} km/u, en dan 2 uur lang met {1} km/u sneller. De totale afstand is {2} km. Vind de begintijd.',
+    word_prob_7: 'Er zijn {0} munten van vijf cent en enkele van tien cent. De totale waarde is {1} cent. Vind het aantal munten van tien cent.',
+    word_prob_8: 'Gil heeft {0} knikkers meer dan Tal. Samen hebben ze er {1}. Hoeveel knikkers heeft Tal?',
+    word_prob_9: 'Een pizzapunt kost {0} euro, en een drankje kost {1}. 4 drankjes en een aantal punten kosten {2}. Vind het aantal pizzapunten.',
+    word_prob_10: 'In een klas zijn er {0} meer meisjes dan jongens. Totaal zijn er {1} leerlingen. Vind het aantal jongens.',
+    word_prob_11: 'Een boek kost x, een ander kost {0} meer, en een derde kost twee keer zoveel als het eerste. Totaal is {1}. Vind x.',
+    word_prob_12: 'Een werknemer verdient {0} per uur plus een bonus van {1}. Het totale loon is {2}. Vind het aantal gewerkte uren.',
+    word_prob_13: 'Op een boerderij zijn koeien en {0} meer kippen dan koeien. Totaal aantal poten is {1}. Vind het aantal koeien.',
+    word_prob_14: 'Rood snoep is {0} minder dan 3 keer Blauw snoep. Totaal is {1}. Vind Blauw snoep.',
+    word_prob_15: 'Boom B is {0} groter dan A, en C is {1} groter dan B. Totale hoogte is {2}. Vind A.',
+
 
     // Homepage
     meta_title_home: 'SealMath – Gratis Online Wiskunde Leren & Spellen voor Kinderen',
@@ -441,6 +544,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     login_email_btn: 'E-maillink verzenden',
     login_msg_check_email: 'Controleer je e-mail voor de inloglink!',
     footer_rights: 'Alle rechten voorbehouden.',
+    step_recorded: '✓ Stap geregistreerd. Los nu x op.',
+    solve_for_x: `Los nu x op: `,
+    placeholder_equation: `Vergelijking...`,
+    placeholder_x: 'x = ...',
+    error_equation_variable_missing: '❌ De vergelijking moet de variabele x bevatten!',
+    exam_finish: 'Examen Beëindigen',
+    exam_score: 'Je score: {score}%',
   },
-}
-
+};

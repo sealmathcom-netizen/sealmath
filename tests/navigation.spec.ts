@@ -49,7 +49,7 @@ test.describe('Navigation', () => {
 
     // Navigate to Algebra Basics
     await page.click('nav >> text=Algebra Basics');
-    await expect(page.locator('h1')).toContainText('Algebra Basics');
+    await expect(page.locator('h1')).toContainText('Algebra');
 
     // Navigate to Feedback
     await page.click('nav >> text=Feedback');

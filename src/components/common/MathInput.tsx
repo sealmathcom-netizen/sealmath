@@ -11,6 +11,7 @@ interface MathInputProps {
   value: string;
   onChange: (value: string) => void;
   onFocus?: () => void;
+  onClick?: () => void;
   onEnter?: () => void;
   style?: React.CSSProperties;
   className?: string;
@@ -28,7 +29,7 @@ declare global {
   }
 }
 
-export default function MathInput({ value, onChange, onFocus, onEnter, style, className, placeholder, readonly }: MathInputProps) {
+export default function MathInput({ value, onChange, onFocus, onClick, onEnter, style, className, placeholder, readonly }: MathInputProps) {
   const mfRef = useRef<any>(null);
 
   useEffect(() => {
@@ -50,8 +51,12 @@ export default function MathInput({ value, onChange, onFocus, onEnter, style, cl
       onChange(e.target.value);
     };
 
-    const handleFocus = () => {
-      if (onFocus) onFocus();
+    const handleInteraction = () => {
+      // Use setTimeout to ensure this runs after MathLive's internal event handling
+      setTimeout(() => {
+        if (onFocus) onFocus();
+        if (onClick) onClick();
+      }, 10);
     };
 
     const handleKeyDown = (e: any) => {
@@ -64,15 +69,23 @@ export default function MathInput({ value, onChange, onFocus, onEnter, style, cl
     };
 
     mf.addEventListener('input', handleInput);
-    mf.addEventListener('focusin', handleFocus);
+    mf.addEventListener('focusin', handleInteraction, { capture: true });
+    mf.addEventListener('focus', handleInteraction, { capture: true });
+    mf.addEventListener('mousedown', handleInteraction, { capture: true });
+    mf.addEventListener('pointerdown', handleInteraction, { capture: true });
+    mf.addEventListener('click', handleInteraction, { capture: true });
     mf.addEventListener('keydown', handleKeyDown);
 
     return () => {
       mf.removeEventListener('input', handleInput);
-      mf.removeEventListener('focusin', handleFocus);
+      mf.removeEventListener('focusin', handleInteraction, { capture: true });
+      mf.removeEventListener('focus', handleInteraction, { capture: true });
+      mf.removeEventListener('mousedown', handleInteraction, { capture: true });
+      mf.removeEventListener('pointerdown', handleInteraction, { capture: true });
+      mf.removeEventListener('click', handleInteraction, { capture: true });
       mf.removeEventListener('keydown', handleKeyDown);
     };
-  }, [placeholder, readonly, onChange, onFocus, onEnter]);
+  }, [placeholder, readonly, onChange, onFocus, onClick, onEnter]);
 
   // Update value when it changes externally
   useEffect(() => {
@@ -82,7 +95,7 @@ export default function MathInput({ value, onChange, onFocus, onEnter, style, cl
   }, [value]);
 
   return (
-    <math-field
+    <math-field data-testid="algebra-input"
       ref={mfRef}
       className={className}
       style={{

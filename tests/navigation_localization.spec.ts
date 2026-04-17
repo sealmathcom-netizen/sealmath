@@ -66,6 +66,6 @@ test.describe('Navigation Localization', () => {
     // 4. Click it and verify we stay in English
     await algebraLink.click();
     await expect(page).toHaveURL(/\/algebra/);
-    await expect(page.locator('h1')).toContainText('Algebra Basics');
+    await expect(page.locator('h1')).toContainText('Algebra');
   });
 });

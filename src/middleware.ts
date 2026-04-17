@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { verifyBypassToken, BYPASS_COOKIES } from './utils/test-bypass'
 import { logToAxiom } from './utils/logger'
 
-const LANGUAGES = ['he', 'nl']
+const LANGUAGES = ['en', 'he', 'nl']
 const DEFAULT_LANGUAGE = 'en'
 
 export async function middleware(request: NextRequest) {
@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   const isApiRoute = pathname.startsWith('/api')
   const isAuthRoute = pathname.startsWith('/auth')
   const isAxiomRoute = pathname.startsWith('/_axiom')
-  const isStaticFile = pathname.match(/\.(png|jpg|ico|svg|css|js|json|webmanifest|txt)$/) || pathname.startsWith('/_next')
+  const isStaticFile = pathname.match(/\.(png|jpg|ico|svg|css|js|json|webmanifest|txt|xml)$/) || pathname.startsWith('/_next')
 
   if (!pathnameHasLocale && !isApiRoute && !isAuthRoute && !isAxiomRoute && !isStaticFile) {
     const url = request.nextUrl.clone()

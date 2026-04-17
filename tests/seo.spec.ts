@@ -31,6 +31,20 @@ test.describe('SEO & Metadata', () => {
     expect(text).toContain('Sitemap: https://sealmath.com/sitemap.xml');
   });
 
+  
+  test('sitemap.xml natively resolves perfectly and returns valid XML', async ({ request }) => {
+    const response = await request.get('/sitemap.xml');
+    
+    // Check successful resolution bypassing Middleware language blocks
+    expect(response.status()).toBe(200);
+    
+    // Check that it's genuinely outputting the expected XML sitemap format
+    const xml = await response.text();
+    expect(xml).toContain('<?xml version="1.0" encoding="UTF-8"?>');
+    expect(xml).toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">');
+    expect(xml).toContain('<loc>https://sealmath.com/algebra</loc>');
+  });
+
   test('Home page has correct OpenGraph and Twitter metadata', async ({ page }) => {
     await page.goto('/');
 
@@ -41,14 +55,14 @@ test.describe('SEO & Metadata', () => {
     // Note: We use toContain/toMatch to avoid exact string mismatches with special characters like &
     const title = await page.title();
     expect(title).toContain('SealMath');
-    expect(title).toContain('Free Interactive Math Games');
+    expect(title).toContain('Free Online Math Learning');
 
     const description = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(description).toContain('Master essential math skills');
+    expect(description).toContain('Learn math the fun way');
 
     // OpenGraph
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /SealMath/);
-    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', /Master essential math skills/);
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', /Learn math the fun way/);
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'website');
     
     // Check if og:image exists

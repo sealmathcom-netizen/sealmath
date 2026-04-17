@@ -20,13 +20,10 @@ describe('Pedagogical Standards', () => {
         const q = problem.q;
         
         // Match 1x, -1x followed by a variable or end of string
-        // We allow things like 21x or 11x, so we look for boundary or start
         const illegalPattern = /(^|[^\d])(-?1[a-z])/i;
         
         const match = q.match(illegalPattern);
         if (match) {
-          // If we find a match, ensure it's not a false positive (like 21x)
-          // The regex [^\d] helps, but let's be double sure.
           throw new Error(`Category "${category}" generated an illegal string: "${q}". Standard: "1x" should be "x".`);
         }
         
@@ -36,8 +33,38 @@ describe('Pedagogical Standards', () => {
     });
   });
 
+  it('should never generate questions containing "/1" or simple whole numbers as fractions', () => {
+    // Add complex-equation to the categories to check
+    const allCats = [...categories, 'complex-equation' as any];
+    allCats.forEach(category => {
+      const generator = MathGen.getProblemGenerator(category);
+      for (let i = 0; i < 200; i++) {
+        const problem = generator();
+        const q = problem.q;
+        if (/\/1(?!\d)/.test(q)) {
+          throw new Error(`Category "${category}" generated an unsimplified fraction: "${q}". Standard: "/1" should be omitted.`);
+        }
+      }
+    });
+  });
+
+
+  it('should never generate questions containing consecutive operators like "+ -" or "- +"', () => {
+    const allCats = [...categories, 'complex-equation' as any];
+    allCats.forEach(category => {
+      const generator = MathGen.getProblemGenerator(category);
+      for (let i = 0; i < 200; i++) {
+        const problem = generator();
+        const q = problem.q;
+        // Match + -, - +, + +, - - with optional spaces
+        if (/[+\-]\s*[+\-]/.test(q)) {
+          throw new Error(`Category "${category}" generated invalid consecutive operators: "${q}".`);
+        }
+      }
+    });
+  });
+
   describe('Coefficient Normalization Logic', () => {
-    // This mocks the logic I added to the FractionTerm component
     const normalizeCoeff = (num: number, den: number, variable: string) => {
       if (num === 0) return '0';
       if (den === 1) {
@@ -52,7 +79,7 @@ describe('Pedagogical Standards', () => {
       expect(normalizeCoeff(1, 1, 'x')).toBe('x');
       expect(normalizeCoeff(-1, 1, 'y')).toBe('-y');
       expect(normalizeCoeff(2, 1, 't')).toBe('2t');
-      expect(normalizeCoeff(1, 2, 'x')).toBe('1/2x'); // fractions are okay
+      expect(normalizeCoeff(1, 2, 'x')).toBe('1/2x'); 
     });
   });
 });

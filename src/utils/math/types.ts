@@ -4,7 +4,10 @@ export type ExerciseCategory =
   | 'two-step' 
   | 'rounding' 
   | 'combining-like-terms' 
-  | 'combining-fraction-like-terms';
+  | 'combining-fraction-like-terms'
+  | 'complex-equation'
+  | 'word-problem'
+  | 'final-exam';
 
 export interface BaseProblem {
   q: string; // The question text / LaTeX
@@ -42,6 +45,13 @@ export interface LikeTermsProblem extends BaseProblem {
   isAdd: boolean;
   leftCoeff?: number;
   rightCoeff?: number;
+}
+
+export interface WordProblem extends BaseProblem {
+  text: string;
+  equation: string;
+  variable: string;
+  rationalA: Rational;
 }
 
 export interface EvaluationResult {

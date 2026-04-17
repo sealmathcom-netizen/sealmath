@@ -1,95 +1,20 @@
-/**
- * Shared mathematical evaluation logic for SealMath
- */
 
 export const EPSILON = 0.01;
 
-/**
- * Standardizes a numeric string from various locales/inputs into a clean number.
- */
 export function parseUserNumber(input: string): number {
   if (!input) return NaN;
-  // Replace comma with dot for European locales, remove spaces
   const normalized = input.replace(',', '.').replace(/\s/g, '');
   return Number(normalized);
 }
 
-/**
- * Checks if a numeric answer is correct within a given tolerance.
- */
 export function checkNumeric(userInput: string | number, expected: number, tolerance: number = EPSILON): boolean {
   const userValue = typeof userInput === 'string' ? parseUserNumber(userInput) : userInput;
   if (Number.isNaN(userValue)) return false;
-  
-  // Standard strict check for integers
   if (Number.isInteger(expected) && Number.isInteger(userValue)) {
     return userValue === expected;
   }
-  
-  // Precision check for decimals
   return Math.abs(userValue - expected) <= tolerance;
 }
-
-/**
- * Safely evaluates a basic arithmetic expression (no variables).
- * This replaces the "Function()" based evaluation for combining like terms.
- * Supports: digits, decimals, +, -, *, /, (, )
- */
-export function safeEvaluate(expr: string): number {
-  const normalized = expr.replace(/\s+/g, '');
-  if (!/^[0-9\+\-\*\/\(\)\.]*$/.test(normalized)) {
-    throw new Error('Invalid characters in expression');
-  }
-  
-  // Using a sanitized eval-like approach but with strict character whitelist check above.
-  try {
-    // eslint-disable-next-line no-new-func
-    return new Function(`"use strict"; return (${normalized})`)();
-  } catch (err) {
-    console.error('Math evaluation error:', err);
-    return NaN;
-  }
-}
-
-/**
- * Checks algebraic expressions like "2(x + 3)" or "5x".
- * For now, this is used for "Combining Like Terms" verification.
- */
-export function checkAlgebraicExpression(
-  userInput: string, 
-  variable: string, 
-  expectedCoeff: number
-): { isCorrect: boolean; errorType?: 'formatting' | 'wrong-variable' | 'none' } {
-  const normalized = userInput.replace(/\s+/g, '').toLowerCase();
-  
-  if (!normalized.includes(variable)) {
-    return { isCorrect: false, errorType: 'wrong-variable' };
-  }
-  
-  try {
-    // Extract the part that should be numeric (everything but the variable)
-    // and see if it evaluates to the expected coefficient.
-    
-    // Simple case: "5x" -> extract "5"
-    if (normalized === `${expectedCoeff}${variable}`) return { isCorrect: true };
-    if (expectedCoeff === 0 && (normalized === '0' || normalized === `0${variable}`)) return { isCorrect: true };
-
-    // Complex case: "x(2+3)" -> replace x with 1 and evaluate
-    const mathExpr = normalized
-      .replace(new RegExp(`(\\d)${variable}`, 'g'), '$1*(1)')
-      .replace(new RegExp(variable, 'g'), '(1)')
-      .replace(/(\d)(\()/g, '$1*$2')
-      .replace(/(\))(\d)/g, '$1*$2')
-      .replace(/(\))(\()/g, '$1*$2');
-    
-    const val = safeEvaluate(mathExpr);
-    return { isCorrect: checkNumeric(val, expectedCoeff) };
-
-  } catch (e) {
-    return { isCorrect: false, errorType: 'formatting' };
-  }
-}
-
 
 /**
  * Checks if a fraction is simplified.
@@ -183,7 +108,9 @@ export function checkFractionSimplification(
 
     // 2. Numerical Equality Check (Symbols: x, y, t, d, a, b, c)
     const probeVal = 1.234567; 
-    const targetVal = (target.num / target.den) * (variable ? probeVal : 1);
+    const v = variable || 'x';
+    const userHasVariable = userInput.toLowerCase().includes(v);
+    const targetVal = (target.num / target.den) * (userHasVariable ? probeVal : 1);
     const scope = { x: probeVal, y: probeVal, t: probeVal, d: probeVal, a: probeVal, b: probeVal, c: probeVal };
     const userVal = node.evaluate(scope);
     
@@ -231,3 +158,40 @@ export function checkFractionSimplification(
     return false;
   }
 }
+
+export function evalSide(expr: string, variable: string, val: number): number {
+  const scope: Record<string, number> = { x: val, y: val, t: val, d: val, a: val, b: val, c: val };
+  scope[variable] = val;
+  try {
+    const mathString = latexToMathJS(expr, variable);
+    const node = math.parse(mathString);
+    return node.evaluate(scope);
+  } catch (e) {
+    return NaN;
+  }
+}
+
+export function checkEquationStep(step: string, targetRoot: number): boolean {
+  if (!step || !step.includes('=')) return false;
+  const parts = step.split('=');
+  if (parts.length !== 2) return false;
+  
+  const varMatch = step.match(/[a-z]/i);
+  const variable = varMatch ? varMatch[0].toLowerCase() : 'x';
+  
+  const lVal = evalSide(parts[0], variable, targetRoot);
+  const rVal = evalSide(parts[1], variable, targetRoot);
+  
+  if (Number.isNaN(lVal) || Number.isNaN(rVal)) return false;
+  return Math.abs(lVal - rVal) < EPSILON;
+}
+
+/**
+ * Checks if the user correctly showed the distribution step (e.g., x(5 + 3))
+ */
+
+
+/**
+ * Checks the final simplified result of combining like terms (e.g., 8x)
+ */
+
