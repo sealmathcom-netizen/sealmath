@@ -10,6 +10,7 @@ import * as MathGen from '../../utils/math/generators';
 
 const generateExerciseId = () => Math.random().toString(36).substring(2, 15);
 
+const NEXT_PROBLEM_DELAY_MS = 700;
 
 const emptyFn = () => {};
 function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: string }) {
@@ -79,7 +80,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent }: any) {
   const check = () => {
     if (MathEngine.checkNumeric(val, prob.a)) {
       setMsg(t('algebra_correct')); setMsgColor('green');
-      setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, 1500);
+      setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
@@ -126,7 +127,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent }: any) 
   const check = () => {
     if (MathEngine.checkNumeric(val, prob.a)) {
       setMsg(t('algebra_correct')); setMsgColor('green');
-      setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, 1500);
+      setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
@@ -186,7 +187,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent }: any)
       }
     }
 
-    if (isCorrect) { setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, 3000); }
+    if (isCorrect) { setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS); }
     else { setMsg(t('algebra_incorrect')); setMsgColor('red'); }
   };
 
@@ -264,7 +265,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
     } else if (isCorrect) { 
-      setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, 3000); 
+      setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS); 
     } else { 
       setMsg(t('algebra_incorrect')); setMsgColor('red'); 
     }
@@ -337,7 +338,7 @@ function WordProblemWindow({ title, generateProblem, t }: any) {
 
   const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); };
   
-  const check = () => { if (phase === 'eq') { if (eq.includes('x')) setPhase('sol'); else setMsg(t('error_equation_variable_missing')); } else { if (MathEngine.checkNumeric(sol, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, 1500); } else setMsg(t('algebra_incorrect')); } };
+  const check = () => { if (phase === 'eq') { if (eq.includes('x')) setPhase('sol'); else setMsg(t('error_equation_variable_missing')); } else { if (MathEngine.checkNumeric(sol, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, NEXT_PROBLEM_DELAY_MS); } else setMsg(t('algebra_incorrect')); } };
   
   useEffect(() => { next(); }, [generateProblem]);
 
@@ -368,7 +369,7 @@ function FinalExamWindow({ title, generateProblem, t }: any) {
 
   const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); };
 
-  const check = () => { if (MathEngine.checkNumeric(ans, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, 1500); } else setMsg(t('algebra_incorrect')); };
+  const check = () => { if (MathEngine.checkNumeric(ans, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, NEXT_PROBLEM_DELAY_MS); } else setMsg(t('algebra_incorrect')); };
 
   useEffect(() => { next(); }, [generateProblem]);
 
