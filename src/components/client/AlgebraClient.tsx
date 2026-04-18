@@ -75,11 +75,21 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent }: any) {
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
 
-  const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); };
+  const [exerciseId, setExerciseId] = useState('');
+  const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   useEffect(() => { next(); }, [generateProblem]);
 
+  useEffect(() => {
+    if (prob) {
+      logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: prob.q });
+    }
+  }, [exerciseId, prob, id]);
+
   const check = () => {
-    if (MathEngine.checkNumeric(val, prob.a)) {
+    const isCorrect = MathEngine.checkNumeric(val, prob.a);
+    logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: val, is_correct: isCorrect, error: isCorrect ? null : msg });
+    
+    if (isCorrect) {
       setMsg(t('algebra_correct')); setMsgColor('green');
       setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
@@ -104,7 +114,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent }: any) {
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-            <button onClick={() => { setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
           </div>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -122,11 +132,21 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent }: any) 
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
 
-  const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); };
+  const [exerciseId, setExerciseId] = useState('');
+  const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   useEffect(() => { next(); }, [generateProblem]);
 
+  useEffect(() => {
+    if (prob) {
+      logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: prob.q });
+    }
+  }, [exerciseId, prob, id]);
+
   const check = () => {
-    if (MathEngine.checkNumeric(val, prob.a)) {
+    const isCorrect = MathEngine.checkNumeric(val, prob.a);
+    logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: val, is_correct: isCorrect, error: isCorrect ? null : msg });
+
+    if (isCorrect) {
       setMsg(t('algebra_correct')); setMsgColor('green');
       setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
@@ -151,7 +171,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent }: any) 
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-            <button onClick={() => { setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
           </div>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -168,8 +188,15 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent }: any)
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
-  const nextProb = () => { const p = generateProblem(); setProblem(p); setSteps(new Array(p.steps.length).fill('')); setMsg(''); setIsSolutionShown(false); };
+  const [exerciseId, setExerciseId] = useState('');
+  const nextProb = () => { const p = generateProblem(); setProblem(p); setSteps(new Array(p.steps.length).fill('')); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   useEffect(() => { nextProb(); }, [generateProblem]);
+
+  useEffect(() => {
+    if (problem) {
+      logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: problem.q });
+    }
+  }, [exerciseId, problem, id]);
 
   const check = () => {
     let isCorrect = true;
@@ -179,6 +206,8 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent }: any)
        if (!MathEngine.checkEquationStep(s, problem.a)) { isCorrect = false; break; }
     }
     
+    logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: steps.join(' | '), is_correct: isCorrect });
+
     // Add fully solved check for the final step to ensure they reach the explicit final form
     if (isCorrect && steps.length > 0) {
       if (!MathEngine.isEquationFullySolved(steps[steps.length - 1], problem.variable || 'x')) {
@@ -212,7 +241,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent }: any)
         </div>
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={nextProb} style={{ padding: '10px 15px' }}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`} style={{ padding: '10px 15px' }}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { setSteps([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId }); setSteps([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
       </div>
@@ -228,8 +257,15 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
 
-  const nextProb = () => { setProblem(generateProblem()); setRows(['']); setMsg(''); setIsSolutionShown(false); };
+  const [exerciseId, setExerciseId] = useState('');
+  const nextProb = () => { setProblem(generateProblem()); setRows(['']); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   useEffect(() => { nextProb(); }, [generateProblem]);
+
+  useEffect(() => {
+    if (problem) {
+      logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: problem.q });
+    }
+  }, [exerciseId, problem, id]);
 
     const check = () => {
     const lastRow = rows[rows.length - 1];
@@ -262,6 +298,8 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
       isCorrect = MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345);
     }
     
+    logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: rows.join(' | '), is_correct: isCorrect });
+
     if (notFullySolved) {
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
@@ -321,7 +359,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
         </div>
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={nextProb}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId }); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '10px' }} data-testid="algebra-result">{msg}</p>}
       </div>
@@ -337,9 +375,33 @@ function WordProblemWindow({ title, generateProblem, t }: any) {
   const [msg, setMsg] = useState('');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
-  const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); };
+  const [exerciseId, setExerciseId] = useState('');
+  const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
-  const check = () => { if (phase === 'eq') { if (eq.includes('x')) setPhase('sol'); else setMsg(t('error_equation_variable_missing')); } else { if (MathEngine.checkNumeric(sol, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, NEXT_PROBLEM_DELAY_MS); } else setMsg(t('algebra_incorrect')); } };
+  useEffect(() => {
+    if (prob) {
+      logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: 'wordproblem', question: prob.text });
+    }
+  }, [exerciseId, prob]);
+
+  const check = () => { 
+    if (phase === 'eq') { 
+      if (eq.includes('x')) {
+        logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: eq, is_correct: true });
+        setPhase('sol'); 
+      } else {
+        logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: eq, is_correct: false });
+        setMsg(t('error_equation_variable_missing')); 
+      }
+    } else { 
+      const isCorrect = MathEngine.checkNumeric(sol, prob.a);
+      logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: sol, is_correct: isCorrect });
+      if (isCorrect) { 
+        setMsg(t('algebra_correct')); 
+        setTimeout(next, NEXT_PROBLEM_DELAY_MS); 
+      } else setMsg(t('algebra_incorrect')); 
+    } 
+  };
   
   useEffect(() => { next(); }, [generateProblem]);
 
@@ -354,7 +416,7 @@ function WordProblemWindow({ title, generateProblem, t }: any) {
         {phase === 'sol' && <input placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px' }} autoFocus type="number" step="any" />}
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'center' }}>
           {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
+          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId }); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
         </div>
       </div>
       {msg && <p className="result" style={{ marginTop: '15px', fontWeight: 'bold' }} data-testid="algebra-result">{msg}</p>}
@@ -368,9 +430,23 @@ function FinalExamWindow({ title, generateProblem, t }: any) {
   const [msg, setMsg] = useState('');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
-  const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); };
+  const [exerciseId, setExerciseId] = useState('');
+  const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
-  const check = () => { if (MathEngine.checkNumeric(ans, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, NEXT_PROBLEM_DELAY_MS); } else setMsg(t('algebra_incorrect')); };
+  useEffect(() => {
+    if (prob) {
+      logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: 'finalexam', question: prob.q });
+    }
+  }, [exerciseId, prob]);
+
+  const check = () => { 
+    const isCorrect = MathEngine.checkNumeric(ans, prob.a);
+    logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: ans, is_correct: isCorrect });
+    if (isCorrect) { 
+      setMsg(t('algebra_correct')); 
+      setTimeout(next, NEXT_PROBLEM_DELAY_MS); 
+    } else setMsg(t('algebra_incorrect')); 
+  };
 
   useEffect(() => { next(); }, [generateProblem]);
 
@@ -386,7 +462,7 @@ function FinalExamWindow({ title, generateProblem, t }: any) {
           {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check}>{t('algebra_check_ans')}</button>}
         </div>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-          <button onClick={() => { setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
+          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId }); setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
           <button onClick={() => alert(t('exam_finish'))} style={{ background: '#2ecc71', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>{t('exam_finish')}</button>
         </div>
       </div>

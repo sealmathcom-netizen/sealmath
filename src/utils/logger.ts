@@ -2,12 +2,17 @@ export async function logToAxiom(data: any) {
   const isBrowser = typeof window !== 'undefined';
   
   // Disable logging in E2E tests/webdrivers or when explicitly disabled
-  if (isBrowser && (window.navigator.webdriver || localStorage.getItem('test-mode') === 'true')) {
-    return;
-  }
+  // BYPASS: If capture-logs is set, we allow the fetch so Playwright can intercept it.
+  const isCaptureMode = isBrowser && localStorage.getItem('capture-logs') === 'true';
 
-  if (process.env.NEXT_PUBLIC_TEST_MODE === 'true' || process.env.NODE_ENV === 'test') {
-    return;
+  if (!isCaptureMode) {
+    if (isBrowser && (window.navigator.webdriver || localStorage.getItem('test-mode') === 'true')) {
+      return;
+    }
+
+    if (process.env.NEXT_PUBLIC_TEST_MODE === 'true' || process.env.NODE_ENV === 'test') {
+      return;
+    }
   }
 
   // Always log to console locally for debugging
