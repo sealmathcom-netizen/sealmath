@@ -76,6 +76,29 @@ test.describe('Algebra Basics', () => {
     }
   });
 
+  test('should behave exactly as clicking Check Answer when hitting Enter globally across algebra sections', async ({ page }) => {
+    // Stage: Addition & Subtraction (Default tab)
+    const questionText = await page.locator('.question').innerText();
+    const match = questionText.match(/x\s*([\+\-])\s*(\d+)\s*=\s*(\d+)/);
+    
+    if (match) {
+      const op = match[1];
+      const a = parseInt(match[2]);
+      const b = parseInt(match[3]);
+      const ans = op === '+' ? b - a : b + a;
+      
+      const input = page.locator('input[type="number"]').first();
+      
+      // Focus the input, then fill and press Enter. This mimics realistic user behavior and triggers the form submission.
+      await input.focus();
+      await input.fill(ans.toString());
+      await input.press('Enter');
+      
+      // Verify that the exact same result occurs as clicking "Check Answer"
+      await expect(page.locator('text=/Correct|כל הכבוד|Goed gedaan/')).toBeVisible();
+    }
+  });
+
   test('should use "Show Solution" in simple equations', async ({ page }) => {
     await page.click('button:has-text("Equation with one variable")', { force: true });
     
@@ -172,10 +195,10 @@ test.describe('Algebra Basics', () => {
     await expect(resultElement).toBeVisible();
     
     // Scrape the actual inner text format
-    const solutionAnswerRaw = await resultElement.getAttribute('data-step-value');
-    const solutionAnswer = (solutionAnswerRaw || '').includes('=') 
+    const solutionAnswerRaw = (await resultElement.getAttribute('data-step-value')) || '';
+    const solutionAnswer = solutionAnswerRaw.includes('=') 
         ? solutionAnswerRaw.split('=')[1].trim()
-        : (solutionAnswerRaw || '').trim();
+        : solutionAnswerRaw.trim();
     
     // Add a row to write our own custom answer format
     const addRowBtn = page.locator('.btn-add-row').first();

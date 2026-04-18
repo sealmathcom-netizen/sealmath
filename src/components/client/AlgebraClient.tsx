@@ -94,14 +94,16 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent }: any) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>{t('algebra_level', { count: solvedCount })}</p>
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
-            onKeyDown={e => e.key === 'Enter' && check()} onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
-            style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
-        </div>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
+              onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
+              style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
+          </div>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+            {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
+            <button onClick={() => { setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          </div>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
       </div>
@@ -139,14 +141,16 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent }: any) 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <p style={{ fontWeight: 'bold', color: 'var(--accent)' }}>{t('algebra_level', { count: solvedCount })}</p>
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <input type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
-            onKeyDown={e => e.key === 'Enter' && check()} onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
-            style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
-        </div>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
+              onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
+              style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
+          </div>
+          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+            {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
+            <button onClick={() => { setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          </div>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
       </div>
@@ -199,7 +203,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent }: any)
             <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.8rem', color: '#7f8c8d', marginBottom: '4px' }}>{steps.length > 1 && i === steps.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i+1}`}</span>
               <div style={{ border: '2px solid #ccc', borderRadius: '12px', background: '#fff', overflow: 'hidden' }}>
-                <MathInput value={steps[i]} onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); setMsg(''); }} onEnter={check} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} />
+                <MathInput value={steps[i]} onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); setMsg(''); }} onEnter={() => isSolutionShown ? nextProb() : check()} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} />
               </div>
             </div>
           ))}
@@ -298,7 +302,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
                   <MathInput 
                     value={r} 
                     onChange={v => { const nr = [...rows]; nr[i] = v; setRows(nr); }} 
-                    onEnter={check} 
+                    onEnter={() => isSolutionShown ? nextProb() : check()} 
                     onFocus={() => { 
                       // Only clear "Incorrect" or "Step" messages on focus, leave "Correct" alone
                       if (msgColor !== 'green') setMsg(''); 
@@ -332,6 +336,9 @@ function WordProblemWindow({ title, generateProblem, t }: any) {
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
   const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); };
+  
+  const check = () => { if (phase === 'eq') { if (eq.includes('x')) setPhase('sol'); else setMsg(t('error_equation_variable_missing')); } else { if (MathEngine.checkNumeric(sol, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, 1500); } else setMsg(t('algebra_incorrect')); } };
+  
   useEffect(() => { next(); }, [generateProblem]);
 
   if (!prob) return null;
@@ -344,7 +351,7 @@ function WordProblemWindow({ title, generateProblem, t }: any) {
         <input placeholder={t('placeholder_equation')} value={eq} onChange={e => { setEq(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} disabled={phase === 'sol'} style={{ padding: '10px' }} />
         {phase === 'sol' && <input placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px' }} autoFocus type="number" step="any" />}
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'center' }}>
-          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={() => { if (phase === 'eq') { if (eq.includes('x')) setPhase('sol'); else setMsg(t('error_equation_variable_missing')); } else { if (MathEngine.checkNumeric(sol, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, 1500); } else setMsg(t('algebra_incorrect')); } }}>{t('algebra_check_ans')}</button>}
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check}>{t('algebra_check_ans')}</button>}
           <button onClick={() => { setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
         </div>
       </div>
@@ -360,6 +367,9 @@ function FinalExamWindow({ title, generateProblem, t }: any) {
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
   const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); };
+
+  const check = () => { if (MathEngine.checkNumeric(ans, prob.a)) { setMsg(t('algebra_correct')); setTimeout(next, 1500); } else setMsg(t('algebra_incorrect')); };
+
   useEffect(() => { next(); }, [generateProblem]);
 
   if (!prob) return null;
@@ -368,13 +378,15 @@ function FinalExamWindow({ title, generateProblem, t }: any) {
     <div className="rules-box" style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
       <SectionHeader title={title} t={t} />
       <div className="question" style={{ fontSize: '1.7rem', margin: '30px', direction: 'ltr' }}>{prob.q}</div>
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-        <input value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} onKeyDown={e => e.key === 'Enter' && (MathEngine.checkNumeric(ans, prob.a) ? (setMsg(t('algebra_correct')), setTimeout(next, 1500)) : setMsg(t('algebra_incorrect')))} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
-        {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={() => (MathEngine.checkNumeric(ans, prob.a) ? (setMsg(t('algebra_correct')), setTimeout(next, 1500)) : setMsg(t('algebra_incorrect')))}>{t('algebra_check_ans')}</button>}
-      </div>
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-        <button onClick={() => { setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
-        <button onClick={() => alert(t('exam_finish'))} style={{ background: '#2ecc71', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>{t('exam_finish')}</button>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
+          <input value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check}>{t('algebra_check_ans')}</button>}
+        </div>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
+          <button onClick={() => { setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
+          <button onClick={() => alert(t('exam_finish'))} style={{ background: '#2ecc71', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>{t('exam_finish')}</button>
+        </div>
       </div>
       {msg && <p className="result" style={{ marginTop: '15px', fontWeight: 'bold' }} data-testid="algebra-result">{msg}</p>}
     </div>
@@ -383,6 +395,25 @@ function FinalExamWindow({ title, generateProblem, t }: any) {
 
 export default function AlgebraClient({ dict, children }: Props) {
   const [activeTab, setActiveTab] = usePersistentState<any>('algebraActiveTab', 'addsub');
+  
+  const handleGlobalEnter = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const target = e.target as HTMLElement;
+      if (target.tagName.toLowerCase() === 'textarea' || target.tagName.toLowerCase() === 'button') return;
+      
+      const rulesBox = target.closest('.rules-box');
+      if (rulesBox) {
+        const btnCheck = rulesBox.querySelector('.btn-check') as HTMLButtonElement | null;
+        if (btnCheck) {
+          e.preventDefault();
+          e.stopPropagation();
+          target.blur();
+          btnCheck.click();
+        }
+      }
+    }
+  };
+
   const t = (key: string, params: Record<string, string | number> = {}) => {
     let str = dict[key] ?? key;
     for (const [k, v] of Object.entries(params)) str = str.replace(`{${k}}`, String(v));
@@ -408,7 +439,7 @@ export default function AlgebraClient({ dict, children }: Props) {
     </div>
   );
   return (
-    <section className="page active" id="algebra-page" data-testid="algebra-page" style={{ paddingBottom: '60px' }}>
+    <section className="page active" id="algebra-page" data-testid="algebra-page" style={{ paddingBottom: '60px' }} onKeyDownCapture={handleGlobalEnter}>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
         {children}
         <div style={{ display: 'flex', gap: '25px', flexWrap: 'wrap' }}>
