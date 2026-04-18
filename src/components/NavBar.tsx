@@ -125,23 +125,23 @@ export default function NavBar({ lang, dict }: Props) {
 
   return (
     <nav style={{ position: 'sticky', top: 0, zIndex: 2000 }}>
-      <Link href={getHref('/')} className={isActive('/') ? 'active' : ''}>
+      <Link href={getHref('/')} className={isActive('/') ? 'active' : ''} data-testid="nav-link-home">
         {t('nav_home')}
       </Link>
 
-      <Link href={getHref('/24-challenge')} className={isActive('/24-challenge') ? 'active' : ''}>
+      <Link href={getHref('/24-challenge')} className={isActive('/24-challenge') ? 'active' : ''} data-testid="nav-link-24-challenge">
         {t('nav_game')}
       </Link>
 
-      <Link href={getHref('/capture')} className={isActive('/capture') ? 'active' : ''}>
+      <Link href={getHref('/capture')} className={isActive('/capture') ? 'active' : ''} data-testid="nav-link-capture">
         {t('nav_fraction_capture')}
       </Link>
 
-      <Link href={getHref('/algebra')} className={isActive('/algebra') ? 'active' : ''}>
+      <Link href={getHref('/algebra')} className={isActive('/algebra') ? 'active' : ''} data-testid="nav-link-algebra">
         {t('nav_algebra')}
       </Link>
 
-      <Link href={getHref('/contact')} className={isActive('/contact') ? 'active' : ''}>
+      <Link href={getHref('/contact')} className={isActive('/contact') ? 'active' : ''} data-testid="nav-link-contact">
         {t('nav_contact')}
       </Link>
 
@@ -215,7 +215,7 @@ export default function NavBar({ lang, dict }: Props) {
               )}
             </div>
           ) : (
-            <Link href={getHref('/login')} className={isActive('/login') ? 'active' : ''}>
+            <Link href={getHref('/login')} className={isActive('/login') ? 'active' : ''} data-testid="nav-link-login">
               {t('nav_signin')}
             </Link>
           )}

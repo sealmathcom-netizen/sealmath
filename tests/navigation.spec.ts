@@ -32,7 +32,8 @@ test.describe('Navigation', () => {
 
   test('should load homepage with hero section', async ({ page }) => {
     await expect(page.locator('.home-hero-title')).toBeVisible();
-    await expect(page.locator('.home-hero-title')).toContainText('Master Math');
+    // Use a localized match for "Master Math" if needed, but home-hero-title class is usually enough
+    await expect(page.locator('.home-hero-title')).toContainText(/Master Math|לימדו מתמטיקה|Leer Wiskunde/);
   });
 
   test('should navigate to all core pages', async ({ page }) => {
@@ -40,23 +41,23 @@ test.describe('Navigation', () => {
     await expect(page.locator('.home-hero-title')).toBeVisible();
 
     // Navigate to 24 Challenge
-    await page.click('nav >> text=24 Challenge');
-    await expect(page.locator('h1')).toContainText('24 Challenge');
+    await page.getByTestId('nav-link-24-challenge').click();
+    await expect(page.locator('h1')).toContainText(/24 Challenge|אתגר ה-24|24 Uitdaging/i);
 
     // Navigate to Fraction Capture
-    await page.click('nav >> text=Fraction Capture');
-    await expect(page.locator('h1')).toContainText('Fraction Capture');
+    await page.getByTestId('nav-link-capture').click();
+    await expect(page.locator('h1')).toContainText(/Fraction Capture|לכידת שברים|Breuken Vangen/i);
 
     // Navigate to Algebra Basics
-    await page.click('nav >> text=Algebra Basics');
-    await expect(page.locator('h1')).toContainText('Algebra');
+    await page.getByTestId('nav-link-algebra').click();
+    await expect(page.locator('h1')).toContainText(/Algebra/i);
 
     // Navigate to Feedback
-    await page.click('nav >> text=Feedback');
-    await expect(page.locator('h1')).toContainText('Feedback');
+    await page.getByTestId('nav-link-contact').click();
+    await expect(page.locator('h1')).toContainText(/Feedback|משוב/i);
 
     // Navigate back to Home
-    await page.click('nav >> text=Home');
+    await page.getByTestId('nav-link-home').click();
     await expect(page.locator('.home-hero-title')).toBeVisible();
   });
 });

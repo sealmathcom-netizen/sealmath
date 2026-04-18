@@ -43,6 +43,7 @@ function SectionHeader({ title, showExample, onToggleExample, t }: any) {
       </h2>
       {onToggleExample && (
         <button 
+          id="btn-toggle-examples"
           onClick={onToggleExample} 
           style={{ 
             background: 'var(--accent)', 

@@ -32,25 +32,23 @@ test.describe('Algebra Basics', () => {
   });
 
   test('should display all algebra categories', async ({ page }) => {
-    
-    // Check for standard categories
-    await expect(page.getByRole('button', { name: /Addition & Subtraction/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Multiplication & Division/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Rounding/i })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Equation with one variable/i })).toBeVisible();
+    // Check for standard categories via stable IDs
+    await expect(page.locator('#tab-addsub')).toBeVisible();
+    await expect(page.locator('#tab-muldiv')).toBeVisible();
+    await expect(page.locator('#tab-rounding')).toBeVisible();
+    await expect(page.locator('#tab-complex')).toBeVisible();
   });
 
   test('should toggle examples', async ({ page }) => {
-    const showBtn = page.getByRole('button', { name: /Show Examples/i });
-    await expect(showBtn).toBeVisible();
-    // Scroll and click with force if the sticky nav intercepts
-    await showBtn.click({ force: true });
+    const toggleBtn = page.locator('#btn-toggle-examples');
+    await expect(toggleBtn).toBeVisible();
     
-    // Check if example content appeared
+    // Act: Show
+    await toggleBtn.click({ force: true });
     await expect(page.getByText(/Example\s*\d*:/i).first()).toBeVisible();
     
-    // Hide and verify
-    await page.getByRole('button', { name: /Hide Examples/i }).click({ force: true });
+    // Act: Hide
+    await toggleBtn.click({ force: true });
     await expect(page.getByText(/Example\s*\d*:/i).first()).not.toBeVisible();
   });
 
@@ -100,7 +98,8 @@ test.describe('Algebra Basics', () => {
   });
 
   test('should use "Show Solution" in simple equations', async ({ page }) => {
-    await page.click('button:has-text("Equation with one variable")', { force: true });
+    // Navigate to simple equations (twostep)
+    await page.click('#tab-twostep', { force: true });
     
     const firstQuestion = await page.locator('.question').evaluate(el => {
       const mf = el.querySelector('math-field');
@@ -109,9 +108,8 @@ test.describe('Algebra Basics', () => {
 
     await page.locator('button:has-text("Show Solution"), button:has-text("הצג פתרון"), button:has-text("Toon Oplossing")').click({ force: true });
     
-    // In Advanced Algebra, we show hints but the inputs stay empty until the user inserts them.
-    // The student can then click Next Exercise if they saw the solution.
-    await expect(page.locator('text=/Solution Steps|שלבי הפתרון|Oplosstappen/').first()).toBeVisible();
+    // In FixedStepWindow (twostep), we check for the step labels instead of a general "Solution Steps" heading
+    await expect(page.locator('text=/Step 1|שלב 1|Stap 1/').first()).toBeVisible();
     
     await page.click('text=Next Exercise', { force: true });
     const secondQuestion = await page.locator('.question').evaluate(el => {
@@ -122,7 +120,7 @@ test.describe('Algebra Basics', () => {
   });
 
   test('should correctly evaluate mixed and stacked fractions in like terms', async ({ page }) => {
-    await page.click('button:has-text("Fractions + Like Terms")', { force: true });
+    await page.click('#tab-fractionlike', { force: true });
     
     const question = await page.locator('.question').evaluate(el => {
       const mf = el.querySelector('math-field');
@@ -140,7 +138,7 @@ test.describe('Algebra Basics', () => {
 
   test('should approve "0" as a valid answer when terms cancel out (V2)', async ({ page }) => {
     // Navigate to Addition & Subtraction
-    await page.click('button:has-text("Addition & Subtraction")', { force: true });
+    await page.click('#tab-addsub', { force: true });
     
     // We'll solve the current problem to verify the result message logic
     const questionText = await page.locator('.question').innerText();
@@ -174,7 +172,7 @@ test.describe('Algebra Basics', () => {
     await expect(page.locator('button.btn-check')).toContainText('Check Answer');
   });
   test('should use "Show Solution" in Combining Like Terms', async ({ page }) => {
-    await page.click('button:has-text("Combining Like Terms")', { force: true });
+    await page.click('#tab-combinelike', { force: true });
     await page.locator('button:has-text("Show Solution"), button:has-text("הצג פתרון"), button:has-text("Toon Oplossing")').click({ force: true });
     await expect(page.locator('text=/Solution Steps|שלבי הפתרון|Oplosstappen/').first()).toBeVisible();
     // Verify that some result is shown
@@ -182,8 +180,8 @@ test.describe('Algebra Basics', () => {
   });
 
   test('should accept intermediate logical steps and explicitly formatted answers like "x=7" or "14/3 = 2/3x" in complex equations', async ({ page }) => {
-    // Stage: Equation with one variable
-    await page.getByRole('button', { name: /Equation with one variable/i }).click({ force: true });
+    // Stage: First-degree equation (complex)
+    await page.click('#tab-complex', { force: true });
     
     // We are now in the AdvancedAlgebraWindow!
     // Since it's dynamic, hit "Show Solution" to instantly get the final answer dynamically

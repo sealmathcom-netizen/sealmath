@@ -130,7 +130,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_rounding_prompt: `Round {num} to {count} decimal places: `,
     algebra_rounding_prompt_whole: `Round {num} to the nearest whole number: `,
 
-    algebra_btn_complex: `Equation with one variable` ,
+    algebra_btn_complex: `First-degree equation` ,
     algebra_btn_word_problem: 'Word Problems', algebra_btn_final_exam: 'Final Exam',
     algebra_complex_desc: 'Solve equations by simplifying terms and isolating the variable in logical steps.',
     
@@ -315,7 +315,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_rounding_prompt: `עגלו את {num} ל-{count} ספרות עשרוניות: `,
     algebra_rounding_prompt_whole: `עגלו את {num} למספר השלם הקרוב ביותר: `,
 
-    algebra_btn_complex: `משוואות מורכבות`,
+    algebra_btn_complex: `משוואה ממעלה ראשונה`,
     algebra_btn_word_problem: 'בעיות מילוליות', algebra_btn_final_exam: 'מבחן מסכם',
     algebra_complex_desc: 'פתרו משוואות על ידי כינוס איברים ובידוד הנעלם בשלבים לוגיים.',
     
@@ -500,10 +500,12 @@ export const translations: Record<Lang, Record<string, string>> = {
     algebra_rounding_prompt: `Rond {num} af op {count} decimalen: `,
     algebra_rounding_prompt_whole: `Rond {num} af op het dichtstbijzijnde gehele getal: `,
 
-    algebra_btn_complex: `Complexe vergelijkingen`,
+    algebra_btn_complex: `Eerstegraads-vergelijking`,
     algebra_btn_word_problem: 'Verhaaltjessommen', algebra_btn_final_exam: 'Eindexamen',
-    algebra_complex_desc: 'Los vergelijkingen met haakjes zoals <strong>2(x + 3) = 14</strong> op in twee hoofdstappen.',
-    algebra_complex_ex1: '<strong>Voorbeeld:</strong> <code style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>Stap 1:</strong> Deel door 2 om <code style="font-family: var(--mono)">x + 3 = 7</code> te krijgen.<br/><strong>Stap 2:</strong> Trek 3 af om <code style="font-family: var(--mono)">x = 4</code> te krijgen.',
+    algebra_complex_desc: 'Los vergelijkingen op door termen te vereenvoudigen en de variabele in logische stappen te isoleren.',
+    algebra_complex_ex1: '<strong>Voorbeeld 1:</strong> <code style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>Stap 1:</strong> Vereenvoudig naar <code style="font-family: var(--mono)">x + 3 = 7</code>.<br/><strong>Stap 2:</strong> Los x op: <code style="font-family: var(--mono)">x = 4</code>.',
+    algebra_complex_ex2: '<strong>Voorbeeld 2:</strong> <code style="font-family: var(--mono)">0 = -9x - 5 + 3x + 35</code> <br/><strong>Stap 1:</strong> Voeg gelijksoortige termen samen om <code style="font-family: var(--mono)">6x = 30</code> te krijgen.<br/><strong>Stap 2:</strong> Los x op: <code style="font-family: var(--mono)">x = 5</code>.',
+    algebra_complex_ex3: '<strong>Voorbeeld 3:</strong> <code style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>Stap 1:</strong> Eindantwoord: <code style="font-family: var(--mono)">x = 8</code>.<br/><em>(Opmerking: Omdat -4x + 3x = -x, vereenvoudigt de vergelijking direct. In dergelijke gevallen is één stap voldoende, hoewel meer stappen altijd welkom zijn!)</em>',
     algebra_word_prob_desc: 'Vertaal alledaagse problemen naar vergelijkingen en de onbekende variabele op.',
     word_prob_1: 'Ron is {0} jaar ouder dan Dan. De som van hun leeftijden is {1}. Vind de leeftijd van Dan (x).',
     word_prob_2: 'Een pen kost {0} euro meer dan een potlood. 3 pennen en 2 potloden kosten {1} euro. Vind de prijs van een potlood.',
