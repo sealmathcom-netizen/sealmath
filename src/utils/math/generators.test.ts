@@ -54,6 +54,48 @@ describe('Algebra Problem Generators', () => {
         expect(terms.length).toBeLessThanOrEqual(12);
       }
     });
+
+    it('should only require 1 step if the net coefficient of x evaluates to 1 or -1 (e.g. 4x - 3x = x)', () => {
+      let foundPositiveOne = false;
+      let foundNegativeOne = false;
+      
+      // We run enough iterations to mathematically guarantee hitting both the 1 and -1 coefficient collisions
+      for (let i = 0; i < 5000; i++) {
+        const p = generateComplexEquationProblem();
+        if (p.type === 'two-side' && p.variable === 'x') {
+          const [left, right] = p.q.split('=');
+          
+          // Calculate the net algebraic coefficient of x using substitution 
+          const lVal0 = MathEngine.evalSide(left, 'x', 0);
+          const rVal0 = MathEngine.evalSide(right, 'x', 0);
+          
+          const lVal1 = MathEngine.evalSide(left, 'x', 1);
+          const rVal1 = MathEngine.evalSide(right, 'x', 1);
+          
+          const lCoeff = lVal1 - lVal0;
+          const rCoeff = rVal1 - rVal0;
+          const netCoeff = lCoeff - rCoeff; // Variables mapped to the left
+          
+          const isNetOne = Math.abs(netCoeff - 1) < 0.001;
+          const isNetNegOne = Math.abs(netCoeff + 1) < 0.001;
+          
+          if (isNetOne || isNetNegOne) {
+             if (isNetOne) foundPositiveOne = true;
+             if (isNetNegOne) foundNegativeOne = true;
+             
+             // REGRESSION GUARD: If the equation perfectly simplifies to x (or -x which is trivially x = -value),
+             // the UI must never punish them with "Please show an intermediate step". 
+             // We drop the intermediate '-x = -b' step.
+             expect(p.steps.length).toBe(1);
+             // Verify the remaining pedagogical step reads as a fully solved final formatting.
+             expect(p.steps[0]).toMatch(/^x = -?\d+$/);
+          }
+        }
+      }
+      
+      expect(foundPositiveOne).toBe(true);
+      expect(foundNegativeOne).toBe(true);
+    });
   });
 
   describe('generateWordProblem', () => {

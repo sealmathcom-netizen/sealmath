@@ -136,7 +136,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     
     algebra_complex_ex1: '<strong>Example 1:</strong> <code style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>Step 1:</strong> Simplify to <code style="font-family: var(--mono)">x + 3 = 7</code>.<br/><strong>Step 2:</strong> Solve for x: <code style="font-family: var(--mono)">x = 4</code>.',
     algebra_complex_ex2: '<strong>Example 2:</strong> <code style="font-family: var(--mono)">0 = -9x - 5 + 3x + 35</code> <br/><strong>Step 1:</strong> Combine like terms to get <code style="font-family: var(--mono)">6x = 30</code>.<br/><strong>Step 2:</strong> Solve for x: <code style="font-family: var(--mono)">x = 5</code>.',
-    algebra_complex_ex3: '<strong>Example 3:</strong> <code style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>Step 1:</strong> Combine terms: <code style="font-family: var(--mono)">-16 = -x - 8</code>.<br/><strong>Step 2:</strong> Final answer: <code style="font-family: var(--mono)">x = 8</code>.',
+    algebra_complex_ex3: '<strong>Example 3:</strong> <code style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>Step 1:</strong> Final answer: <code style="font-family: var(--mono)">x = 8</code>.<br/><em>(Note: Since -4x + 3x = -x, the equation simplifies directly. In such cases, one step is enough, although more steps are always welcome!)</em>',
 
     algebra_word_prob_desc: 'Translate real-world problems into equations and solve for the unknown variable.',
     word_prob_1: 'Ron is {0} years older than Dan. The sum of their ages is {1}. Find Dan\'s age (x).',
@@ -321,7 +321,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     
     algebra_complex_ex1: '<strong>דוגמה 1:</strong> <code dir="ltr" style="font-family: var(--mono)">2(x + 3) = 14</code> <br/><strong>שלב 1:</strong> נפשט ל- <code dir="ltr" style="font-family: var(--mono)">x + 3 = 7</code>.<br/><strong>שלב 2:</strong> נפתור עבור x: <code dir="ltr" style="font-family: var(--mono)">x = 4</code>.',
     algebra_complex_ex2: '<strong>דוגמה 2:</strong> <code dir="ltr" style="font-family: var(--mono)">0 = -9x - 5 + 3x + 35</code> <br/><strong>שלב 1:</strong> נכנס איברים לו- <code dir="ltr" style="font-family: var(--mono)">6x = 30</code>.<br/><strong>שלב 2:</strong> נפתור עבור x: <code dir="ltr" style="font-family: var(--mono)">x = 5</code>.',
-    algebra_complex_ex3: '<strong>דוגמה 3:</strong> <code dir="ltr" style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>שלב 1:</strong> נכנס איברים: <code dir="ltr" style="font-family: var(--mono)">-16 = -x - 8</code>.<br/><strong>שלב 2:</strong> תשובה סופית: <code dir="ltr" style="font-family: var(--mono)">x = 8</code>.',
+    algebra_complex_ex3: '<strong>דוגמה 3:</strong> <code dir="ltr" style="font-family: var(--mono)">-16 = -4x - 8 + 3x</code> <br/><strong>שלב 1:</strong> תשובה סופית: <code dir="ltr" style="font-family: var(--mono)">x = 8</code>.<br/><em>(הסבר: מכיוון ש- -4x + 3x = -x, המשוואה מצטמצמת בקלות. במקרים כאלה שלב אחד מספיק, למרות שיותר שלבים תמיד מותרים!)</em>',
 
     algebra_word_prob_desc: 'תרגום בעיות מהחיים למשוואות ופתרון המשתנה הנעלם.',
     word_prob_1: 'רון מבוגר ב-{0} שנים מדן. סכום הגילאים שלהם הוא {1}. מהו הגיל של דן (x)?',

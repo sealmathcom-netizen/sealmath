@@ -86,8 +86,9 @@ export function generateComplexEquationProblem(): any {
       step: step1
     };
 
-    if (coeffX.num === 1 && coeffX.den === 1) {
-       return { ...base, steps: [step1] };
+    // If the net coefficient is 1 or -1, the equation simplifies visually in a single step (e.g. 4x - 3x = x or -3x + 4x = x)
+    if (Math.abs(coeffX.num) === 1 && coeffX.den === 1) {
+       return { ...base, steps: [step2] };
     }
     return { ...base, steps: [step1, step2] };
   }
