@@ -337,7 +337,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent }
           {rows.map((r, i) => (
             <div key={i} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
               <span data-testid={`row-label-${i}`} style={{ fontSize: '0.75rem', color: '#7f8c8d', marginBottom: '2px' }}>{rows.length > 1 && i === rows.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i+1}`}</span>
-              <div style={{ display: 'flex', gap: '6px' }}>
+              <div style={{ display: 'flex', gap: '6px', direction: 'ltr' }}>
                 <div  style={{ flex: 1, border: '2px solid #ccc', borderRadius: '8px', background: '#fff' }}>
                   <MathInput 
                     value={r} 
