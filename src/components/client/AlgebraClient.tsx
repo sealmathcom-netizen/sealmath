@@ -37,12 +37,25 @@ function WithTooltip({ tip, children }: { tip: string; children: React.ReactNode
 }
 function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: string }) {
   const isMath = q.includes('\\') || q.includes('{');
-  const mathStyle = React.useMemo(() => ({ fontSize, border: 'none', background: 'transparent' }), [fontSize]);
+  const mfRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (mfRef.current && isMath) {
+      mfRef.current.value = q;
+    }
+  }, [q, isMath]);
+
+  if (!q) return null;
 
   if (isMath) {
     return (
-      <div style={{ display: 'inline-block', minWidth: '100px', textAlign: 'center' }}>
-        <MathInput value={q} onChange={emptyFn} readonly={true} style={mathStyle} />
+      <div className="math-display-wrap" style={{ display: 'inline-flex', justifyContent: 'center', pointerEvents: 'none', minHeight: '1.2em' }}>
+        <math-field 
+          ref={mfRef}
+          read-only 
+          style={{ border: 'none', background: 'transparent', fontSize, color: 'var(--foreground, #2c3e50)' }}
+          dangerouslySetInnerHTML={{ __html: q }}
+        />
         {/* Hidden text for accessibility and E2E testing (.innerText compatibility) */}
         <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
           {q}
@@ -50,7 +63,7 @@ function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: strin
       </div>
     );
   }
-  return <span style={{ direction: 'ltr', fontSize, display: 'inline-block' }}>{q}</span>;
+  return <span style={{ direction: 'ltr', fontSize, display: 'inline-block', color: 'var(--foreground, #2c3e50)' }}>{q}</span>;
 }
 
 type Props = {
@@ -153,6 +166,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
     }
   };
 
+
   if (!prob) return null;
 
   return (
@@ -229,6 +243,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
+
 
   if (!prob) return null;
 
@@ -341,6 +356,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
+
 
   if (!problem) return null;
 
@@ -557,6 +573,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     }
   };
 
+
   if (!problem) return null;
 
   return (
@@ -693,7 +710,6 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     }
   };
 
-  useEffect(() => { next(); }, [generateProblem]);
 
   if (!prob) return null;
 
@@ -758,7 +774,6 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
     } else setMsg(t('algebra_incorrect'));
   };
 
-  useEffect(() => { next(); }, [generateProblem]);
 
   if (!prob) return null;
 
@@ -796,21 +811,26 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
   const urlTab = searchParams?.get('tab');
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    try {
+      if (typeof window === 'undefined') return;
 
-    // Sync logic on mount (The truth-seeking phase)
-    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('algebra_active_tab='))?.split('=')[1];
-    const sessionTab = sessionStorage.getItem('session_algebra_active_tab');
+      // Sync logic on mount (The truth-seeking phase)
+      const cookies = document.cookie.split('; ');
+      const cookieValue = cookies.find(row => row.startsWith('algebra_active_tab='))?.split('=')?.[1];
+      const sessionTab = sessionStorage.getItem('session_algebra_active_tab');
 
-    // Fallback to 'addsub' only if no other intent exists
-    const target = urlTab || cookieValue || sessionTab || 'addsub';
+      // Fallback to 'addsub' only if no other intent exists
+      const target = urlTab || cookieValue || sessionTab || 'addsub';
 
-    if (target && target !== activeTab) {
-      _setActiveTab(target);
+      if (target && target !== activeTab) {
+        _setActiveTab(target);
+      }
+    } catch (err) {
+      console.error('Hydration sync failed:', err);
+    } finally {
+      setIsHydrated(true);
     }
-
-    setIsHydrated(true);
-  }, []);
+  }, [urlTab, activeTab, _setActiveTab]);
 
   // If the user changes tab, we update URL, Cookie, and Session
   const setActiveTab = (tab: string) => {
@@ -920,7 +940,13 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             ))}
           </div>
           <div style={{ flex: '3 1 350px' }}>
-            {(activeTab === 'addsub' || activeTab === 'muldiv') && (
+            {!isHydrated ? (
+              <div style={{ background: '#fff', borderRadius: '12px', padding: '40px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+                <p style={{ color: '#7f8c8d' }}>{t('algebra_loading') || 'Loading exercise...'}</p>
+              </div>
+            ) : (
+              <>
+                {(activeTab === 'addsub' || activeTab === 'muldiv') && (
               <SimpleWindow
                 key={activeTab}
                 id={activeTab}
@@ -1004,7 +1030,9 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
                 lang={lang}
               />
             )}
-          </div>
+          </>
+        )}
+      </div>
         </div>
       </div>
     </section>
