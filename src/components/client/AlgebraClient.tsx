@@ -388,7 +388,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
 
 function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
   const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, generateExerciseId());
-  const [rows, setRows] = useSessionState<string[]>(`session_algebra_rows_${id}_${exerciseId}`, ['']);
+  const [rows, setRows] = useSessionState<{ id: string; val: string }[]>(`session_algebra_rows_${id}_${exerciseId}`, [{ id: generateExerciseId(), val: '' }]);
   const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, generateProblem);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
@@ -443,14 +443,14 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   const addRow = (index: number) => {
     setRows(prev => {
       const nr = [...prev];
-      nr.splice(index + 1, 0, '');
+      nr.splice(index + 1, 0, { id: generateExerciseId(), val: '' });
       return nr;
     });
     setFocusedIndex(index + 1);
     setMsg('');
   };
 
-  const nextProb = () => { setProblem(generateProblem()); setRows(['']); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const nextProb = () => { setProblem(generateProblem()); setRows([{ id: generateExerciseId(), val: '' }]); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -467,8 +467,8 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   }, [exerciseId, problem, id, lang]);
 
   const check = () => {
-    // Read the very latest values from the DOM refs to avoid stale state issues on Enter key
-    const currentRows = inputRefs.current.slice(0, rows.length).map(ref => ref?.value || '');
+    // Read the very latest values from the DOM refs
+    const currentRows = rows.map((r, i) => inputRefs.current[i]?.value || '');
     const lastRow = currentRows[currentRows.length - 1];
     const v = problem.variable || 'x';
 
@@ -477,32 +477,21 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     let needsSimplification = false;
     let needsSteps = false;
 
-    // 1. Step Enforcement (Pedagogy)
-    const isStepEnforced = id === 'complex' && problem.steps && problem.steps.length > 1;
-    if (isStepEnforced && currentRows.length < 2) {
-      needsSteps = true;
-    } else {
-      // 2. Core Validation
-      if (id === 'complex') {
-        if (lastRow.includes('=')) {
-          isCorrect = MathEngine.checkEquationStep(lastRow, problem.a);
-          if (isCorrect) {
-            if (!MathEngine.isEquationFullySolved(lastRow, v)) {
+    // 1. Core Validation
+    if (id === 'complex') {
+      if (lastRow.includes('=')) {
+        isCorrect = MathEngine.checkEquationStep(lastRow, problem.a);
+        if (isCorrect) {
+          if (!MathEngine.isEquationFullySolved(lastRow, v)) {
+            isCorrect = false;
+            notFullySolved = true;
+          } else {
+            const parts = lastRow.split('=');
+            const resultPart = (parts[0].trim() === v) ? parts[1] : parts[0];
+            if (!MathEngine.checkAlgebraicResult(resultPart, problem.a, v)) {
               isCorrect = false;
-              notFullySolved = true;
-            } else {
-              const parts = lastRow.split('=');
-              const resultPart = (parts[0].trim() === v) ? parts[1] : parts[0];
-              if (!MathEngine.checkAlgebraicResult(resultPart, problem.a, v)) {
-                isCorrect = false;
-                needsSimplification = true;
-              }
+              needsSimplification = true;
             }
-          }
-        } else {
-          isCorrect = MathEngine.checkAlgebraicResult(lastRow, problem.a, v);
-          if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
-            needsSimplification = true;
           }
         }
       } else {
@@ -510,6 +499,26 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
         if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
           needsSimplification = true;
         }
+      }
+    } else {
+      isCorrect = MathEngine.checkAlgebraicResult(lastRow, problem.a, v);
+      if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
+        needsSimplification = true;
+      }
+    }
+
+    // 2. Step Enforcement (Only if the answer is fundamentally correct/simplified)
+    const isStepEnforced = id === 'complex' && problem.steps && problem.steps.length > 1;
+    if (isStepEnforced && isCorrect && !needsSimplification && !notFullySolved) {
+      const nonEmptyRows = currentRows.filter(r => r.trim() !== '');
+      const uniqueRows = new Set(nonEmptyRows.map(r => r.replace(/\s+/g, '').toLowerCase()));
+      
+      if (currentRows.length < 2) {
+        needsSteps = true;
+        isCorrect = false;
+      } else if (nonEmptyRows.length >= 2 && uniqueRows.size < nonEmptyRows.length) {
+        needsSteps = true;
+        isCorrect = false;
       }
     }
 
@@ -566,17 +575,20 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '350px' }}>
           {rows.map((r, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
+            <div key={r.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
               <span data-testid={`row-label-${i}`} style={{ fontSize: '0.75rem', color: '#7f8c8d', marginBottom: '2px' }}>{rows.length > 1 && i === rows.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i + 1}`}</span>
               <div style={{ display: 'flex', gap: '6px', direction: 'ltr' }}>
                 <div style={{ flex: 1, border: '2px solid #ccc', borderRadius: '8px', background: '#fff' }}>
                   <MathInput
                     ref={el => inputRefs.current[i] = el}
-                    value={r}
+                    value={r.val}
                     onChange={v => {
                       setRows(prev => {
                         const nr = [...prev];
-                        nr[i] = v;
+                        const idx = nr.findIndex(x => x.id === r.id);
+                        if (idx !== -1) {
+                          nr[idx] = { ...nr[idx], val: v };
+                        }
                         return nr;
                       });
                       if (msgColor !== 'green') setMsg('');
@@ -590,7 +602,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
                   />
                 </div>
                 <WithTooltip tip={_removeLabel}>
-                  <button onClick={() => { if (rows.length > 1) { setRows(prev => prev.filter((_, idx) => idx !== i)); setFocusedIndex(Math.max(0, i - 1)); } setMsg(''); }} className="btn-remove-step" id={`btn-remove-step-${i}`} style={{ padding: '8px 14px', margin: 0, background: '#e74c3c', color: '#fff', borderRadius: '4px', border: 'none' }}>×</button>
+                  <button onClick={() => { if (rows.length > 1) { setRows(prev => prev.filter(x => x.id !== r.id)); setFocusedIndex(Math.max(0, i - 1)); } setMsg(''); }} className="btn-remove-step" id={`btn-remove-step-${i}`} style={{ padding: '8px 14px', margin: 0, background: '#e74c3c', color: '#fff', borderRadius: '4px', border: 'none' }}>×</button>
                 </WithTooltip>
                 <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'stretch' }} className="algebra-add-step-wrapper">
                   <button onClick={() => addRow(i)} className="btn-add-row" id={`btn-add-row-${i}`} style={{ padding: '8px 14px', margin: 0, background: 'var(--accent)', color: '#fff', borderRadius: '4px', border: 'none', cursor: 'pointer' }}>+</button>

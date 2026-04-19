@@ -32,6 +32,8 @@ export function useSessionState<T>(key: string, defaultValue: T | (() => T)) {
       const saved = sessionStorage.getItem(key);
       if (saved !== null) {
         setState(JSON.parse(saved));
+      } else {
+        setState(typeof defaultValue === 'function' ? (defaultValue as () => T)() : (defaultValue as T));
       }
     } catch (e) {
       console.error(`Error loading session state for ${key}:`, e);
