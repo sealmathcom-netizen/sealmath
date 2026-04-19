@@ -39,7 +39,10 @@ test.describe('Algebra Exercise Logging', () => {
 
     // 3. Navigate and Enable Capture
     await page.goto('/en/algebra');
-    await page.evaluate(() => localStorage.setItem('capture-logs', 'true'));
+    await page.evaluate(() => {
+      localStorage.setItem('capture-logs', 'true');
+      sessionStorage.clear();
+    });
     await page.reload(); 
   });
 

@@ -104,6 +104,10 @@ export function generateWordProblem(t?: any): any {
 }
 
 export function getProblemGenerator(type: string, t?: any) {
+  if (type === 'complex-equation') return generateComplexEquationProblem;
+  if (type === 'word-problem' || type === 'word-problems') return () => generateWordProblem(t);
+  if (type === 'final-exam') return () => ({ q: "Solve for x: 3x = 9", a: 3 });
+
   return () => {
     if (type === 'add-sub') {
       const a = Math.floor(Math.random() * 12) + 2;
@@ -177,9 +181,6 @@ export function getProblemGenerator(type: string, t?: any) {
       
       return { q, a: ans, steps: [ans] };
     }
-    if (type === 'complex-equation') return generateComplexEquationProblem();
-    if (type === 'word-problem' || type === 'word-problems') return generateWordProblem(t);
-    if (type === 'final-exam') return { q: "Solve for x: 3x = 9", a: 3 };
     return { q: "2x = 4", a: 2 };
   };
 }

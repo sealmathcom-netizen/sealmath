@@ -1,18 +1,32 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
 
 /**
  * A hook that works like useState but persists the value in sessionStorage.
  * Survives page refreshes, back/forward navigation, and language switches in the same session.
  */
-export function useSessionState<T>(key: string, defaultValue: T) {
-  // Initialize with defaultValue. We'll load from sessionStorage in useEffect to avoid SSR hydration mismatch.
-  const [state, setState] = useState<T>(defaultValue);
+export function useSessionState<T>(key: string, defaultValue: T | (() => T)) {
+  // Initialize from sessionStorage immediately if available (client-side only)
+  const [state, setState] = useState<T>(() => {
+    if (typeof window === 'undefined') {
+      return typeof defaultValue === 'function' ? (defaultValue as () => T)() : defaultValue;
+    }
+    try {
+      const saved = sessionStorage.getItem(key);
+      if (saved !== null) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error(`Error loading session state for ${key}:`, e);
+    }
+    return typeof defaultValue === 'function' ? (defaultValue as () => T)() : (defaultValue as T);
+  });
+  
   const [isLoaded, setIsLoaded] = useState(false);
   const isInitialRender = useRef(true);
 
-  // 1. Load from sessionStorage on mount
+  // 1. Sync if key changes
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem(key);
@@ -44,5 +58,5 @@ export function useSessionState<T>(key: string, defaultValue: T) {
     }
   }, [key, state]);
 
-  return [state, setState, isLoaded] as const;
+  return [state, setState, isLoaded] as [T, Dispatch<SetStateAction<T>>, boolean];
 }
