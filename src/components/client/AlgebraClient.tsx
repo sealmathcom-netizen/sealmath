@@ -12,9 +12,29 @@ import * as MathGen from '../../utils/math/generators';
 
 const generateExerciseId = () => Math.random().toString(36).substring(2, 15);
 
+const getIsMac = () => {
+  if (typeof window === 'undefined') return false;
+  return navigator.userAgent.includes('Mac');
+};
+
 const NEXT_PROBLEM_DELAY_MS = 700;
 
 const emptyFn = () => {};
+
+const _isMac = getIsMac();
+const _addLabel    = _isMac ? '⌘=' : 'Ctrl+=';
+const _removeLabel = _isMac ? '⌘-' : 'Ctrl+-';
+const _solLabel    = _isMac ? '⌘/' : 'Ctrl+/';
+const _exLabel     = _isMac ? '⌘E' : 'Ctrl+E';
+
+function WithTooltip({ tip, children }: { tip: string; children: React.ReactNode }) {
+  return (
+    <div className="algebra-add-step-wrapper" style={{ display: 'inline-flex', alignItems: 'stretch' }}>
+      {children}
+      <span className="algebra-kbd-tooltip" suppressHydrationWarning>{tip}</span>
+    </div>
+  );
+}
 function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: string }) {
   const isMath = q.includes('\\') || q.includes('{');
   const mathStyle = React.useMemo(() => ({ fontSize, border: 'none', background: 'transparent' }), [fontSize]);
@@ -48,24 +68,36 @@ function SectionHeader({ title, showExample, onToggleExample, t }: any) {
         {title}
       </h2>
       {onToggleExample && (
-        <button 
-          id="btn-toggle-examples"
-          onClick={onToggleExample} 
-          style={{ 
-            background: 'var(--accent)', 
-            color: '#fff', 
-            border: 'none', 
-            padding: '8px 16px', 
-            borderRadius: '12px', 
-            cursor: 'pointer', 
-            fontSize: '1rem', 
-            fontWeight: 'bold',
-            width: 'fit-content'
-          }}
-        >
-          {showExample ? t('algebra_hide_examples') : t('algebra_show_examples')}
-        </button>
+        <WithTooltip tip={_exLabel}>
+          <button 
+            id="btn-toggle-examples"
+            onClick={onToggleExample} 
+            style={{ 
+              background: 'var(--accent)', 
+              color: '#fff', 
+              border: 'none', 
+              padding: '8px 16px', 
+              borderRadius: '12px', 
+              cursor: 'pointer', 
+              fontSize: '1rem', 
+              fontWeight: 'bold',
+              width: 'fit-content',
+              margin: 0
+            }}
+          >
+            {showExample ? t('algebra_hide_examples') : t('algebra_show_examples')}
+          </button>
+        </WithTooltip>
       )}
+    </div>
+  );
+}
+
+function CheckButton({ label, onClick, id, style }: { label: string; onClick: () => void; id?: string; style?: React.CSSProperties }) {
+  return (
+    <div className="algebra-add-step-wrapper">
+      <button className="btn-check" onClick={onClick} id={id} style={style}>{label}</button>
+      <span className="algebra-kbd-tooltip" suppressHydrationWarning>{'↵'}</span>
     </div>
   );
 }
@@ -81,6 +113,14 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Autofocus on new problem
+  useEffect(() => {
+    if (prob && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [prob]);
 
   const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
@@ -117,13 +157,15 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
+            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
               onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+          </WithTooltip>
           </div>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -141,6 +183,14 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
   const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Autofocus on new problem
+  useEffect(() => {
+    if (prob && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [prob]);
 
   const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
@@ -177,13 +227,15 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
+            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
               onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+          </WithTooltip>
           </div>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -200,6 +252,14 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
+  const inputRefs = useRef<any[]>([]);
+
+  // Autofocus on new problem
+  useEffect(() => {
+    if (problem && inputRefs.current[0]) {
+      inputRefs.current[0].focus();
+    }
+  }, [problem]);
 
   const nextProb = () => { const p = generateProblem(); setProblem(p); setSteps(new Array(p.steps.length).fill('')); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
@@ -249,14 +309,22 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
             <div key={i} style={{ display: 'flex', flexDirection: 'column' }}>
               <span style={{ fontSize: '0.8rem', color: '#7f8c8d', marginBottom: '4px' }}>{steps.length > 1 && i === steps.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i+1}`}</span>
               <div style={{ border: '2px solid #ccc', borderRadius: '12px', background: '#fff', overflow: 'hidden' }}>
-                <MathInput value={steps[i]} onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); setMsg(''); }} onEnter={() => isSolutionShown ? nextProb() : check()} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} />
+                <MathInput 
+                  ref={el => inputRefs.current[i] = el}
+                  value={steps[i]} 
+                  onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); setMsg(''); }} 
+                  onEnter={() => isSolutionShown ? nextProb() : check()} 
+                  onFocus={() => { setMsg(''); setIsSolutionShown(false); }} 
+                />
               </div>
             </div>
           ))}
         </div>
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-          {isSolutionShown ? <button className="btn-check" onClick={nextProb} style={{ padding: '10px 15px' }}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`} style={{ padding: '10px 15px' }}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setSteps([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          {isSolutionShown ? <button className="btn-check" onClick={nextProb} style={{ padding: '10px 15px' }}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} style={{ padding: '10px 15px' }} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setSteps([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+          </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
       </div>
@@ -272,8 +340,61 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const inputRefs = useRef<any[]>([]);
 
-  const nextProb = () => { setProblem(generateProblem()); setRows(['']); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const isMac = getIsMac();
+  const shortcutLabel = isMac ? '⌘=' : 'Ctrl+=';
+
+  // Autofocus on row change or new problem
+  useEffect(() => {
+    if (inputRefs.current[focusedIndex]) {
+      inputRefs.current[focusedIndex].focus();
+    }
+  }, [focusedIndex, rows.length, problem]);
+
+  // Global Keyboard shortcut (Cmd/Ctrl + =)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isModifier = isMac ? e.metaKey : e.ctrlKey;
+      if (isModifier && e.key === '=') {
+        e.preventDefault();
+        addRow(focusedIndex);
+      }
+      if (isModifier && e.key === '-') {
+        e.preventDefault();
+        if (rows.length > 1) {
+          const nr = rows.filter((_, idx) => idx !== focusedIndex);
+          setRows(nr);
+          setFocusedIndex(Math.max(0, focusedIndex - 1));
+          setMsg('');
+        }
+      }
+      if (isModifier && e.key === '/') {
+        e.preventDefault();
+        if (!isSolutionShown) {
+          logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang });
+          setIsSolutionShown(true); setMsg('');
+        }
+      }
+      if (isModifier && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        setShowExample(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedIndex, isMac, rows, isSolutionShown, exerciseId, lang]);
+
+  const addRow = (index: number) => {
+    const nr = [...rows];
+    nr.splice(index + 1, 0, '');
+    setRows(nr);
+    setFocusedIndex(index + 1);
+    setMsg('');
+  };
+
+  const nextProb = () => { setProblem(generateProblem()); setRows(['']); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -360,26 +481,35 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
               <div style={{ display: 'flex', gap: '6px', direction: 'ltr' }}>
                 <div  style={{ flex: 1, border: '2px solid #ccc', borderRadius: '8px', background: '#fff' }}>
                   <MathInput 
+                    ref={el => inputRefs.current[i] = el}
                     value={r} 
                     onChange={v => { const nr = [...rows]; nr[i] = v; setRows(nr); }} 
                     onEnter={() => isSolutionShown ? nextProb() : check()} 
                     onFocus={() => { 
+                      setFocusedIndex(i);
                       // Only clear "Incorrect" or "Step" messages on focus, leave "Correct" alone
                       if (msgColor !== 'green') setMsg(''); 
                       setIsSolutionShown(false); 
                     }} 
                   />
                 </div>
-                <button onClick={() => { if (rows.length > 1) setRows(rows.filter((_, idx) => idx !== i)); setMsg(''); }} className="btn-remove-step" id={`btn-remove-step-${i}`} style={{ padding: '8px', background: '#e74c3c', color: '#fff', borderRadius: '4px', border: 'none' }}>×</button>
-                <button onClick={() => { const nr = [...rows]; nr.splice(i + 1, 0, ''); setRows(nr); setMsg(''); }} className="btn-add-row" id={`btn-add-row-${i}`} style={{ padding: '8px', background: 'var(--accent)', color: '#fff', borderRadius: '4px', border: 'none', cursor: 'pointer' }}>+</button>
+                <WithTooltip tip={_removeLabel}>
+                  <button onClick={() => { if (rows.length > 1) { const nr = rows.filter((_, idx) => idx !== i); setRows(nr); setFocusedIndex(Math.max(0, i - 1)); } setMsg(''); }} className="btn-remove-step" id={`btn-remove-step-${i}`} style={{ padding: '8px 14px', margin: 0, background: '#e74c3c', color: '#fff', borderRadius: '4px', border: 'none' }}>×</button>
+                </WithTooltip>
+                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'stretch' }} className="algebra-add-step-wrapper">
+                  <button onClick={() => addRow(i)} className="btn-add-row" id={`btn-add-row-${i}`} style={{ padding: '8px 14px', margin: 0, background: 'var(--accent)', color: '#fff', borderRadius: '4px', border: 'none', cursor: 'pointer' }}>+</button>
+                  <span className="algebra-kbd-tooltip" suppressHydrationWarning>{shortcutLabel}</span>
+                </div>
 
               </div>
             </div>
           ))}
         </div>
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-          {isSolutionShown ? <button className="btn-check" onClick={nextProb}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check} id={`btn-check-${id}`}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer' }}>{t('btn_show_sol')}</button>
+          {isSolutionShown ? <button className="btn-check" onClick={nextProb}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+          </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '10px' }} data-testid="algebra-result">{msg}</p>}
       </div>
@@ -396,6 +526,17 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
 
   const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_wordproblem`, null);
   const [phase, setPhase] = useSessionState<'eq' | 'sol'>(`session_algebra_phase_wordproblem`, 'eq');
+  const eqRef = useRef<HTMLInputElement>(null);
+  const solRef = useRef<HTMLInputElement>(null);
+
+  // Autofocus based on phase or new problem
+  useEffect(() => {
+    if (phase === 'eq' && eqRef.current) {
+      eqRef.current.focus();
+    } else if (phase === 'sol' && solRef.current) {
+      solRef.current.focus();
+    }
+  }, [phase, prob]);
   const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
   useEffect(() => {
@@ -436,11 +577,13 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
       <SectionHeader title={title} t={t} />
       <div className="question" style={{ margin: '20px', fontSize: '1.2rem' }}>{prob.text}</div>
       <div style={{ margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '300px' }}>
-        <input placeholder={t('placeholder_equation')} value={eq} onChange={e => { setEq(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} disabled={phase === 'sol'} style={{ padding: '10px' }} />
-        {phase === 'sol' && <input placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px' }} autoFocus type="number" step="any" />}
+        <input ref={eqRef} placeholder={t('placeholder_equation')} value={eq} onChange={e => { setEq(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} disabled={phase === 'sol'} style={{ padding: '10px' }} />
+        {phase === 'sol' && <input ref={solRef} placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px' }} type="number" step="any" />}
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'center' }}>
-          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check}>{t('algebra_check_ans')}</button>}
-          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
+          </WithTooltip>
         </div>
       </div>
       {msg && <p className="result" style={{ marginTop: '15px', fontWeight: 'bold' }} data-testid="algebra-result">{msg}</p>}
@@ -454,6 +597,15 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
   const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_finalexam`, null);
   const [msg, setMsg] = useState('');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Autofocus on new problem
+  useEffect(() => {
+    if (prob && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [prob]);
+
   const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
@@ -485,11 +637,13 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
       <div className="question" style={{ fontSize: '1.7rem', margin: '30px', direction: 'ltr' }}>{prob.q}</div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-          <input value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
-          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <button className="btn-check" onClick={check}>{t('algebra_check_ans')}</button>}
+          <input ref={inputRef} value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} />}
         </div>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
-          <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px' }}>{t('btn_show_sol')}</button>
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
+          </WithTooltip>
           <button onClick={() => alert(t('exam_finish'))} style={{ background: '#2ecc71', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>{t('exam_finish')}</button>
         </div>
       </div>
@@ -543,6 +697,27 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
     }
   };
   
+  // Global shortcuts: Cmd/Ctrl+/ = Show Solution, Cmd/Ctrl+E = Toggle Examples
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const isMac = getIsMac();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isModifier = isMac ? e.metaKey : e.ctrlKey;
+      if (isModifier && e.key === '/') {
+        e.preventDefault();
+        const solBtn = document.querySelector('.btn-show-sol:not([disabled])') as HTMLButtonElement | null;
+        solBtn?.click();
+      }
+      if (isModifier && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        const exBtn = document.getElementById('btn-toggle-examples') as HTMLButtonElement | null;
+        exBtn?.click();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleGlobalEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       const target = e.target as HTMLElement;
@@ -617,6 +792,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
           <div style={{ flex: '3 1 350px' }}>
             {(activeTab === 'addsub' || activeTab === 'muldiv') && (
               <SimpleWindow 
+                key={activeTab}
                 id={activeTab} 
                 title={t(`algebra_btn_${activeTab}`)} 
                 generateProblem={activeTab === 'addsub' ? addSubGenerator : mulDivGenerator} 
@@ -627,6 +803,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'rounding' && (
               <RoundingWindow 
+                key="rounding"
                 id="rounding" 
                 title={t('algebra_btn_rounding')} 
                 generateProblem={roundingGenerator} 
@@ -637,6 +814,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'twostep' && (
               <FixedStepWindow 
+                key="twostep"
                 id="twostep" 
                 title={t('algebra_btn_twostep')} 
                 generateProblem={twoStepGenerator} 
@@ -647,6 +825,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'combinelike' && (
               <AdvancedAlgebraWindow 
+                key="combinelike"
                 id="combinelike" 
                 title={t('algebra_btn_combinelike')} 
                 generateProblem={combineLikeGenerator} 
@@ -657,6 +836,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'fractionlike' && (
               <AdvancedAlgebraWindow 
+                key="fractionlike"
                 id="fractionlike" 
                 title={t('algebra_btn_fraction_like')} 
                 generateProblem={fractionLikeGenerator} 
@@ -667,6 +847,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'complex' && (
               <AdvancedAlgebraWindow 
+                key="complex"
                 id="complex" 
                 title={t('algebra_btn_complex')} 
                 generateProblem={complexGenerator} 
@@ -677,6 +858,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'wordproblem' && (
               <WordProblemWindow 
+                key="wordproblem"
                 title={t('algebra_btn_word_problem')} 
                 generateProblem={wordProblemGenerator} 
                 t={t} 
@@ -685,6 +867,7 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             )}
             {activeTab === 'finalexam' && (
               <FinalExamWindow 
+                key="finalexam"
                 title={t('algebra_btn_final_exam')} 
                 generateProblem={finalExamGenerator} 
                 t={t} 

@@ -831,3 +831,51 @@ html[dir="ltr"] #contact-form textarea {
         padding: 20px 15px 30px;
     }
 }
+
+.btn-add-row,
+.btn-remove-step {
+    margin: 0;
+}
+
+/* Keyboard shortcut tooltip on the + (Add Step) button */
+.algebra-add-step-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: stretch;
+}
+
+.algebra-kbd-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    background: #2c3e50;
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-family: monospace;
+    padding: 5px 12px;
+    border-radius: 5px;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    z-index: 100;
+}
+
+.algebra-kbd-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #2c3e50;
+}
+
+.algebra-add-step-wrapper:hover .algebra-kbd-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}

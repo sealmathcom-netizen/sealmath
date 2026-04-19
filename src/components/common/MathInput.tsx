@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
 // Import mathlive globally (this only happens on the client)
 if (typeof window !== 'undefined') {
@@ -29,8 +29,20 @@ declare global {
   }
 }
 
-export default function MathInput({ value, onChange, onFocus, onClick, onEnter, style, className, placeholder, readonly }: MathInputProps) {
+const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, onClick, onEnter, style, className, placeholder, readonly }, ref) => {
   const mfRef = useRef<any>(null);
+
+  // Expose the math-field focus method to the parent
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      if (mfRef.current) {
+        mfRef.current.focus();
+      }
+    },
+    get value() {
+      return mfRef.current ? mfRef.current.value : '';
+    }
+  }));
 
   useEffect(() => {
     const mf = mfRef.current;
@@ -110,4 +122,8 @@ export default function MathInput({ value, onChange, onFocus, onClick, onEnter, 
       }}
     />
   );
-}
+});
+
+MathInput.displayName = 'MathInput';
+
+export default MathInput;
