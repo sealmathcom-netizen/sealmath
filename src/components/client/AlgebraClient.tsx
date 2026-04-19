@@ -10,7 +10,7 @@ import { logToAxiom } from '../../utils/logger';
 import * as MathEngine from '../../utils/math/evaluators';
 import * as MathGen from '../../utils/math/generators';
 
-const generateExerciseId = () => Math.random().toString(36).substring(2, 15);
+const generateExerciseId = () => Date.now().toString(36) + Math.random().toString(36).substring(2, 10);
 
 const getIsMac = () => {
   if (typeof window === 'undefined') return false;
@@ -274,9 +274,9 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
     if (problem && inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
-  }, [problem]);
+  }, [exerciseId]);
 
-  const nextProb = () => { const p = generateProblem(); setProblem(p); setSteps(new Array(p.steps.length).fill('')); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const nextProb = () => { const p = generateProblem(); setProblem(p); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -388,7 +388,16 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
 
 function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
   const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, generateExerciseId());
-  const [rows, setRows] = useSessionState<{ id: string; val: string }[]>(`session_algebra_rows_${id}_${exerciseId}`, [{ id: generateExerciseId(), val: '' }]);
+  const [rows, setRows] = useSessionState<{ id: string; val: string }[]>(`session_algebra_rows_${id}_${exerciseId}`, () => [{ id: generateExerciseId(), val: '' }]);
+
+  // Migration: Ensure rows are always objects with IDs (handles legacy string-array data in sessionStorage)
+  useEffect(() => {
+    if (rows && rows.some((r: any) => typeof r === 'string' || (r && typeof r === 'object' && !r.id))) {
+      setRows((prev: any) => prev.map((r: any) => 
+        (typeof r === 'object' && r && r.id) ? r : { id: generateExerciseId(), val: String(r || '') }
+      ));
+    }
+  }, [rows, setRows]);
   const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, generateProblem);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
@@ -450,7 +459,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     setMsg('');
   };
 
-  const nextProb = () => { setProblem(generateProblem()); setRows([{ id: generateExerciseId(), val: '' }]); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const nextProb = () => { setProblem(generateProblem()); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -645,7 +654,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
       solRef.current.focus();
     }
   }, [phase, prob]);
-  const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const next = () => { setProb(generateProblem()); setPhase('eq'); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -722,7 +731,7 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
     }
   }, [prob]);
 
-  const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const next = () => { setProb(generateProblem()); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
