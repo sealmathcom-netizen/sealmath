@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, type ReactNode } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useSessionState } from '../../hooks/useSessionState';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import MathInput from '../common/MathInput';
 import type { Lang } from '../../i18n/translations';
 import { logToAxiom } from '../../utils/logger';
@@ -21,10 +23,14 @@ function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: strin
     return (
       <div style={{ display: 'inline-block', minWidth: '100px', textAlign: 'center' }}>
         <MathInput value={q} onChange={emptyFn} readonly={true} style={mathStyle} />
+        {/* Hidden text for accessibility and E2E testing (.innerText compatibility) */}
+        <span style={{ position: 'absolute', width: '1px', height: '1px', padding: 0, margin: '-1px', overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', border: 0 }}>
+          {q}
+        </span>
       </div>
     );
   }
-  return <span style={{ direction: 'ltr', fontSize }}>{q}</span>;
+  return <span style={{ direction: 'ltr', fontSize, display: 'inline-block' }}>{q}</span>;
 }
 
 type Props = {
@@ -67,23 +73,26 @@ function SectionHeader({ title, showExample, onToggleExample, t }: any) {
 // --- Windows ---
 
 function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
-  const [prob, setProb] = useState<any>(null);
+  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, '');
+  const [val, setVal] = useSessionState(`session_algebra_val_${id}_${exerciseId}`, '');
+  const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, null);
   const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
-  const [val, setVal] = useState('');
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
 
-  const [exerciseId, setExerciseId] = useState('');
   const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
-  useEffect(() => { next(); }, [generateProblem]);
+  
+  useEffect(() => { 
+    if (isLoaded && !prob) next(); 
+  }, [isLoaded, prob, generateProblem]);
 
   useEffect(() => {
-    if (prob) {
+    if (prob && exerciseId) {
       logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: prob.q, lang });
     }
-  }, [exerciseId, prob, id]);
+  }, [exerciseId, prob, id, lang]);
 
   const check = () => {
     const isCorrect = MathEngine.checkNumeric(val, prob.a);
@@ -124,23 +133,26 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
 }
 
 function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
-  const [prob, setProb] = useState<any>(null);
-  const [val, setVal] = useState('');
+  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, '');
+  const [val, setVal] = useSessionState(`session_algebra_val_${id}_${exerciseId}`, '');
+  const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, null);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
 
-  const [exerciseId, setExerciseId] = useState('');
   const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
-  useEffect(() => { next(); }, [generateProblem]);
+  
+  useEffect(() => { 
+    if (isLoaded && !prob) next(); 
+  }, [isLoaded, prob, generateProblem]);
 
   useEffect(() => {
-    if (prob) {
+    if (prob && exerciseId) {
       logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: prob.q, lang });
     }
-  }, [exerciseId, prob, id]);
+  }, [exerciseId, prob, id, lang]);
 
   const check = () => {
     const isCorrect = MathEngine.checkNumeric(val, prob.a);
@@ -181,22 +193,25 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
 }
 
 function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
-  const [problem, setProblem] = useState<any>(null);
+  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, '');
+  const [steps, setSteps] = useSessionState<string[]>(`session_algebra_steps_${id}_${exerciseId}`, []);
+  const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, null);
   const [showExample, setShowExample] = useState(false);
-  const [steps, setSteps] = useState<string[]>([]);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
-  const [exerciseId, setExerciseId] = useState('');
   const nextProb = () => { const p = generateProblem(); setProblem(p); setSteps(new Array(p.steps.length).fill('')); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
-  useEffect(() => { nextProb(); }, [generateProblem]);
+  
+  useEffect(() => {
+    if (isLoaded && !problem) nextProb();
+  }, [isLoaded, problem, generateProblem]);
 
   useEffect(() => {
-    if (problem) {
+    if (problem && exerciseId) {
       logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: problem.q, lang });
     }
-  }, [exerciseId, problem, id]);
+  }, [exerciseId, problem, id, lang]);
 
   const check = () => {
     let isCorrect = true;
@@ -250,22 +265,25 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
 }
 
 function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
-  const [problem, setProblem] = useState<any>(null);
-  const [rows, setRows] = useState<string[]>(['']);
+  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, '');
+  const [rows, setRows] = useSessionState<string[]>(`session_algebra_rows_${id}_${exerciseId}`, ['']);
+  const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, null);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
 
-  const [exerciseId, setExerciseId] = useState('');
   const nextProb = () => { setProblem(generateProblem()); setRows(['']); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
-  useEffect(() => { nextProb(); }, [generateProblem]);
+  
+  useEffect(() => {
+    if (isLoaded && !problem) nextProb();
+  }, [isLoaded, problem, generateProblem]);
 
   useEffect(() => {
-    if (problem) {
+    if (problem && exerciseId) {
       logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: id, question: problem.q, lang });
     }
-  }, [exerciseId, problem, id]);
+  }, [exerciseId, problem, id, lang]);
 
     const check = () => {
     const lastRow = rows[rows.length - 1];
@@ -317,7 +335,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
       <SectionHeader title={title} showExample={showExample} onToggleExample={() => setShowExample(!showExample)} t={t} />
       {showExample && <div style={{ background: '#fdfaf6', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>{exampleContent}</div>}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div className="question" style={{ background: '#fff', border: '1px solid #ddd', borderRadius: '12px', padding: '20px', width: '100%', marginBottom: '20px', textAlign: 'center' }}>
+        <div className="question" style={{ background: '#fff', border: '1px solid #ddd', borderRadius: '12px', padding: '20px', width: '100%', marginBottom: '20px', textAlign: 'center', direction: 'ltr' }}>
           <QuestionDisplay q={problem.q} />
         </div>
 
@@ -327,7 +345,9 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
             {problem.steps.map((s: string, i: number) => (
               <div key={i} data-step-value={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
                 <span style={{ fontSize: '1rem', color: '#7f8c8d' }}>{`Step ${i+1}:`}</span>
-                <QuestionDisplay q={s} fontSize="1.2rem" />
+                <div style={{ direction: 'ltr' }}>
+                  <QuestionDisplay q={s} fontSize="1.2rem" />
+                </div>
               </div>
             ))}
           </div>
@@ -368,18 +388,22 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 }
 
 function WordProblemWindow({ title, generateProblem, t, lang }: any) {
-  const [prob, setProb] = useState<any>(null);
-  const [phase, setPhase] = useState<'eq' | 'sol'>('eq');
-  const [eq, setEq] = useState('');
-  const [sol, setSol] = useState('');
+  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_wordproblem`, '');
+  const [eq, setEq] = useSessionState(`session_algebra_eq_wordproblem_${exerciseId}`, '');
+  const [sol, setSol] = useSessionState(`session_algebra_sol_wordproblem_${exerciseId}`, '');
   const [msg, setMsg] = useState('');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
 
-  const [exerciseId, setExerciseId] = useState('');
+  const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_wordproblem`, null);
+  const [phase, setPhase] = useSessionState<'eq' | 'sol'>(`session_algebra_phase_wordproblem`, 'eq');
   const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
   
   useEffect(() => {
-    if (prob) {
+    if (isLoaded && !prob) next();
+  }, [isLoaded, prob, generateProblem]);
+
+  useEffect(() => {
+    if (prob && exerciseId) {
       logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: 'wordproblem', question: prob.text, lang });
     }
   }, [exerciseId, prob]);
@@ -425,16 +449,19 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
 }
 
 function FinalExamWindow({ title, generateProblem, t, lang }: any) {
-  const [prob, setProb] = useState<any>(null);
-  const [ans, setAns] = useState('');
+  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_finalexam`, '');
+  const [ans, setAns] = useSessionState(`session_algebra_ans_finalexam_${exerciseId}`, '');
+  const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_finalexam`, null);
   const [msg, setMsg] = useState('');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
-
-  const [exerciseId, setExerciseId] = useState('');
   const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
-    if (prob) {
+    if (isLoaded && !prob) next();
+  }, [isLoaded, prob, generateProblem]);
+
+  useEffect(() => {
+    if (prob && exerciseId) {
       logToAxiom({ event: 'exercise_created', exercise_id: exerciseId, type: 'finalexam', question: prob.q, lang });
     }
   }, [exerciseId, prob]);
@@ -472,7 +499,49 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
 }
 
 export default function AlgebraClient({ lang, dict, children }: Props) {
-  const [activeTab, setActiveTab] = usePersistentState<any>('algebraActiveTab', 'addsub');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  // Initialize with null to prevent 'addsub' being highlighted by default
+  const [activeTab, _setActiveTab] = usePersistentState<any>('algebraActiveTab', null);
+  
+  const urlTab = searchParams?.get('tab');
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Sync logic on mount (The truth-seeking phase)
+    const cookieValue = document.cookie.split('; ').find(row => row.startsWith('algebra_active_tab='))?.split('=')[1];
+    const sessionTab = sessionStorage.getItem('session_algebra_active_tab');
+    
+    // Fallback to 'addsub' only if no other intent exists
+    const target = urlTab || cookieValue || sessionTab || 'addsub';
+    
+    if (target && target !== activeTab) {
+      _setActiveTab(target);
+    }
+    
+    setIsHydrated(true);
+  }, []); 
+
+  // If the user changes tab, we update URL, Cookie, and Session
+  const setActiveTab = (tab: string) => {
+    _setActiveTab(tab);
+    
+    const params = new URLSearchParams(searchParams?.toString() || '');
+    params.set('tab', tab);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    
+    if (typeof document !== 'undefined') {
+      document.cookie = `algebra_active_tab=${tab}; path=/; max-age=2592000; SameSite=Lax`;
+    }
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('session_algebra_active_tab', tab);
+    }
+  };
   
   const handleGlobalEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -516,11 +585,25 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
       {dict[`algebra_${id}_ex3`] && <p dangerouslySetInnerHTML={{ __html: t(`algebra_${id}_ex3`) }} />}
     </div>
   );
+  const addSubGenerator = React.useMemo(() => MathGen.getProblemGenerator('add-sub'), []);
+  const mulDivGenerator = React.useMemo(() => MathGen.getProblemGenerator('mul-div'), []);
+  const roundingGenerator = React.useMemo(() => MathGen.getProblemGenerator('rounding'), []);
+  const twoStepGenerator = React.useMemo(() => MathGen.getProblemGenerator('two-step'), []);
+  const combineLikeGenerator = React.useMemo(() => MathGen.getProblemGenerator('combining-like-terms'), []);
+  const fractionLikeGenerator = React.useMemo(() => MathGen.getProblemGenerator('fractions-like-terms'), []);
+  const complexGenerator = React.useMemo(() => MathGen.getProblemGenerator('complex-equation'), []);
+  const wordProblemGenerator = React.useMemo(() => MathGen.getProblemGenerator('word-problems'), []);
+  const finalExamGenerator = React.useMemo(() => MathGen.getProblemGenerator('final-exam'), []);
+
   return (
     <section className="page active" id="algebra-page" data-testid="algebra-page" style={{ paddingBottom: '60px' }} onKeyDownCapture={handleGlobalEnter}>
       <div className="container" style={{ maxWidth: '800px', width: '90%' }}>
         {children}
-        <div style={{ display: 'flex', gap: '25px', flexWrap: 'wrap' }}>
+        <div style={{ 
+          display: 'flex', gap: '25px', flexWrap: 'wrap',
+          opacity: isHydrated ? 1 : 0,
+          transition: 'opacity 0.2s ease-in'
+        }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', flex: '1 1 180px', maxWidth: '300px' }}>
             {tabs.map(tab => (
               <button key={tab.id} id={`tab-${tab.id}`} onClick={() => setActiveTab(tab.id as any)} 
@@ -532,14 +615,82 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
             ))}
           </div>
           <div style={{ flex: '3 1 350px' }}>
-            {(activeTab === 'addsub' || activeTab === 'muldiv') && <SimpleWindow id={activeTab} title={t(`algebra_btn_${activeTab}`)} generateProblem={MathGen.getProblemGenerator(activeTab === 'addsub' ? 'add-sub' : 'mul-div')} t={t} exampleContent={getExample(activeTab)} lang={lang} />}
-            {activeTab === 'rounding' && <RoundingWindow id="rounding" title={t('algebra_btn_rounding')} generateProblem={MathGen.getProblemGenerator('rounding')} t={t} exampleContent={getExample('rounding')} lang={lang} />}
-            {activeTab === 'twostep' && <FixedStepWindow id="twostep" title={t('algebra_btn_twostep')} generateProblem={MathGen.getProblemGenerator('two-step')} t={t} exampleContent={getExample('twostep')} lang={lang} />}
-            {activeTab === 'combinelike' && <AdvancedAlgebraWindow id="combinelike" title={t('algebra_btn_combinelike')} generateProblem={MathGen.getProblemGenerator('combining-like-terms')} t={t} exampleContent={getExample('combinelike')} lang={lang} />}
-            {activeTab === 'fractionlike' && <AdvancedAlgebraWindow id="fractionlike" title={t('algebra_btn_fraction_like')} generateProblem={MathGen.getProblemGenerator('fractions-like-terms')} t={t} exampleContent={getExample('fraction_like')} lang={lang} />}
-            {activeTab === 'complex' && <AdvancedAlgebraWindow id="complex" title={t('algebra_btn_complex')} generateProblem={MathGen.getProblemGenerator('complex-equation')} t={t} exampleContent={getExample('complex')} lang={lang} />}
-            {activeTab === 'wordproblem' && <WordProblemWindow title={t('algebra_btn_word_problem')} generateProblem={MathGen.getProblemGenerator('word-problems')} t={t} lang={lang} />}
-            {activeTab === 'finalexam' && <FinalExamWindow title={t('algebra_btn_final_exam')} generateProblem={MathGen.getProblemGenerator('final-exam')} t={t} lang={lang} />}
+            {(activeTab === 'addsub' || activeTab === 'muldiv') && (
+              <SimpleWindow 
+                id={activeTab} 
+                title={t(`algebra_btn_${activeTab}`)} 
+                generateProblem={activeTab === 'addsub' ? addSubGenerator : mulDivGenerator} 
+                t={t} 
+                exampleContent={getExample(activeTab)} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'rounding' && (
+              <RoundingWindow 
+                id="rounding" 
+                title={t('algebra_btn_rounding')} 
+                generateProblem={roundingGenerator} 
+                t={t} 
+                exampleContent={getExample('rounding')} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'twostep' && (
+              <FixedStepWindow 
+                id="twostep" 
+                title={t('algebra_btn_twostep')} 
+                generateProblem={twoStepGenerator} 
+                t={t} 
+                exampleContent={getExample('twostep')} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'combinelike' && (
+              <AdvancedAlgebraWindow 
+                id="combinelike" 
+                title={t('algebra_btn_combinelike')} 
+                generateProblem={combineLikeGenerator} 
+                t={t} 
+                exampleContent={getExample('combinelike')} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'fractionlike' && (
+              <AdvancedAlgebraWindow 
+                id="fractionlike" 
+                title={t('algebra_btn_fraction_like')} 
+                generateProblem={fractionLikeGenerator} 
+                t={t} 
+                exampleContent={getExample('fraction_like')} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'complex' && (
+              <AdvancedAlgebraWindow 
+                id="complex" 
+                title={t('algebra_btn_complex')} 
+                generateProblem={complexGenerator} 
+                t={t} 
+                exampleContent={getExample('complex')} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'wordproblem' && (
+              <WordProblemWindow 
+                title={t('algebra_btn_word_problem')} 
+                generateProblem={wordProblemGenerator} 
+                t={t} 
+                lang={lang} 
+              />
+            )}
+            {activeTab === 'finalexam' && (
+              <FinalExamWindow 
+                title={t('algebra_btn_final_exam')} 
+                generateProblem={finalExamGenerator} 
+                t={t} 
+                lang={lang} 
+              />
+            )}
           </div>
         </div>
       </div>

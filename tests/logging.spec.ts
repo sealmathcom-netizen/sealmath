@@ -51,6 +51,7 @@ test.describe('Algebra Exercise Logging', () => {
     await expect(async () => {
       const creations = logs.filter(l => l.event === 'exercise_created' && l.type === 'addsub');
       expect(creations.length).toBeGreaterThan(0);
+      expect(creations[0].lang).toBe('en');
     }).toPass({ timeout: 15000 });
 
     // Robust matching: pick the LATEST creation event of this type
@@ -73,6 +74,7 @@ test.describe('Algebra Exercise Logging', () => {
       const attemptEvent = logs.find(l => l.event === 'exercise_attempt' && l.exercise_id === initialExerciseId);
       expect(attemptEvent).toBeDefined();
       expect(attemptEvent.is_correct).toBe(false);
+      expect(attemptEvent.lang).toBe('en');
     }).toPass({ timeout: 15000 });
 
     // 3. Show solution
@@ -82,6 +84,7 @@ test.describe('Algebra Exercise Logging', () => {
     await expect(async () => {
       const solutionEvent = logs.find(l => l.event === 'exercise_show_solution' && l.exercise_id === initialExerciseId);
       expect(solutionEvent).toBeDefined();
+      expect(solutionEvent.lang).toBe('en');
     }).toPass({ timeout: 10000 });
   });
 

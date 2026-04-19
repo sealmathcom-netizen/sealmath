@@ -744,7 +744,14 @@ test.describe('Algebra Fraction UX Refinement', () => {
     await page.keyboard.press('Enter');
     
     // 4. Expectation: THE PROBLEM SHOULD CHANGE (wait for it because of the 1s delay)
-    await expect(page.locator('.question')).not.toHaveText(firstProblemText, { timeout: 5000 });
+    await expect(async () => {
+      const currentText = await page.locator('.question').evaluate(el => {
+        const mf = el.querySelector('math-field');
+        return mf ? (mf as any).value : (el as HTMLElement).innerText;
+      });
+      expect(currentText).not.toBe(firstProblemText);
+      expect(currentText).not.toBe("");
+    }).toPass({ timeout: 5000 });
   });
 
   test('should do nothing on Enter with incorrect answer', async ({ page }) => {
@@ -766,7 +773,10 @@ test.describe('Algebra Fraction UX Refinement', () => {
     await page.keyboard.press('Enter');
     
     // 4. Expectation: Nothing happens, problem stays the same
-    const secondProblemText = await page.locator('.question').innerText();
+    const secondProblemText = await page.locator('.question').evaluate(el => {
+      const mf = el.querySelector('math-field');
+      return mf ? (mf as any).value : (el as HTMLElement).innerText;
+    });
     expect(secondProblemText).toBe(firstProblemText);
   });
 });
