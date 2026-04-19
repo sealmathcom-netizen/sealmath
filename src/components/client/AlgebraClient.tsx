@@ -114,6 +114,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastSolClick = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
@@ -157,14 +158,14 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
-              onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
+            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }} 
+              onFocus={() => { if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
           </div>
         </div>
@@ -184,6 +185,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastSolClick = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
@@ -227,14 +229,14 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); setMsg(''); }} 
-              onFocus={() => { setMsg(''); setIsSolutionShown(false); }}
+            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }} 
+              onFocus={() => { if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
           </div>
         </div>
@@ -245,7 +247,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
 }
 
 function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }: any) {
-  const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_${id}`, '');
+  const [exerciseId, setExerciseId] = useSessionState<string>(`session_algebra_id_${id}`, generateExerciseId());
   const [steps, setSteps] = useSessionState<string[]>(`session_algebra_steps_${id}_${exerciseId}`, []);
   const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, null);
   const [showExample, setShowExample] = useState(false);
@@ -253,6 +255,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
   const inputRefs = useRef<any[]>([]);
+  const lastSolClick = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
@@ -312,9 +315,9 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
                 <MathInput 
                   ref={el => inputRefs.current[i] = el}
                   value={steps[i]} 
-                  onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); setMsg(''); }} 
+                  onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }} 
                   onEnter={() => isSolutionShown ? nextProb() : check()} 
-                  onFocus={() => { setMsg(''); setIsSolutionShown(false); }} 
+                  onFocus={() => { if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false); }} 
                 />
               </div>
             </div>
@@ -323,7 +326,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={nextProb} style={{ padding: '10px 15px' }}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} style={{ padding: '10px 15px' }} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setSteps([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setSteps([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -342,6 +345,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   const [showExample, setShowExample] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const inputRefs = useRef<any[]>([]);
+  const lastSolClick = useRef(0);
 
   const isMac = getIsMac();
   const shortcutLabel = isMac ? '⌘=' : 'Ctrl+=';
@@ -483,13 +487,15 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
                   <MathInput 
                     ref={el => inputRefs.current[i] = el}
                     value={r} 
-                    onChange={v => { const nr = [...rows]; nr[i] = v; setRows(nr); }} 
+                    onChange={v => { 
+                      const nr = [...rows]; nr[i] = v; setRows(nr); 
+                      if (msgColor !== 'green') setMsg('');
+                      setIsSolutionShown(false);
+                    }} 
                     onEnter={() => isSolutionShown ? nextProb() : check()} 
                     onFocus={() => { 
                       setFocusedIndex(i);
-                      // Only clear "Incorrect" or "Step" messages on focus, leave "Correct" alone
-                      if (msgColor !== 'green') setMsg(''); 
-                      setIsSolutionShown(false); 
+                      if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false);
                     }} 
                   />
                 </div>
@@ -508,7 +514,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={nextProb}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang }); if (problem.steps) setRows([...problem.steps]); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '10px' }} data-testid="algebra-result">{msg}</p>}
