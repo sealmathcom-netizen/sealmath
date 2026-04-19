@@ -92,33 +92,41 @@ export function latexToMathJS(latex: string, variable: string): string {
   return clean.trim();
 }
 
-export function checkFractionSimplification(
+export function checkAlgebraicResult(
   userInput: string,
-  target: { num: number; den: number },
-  variable?: string
+  target: { num: number; den: number } | string | number,
+  variable: string = 'x'
 ): boolean {
   if (!userInput) return false;
 
-  const mathString = latexToMathJS(userInput, variable || 'x');
+  const v = variable || 'x';
+  const probeVal = 1.234567;
+  const mathString = latexToMathJS(userInput, v);
 
   try {
     const node = math.parse(mathString);
-    const simplified = math.simplify(node);
-
-
-    // 2. Numerical Equality Check (Symbols: x, y, t, d, a, b, c)
-    const probeVal = 1.234567; 
-    const v = variable || 'x';
-    const userHasVariable = userInput.toLowerCase().includes(v);
-    const targetVal = (target.num / target.den) * (userHasVariable ? probeVal : 1);
-    const scope = { x: probeVal, y: probeVal, t: probeVal, d: probeVal, a: probeVal, b: probeVal, c: probeVal };
+    const scope: Record<string, number> = { x: probeVal, y: probeVal, t: probeVal, d: probeVal, a: probeVal, b: probeVal, c: probeVal };
+    scope[v] = probeVal;
     const userVal = node.evaluate(scope);
-    
+
+    // 1. Calculate Target Value
+    let targetVal = 0;
+    if (typeof target === 'number') {
+       targetVal = target;
+    } else if (typeof target === 'string') {
+       const targetMathString = latexToMathJS(target, v);
+       targetVal = math.parse(targetMathString).evaluate(scope);
+    } else {
+       // Rational
+       const userHasVariable = userInput.toLowerCase().includes(v);
+       targetVal = (target.num / target.den) * (userHasVariable ? probeVal : 1);
+    }
+
+    // 2. Numerical Equality Check
     if (Math.abs(userVal - targetVal) > 1e-7) return false;
 
-    // 3. Structural Hardening
-    
-    // 3a. GCD check
+    // 3. Structural Simplification Check
+    // 3a. GCD check (for fractions)
     let reduced = true;
     node.traverse((n: any) => {
       if (n.isOperatorNode && n.op === '/') {
@@ -134,6 +142,7 @@ export function checkFractionSimplification(
     if (!reduced) return false;
 
     // 3b. Redundant Identity (1x -> x, 0x -> 0)
+    // We check for "0*" or "1*" in the mathjs string representation
     const normalized = node.toString().replace(/\s/g, '');
     if (/\b[01]\*/.test(normalized)) return false;
 
@@ -148,15 +157,23 @@ export function checkFractionSimplification(
     }
 
     // 3d. Combined Terms Check (Operator Count)
+    const simplified = math.simplify(node);
     const originalOps = countOperators(node);
     const simplifiedOps = countOperators(simplified);
-    
     if (originalOps > simplifiedOps) return false;
 
     return true;
   } catch (err) {
     return false;
   }
+}
+
+export function checkFractionSimplification(
+  userInput: string,
+  target: { num: number; den: number },
+  variable?: string
+): boolean {
+  return checkAlgebraicResult(userInput, target, variable);
 }
 
 export function evalSide(expr: string, variable: string, val: number): number {

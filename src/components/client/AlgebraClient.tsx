@@ -159,7 +159,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
             <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }} 
-              onFocus={() => { if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false); }}
+              onFocus={() => { if (Date.now() - lastSolClick.current > 100) setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
@@ -230,7 +230,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
             <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }} 
-              onFocus={() => { if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false); }}
+              onFocus={() => { if (Date.now() - lastSolClick.current > 100) setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
@@ -288,8 +288,20 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
 
     // Add fully solved check for the final step to ensure they reach the explicit final form
     if (isCorrect && steps.length > 0) {
-      if (!MathEngine.isEquationFullySolved(steps[steps.length - 1], problem.variable || 'x')) {
+      const finalStep = steps[steps.length - 1];
+      const v = problem.variable || 'x';
+
+      if (!MathEngine.isEquationFullySolved(finalStep, v)) {
          setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
+         setMsgColor('orange');
+         return;
+      }
+
+      // Simplification check for the final result
+      const parts = finalStep.split('=');
+      const resultPart = parts[0].trim() === v ? parts[1] : parts[0];
+      if (!MathEngine.checkAlgebraicResult(resultPart, problem.a, v)) {
+         setMsg(t('algebra_fraction_not_simplified'));
          setMsgColor('orange');
          return;
       }
@@ -317,7 +329,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
                   value={steps[i]} 
                   onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }} 
                   onEnter={() => isSolutionShown ? nextProb() : check()} 
-                  onFocus={() => { if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false); }} 
+                  onFocus={() => { if (Date.now() - lastSolClick.current > 100) setIsSolutionShown(false); }} 
                 />
               </div>
             </div>
@@ -425,26 +437,45 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 
     let isCorrect = false;
     let notFullySolved = false;
+    let needsSimplification = false;
+    const v = problem.variable || 'x';
+
     if (id === 'complex') {
       if (lastRow.includes('=')) {
         isCorrect = MathEngine.checkEquationStep(lastRow, problem.a);
-        if (isCorrect && !MathEngine.isEquationFullySolved(lastRow, problem.variable || 'x')) {
-          isCorrect = false;
-          notFullySolved = true;
+        if (isCorrect) {
+          if (!MathEngine.isEquationFullySolved(lastRow, v)) {
+            isCorrect = false;
+            notFullySolved = true;
+          } else {
+            const parts = lastRow.split('=');
+            const resultPart = (parts[0].trim() === v) ? parts[1] : parts[0];
+            if (!MathEngine.checkAlgebraicResult(resultPart, problem.a, v)) {
+              isCorrect = false;
+              needsSimplification = true;
+            }
+          }
         }
       } else {
-        isCorrect = MathEngine.checkNumeric(lastRow, problem.a);
+        isCorrect = MathEngine.checkAlgebraicResult(lastRow, problem.a, v);
+        if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
+          needsSimplification = true;
+        }
       }
     } else {
-      // For CLT and Fractions, problem.a is the target expression
-      // We'll use checkEquationStep which is already robust for algebraic comparison
-      isCorrect = MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345);
+      isCorrect = MathEngine.checkAlgebraicResult(lastRow, problem.a, v);
+      if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
+        needsSimplification = true;
+      }
     }
     
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: rows.join(' | '), is_correct: isCorrect, lang });
 
     if (notFullySolved) {
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
+      setMsgColor('orange');
+    } else if (needsSimplification) {
+      setMsg(t('algebra_fraction_not_simplified'));
       setMsgColor('orange');
     } else if (isCorrect) { 
       setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS); 
@@ -469,7 +500,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
             <p style={{ fontWeight: 'bold', color: '#2980b9', marginBottom: '8px' }}>{t('algebra_solution_steps') || "Solution Steps"}:</p>
             {problem.steps.map((s: string, i: number) => (
               <div key={i} data-step-value={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
-                <span style={{ fontSize: '1rem', color: '#7f8c8d' }}>{`Step ${i+1}:`}</span>
+                <span style={{ fontSize: '1rem', color: '#7f8c8d' }}>{`${t('algebra_step_label')} ${i+1}:`}</span>
                 <div style={{ direction: 'ltr' }}>
                   <QuestionDisplay q={s} fontSize="1.2rem" />
                 </div>
@@ -495,7 +526,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
                     onEnter={() => isSolutionShown ? nextProb() : check()} 
                     onFocus={() => { 
                       setFocusedIndex(i);
-                      if (Date.now() - lastSolClick.current > 50) setIsSolutionShown(false);
+                      if (Date.now() - lastSolClick.current > 200) setIsSolutionShown(false);
                     }} 
                   />
                 </div>
