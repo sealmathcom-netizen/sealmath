@@ -44,7 +44,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     game_page_title: '🎯 Learning Mental Math: The 24 Challenge',
     capture_page_title: '🧩 Learning Fractions: Fraction Capture',
     algebra_page_title: '📐 Learning Algebra: Algebra Basics',
-    meta_keywords: 'math games, learning math, free math tools, algebra practice, fraction games, 24 challenge, educational games, math for kids, learn arithmetic, learn fractions',
+    meta_keywords: 'math games, learning math, free math tools, algebra practice, fraction games, 24 challenge, educational games, math for kids, learn arithmetic, learn fractions, math creating exercises',
 
     // JS Feedback Messages
     msg_saved: 'Saved!',
@@ -231,7 +231,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     game_page_title: '🎯 לומדים חשבון מנטלי: אתגר ה-24',
     capture_page_title: '🧩 לומדים שברים: לכידת שברים',
     algebra_page_title: 'אלגברה בסיסית',
-    meta_keywords: 'משחקי מתמטיקה, לימוד מתמטיקה, כלי מתמטיקה בחינם, תרגול אלגברה, משחקי שברים, אתגר ה-24, משחקים לימודיים, מתמטיקה לילדים, לימוד חשבון, לימוד שברים',
+    meta_keywords: 'משחקי מתמטיקה, לימוד מתמטיקה, כלי מתמטיקה בחינם, תרגול אלגברה, משחקי שברים, אתגר ה-24, משחקים לימודיים, מתמטיקה לילדים, לימוד חשבון, לימוד שברים, יצירת תרגילי מתמטיקה',
 
     // JS Feedback Messages
     msg_saved: 'נשמר!',
@@ -418,7 +418,7 @@ export const translations: Record<Lang, Record<string, string>> = {
     game_page_title: '🎯 Rekenen Leren: De 24 Uitdaging',
     capture_page_title: '🧩 Breuken Leren: Breuken Vangen',
     algebra_page_title: '📐 Algebra Leren: Algebra Basis',
-    meta_keywords: 'wiskunde spelletjes, wiskunde leren, gratis wiskunde tools, algebra oefenen, breuken spelletjes, 24 uitdaging, educatieve spelletjes, wiskunde voor kinderen, rekenen leren, breuken leren',
+    meta_keywords: 'wiskunde spelletjes, wiskunde leren, gratis wiskunde tools, algebra oefenen, breuken spelletjes, 24 uitdaging, educatieve spelletjes, wiskunde voor kinderen, rekenen leren, breuken leren, wiskunde opdrachten maken',
 
     // JS Feedback Messages
     msg_saved: 'Opgeslagen!',
