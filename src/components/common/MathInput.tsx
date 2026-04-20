@@ -44,6 +44,9 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
     }
   }));
 
+  // We need to keep a ref to track if a programmatic update is happening
+  const isUpdatingRef = useRef(false);
+
   useEffect(() => {
     const mf = mfRef.current;
     if (!mf) return;
@@ -56,7 +59,9 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
     
     // Set initial value if changed from outside
     if (mf.value !== value) {
+      isUpdatingRef.current = true;
       mf.value = value;
+      setTimeout(() => { isUpdatingRef.current = false; }, 150);
     }
 
     const handleInput = (e: any) => {
@@ -64,8 +69,10 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
     };
 
     const handleInteraction = () => {
+      if (isUpdatingRef.current) return;
       // Use setTimeout to ensure this runs after MathLive's internal event handling
       setTimeout(() => {
+        if (isUpdatingRef.current) return;
         if (onFocus) onFocus();
         if (onClick) onClick();
       }, 10);
@@ -102,7 +109,9 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
   // Update value when it changes externally
   useEffect(() => {
     if (mfRef.current && mfRef.current.value !== value) {
+      isUpdatingRef.current = true;
       mfRef.current.value = value;
+      setTimeout(() => { isUpdatingRef.current = false; }, 300);
     }
   }, [value]);
 
