@@ -7,7 +7,6 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import MathInput from '../common/MathInput';
 import type { Lang } from '../../i18n/translations';
 import { logToAxiom } from '../../utils/logger';
-import { playSound } from '../../utils/audio';
 import * as MathEngine from '../../utils/math/evaluators';
 import * as MathGen from '../../utils/math/generators';
 
@@ -85,7 +84,6 @@ function SectionHeader({ title, showExample, onToggleExample, t }: any) {
         <WithTooltip tip={_exLabel}>
           <button
             id="btn-toggle-examples"
-            data-testid="btn-toggle-examples"
             onClick={onToggleExample}
             style={{
               background: 'var(--accent)',
@@ -108,23 +106,11 @@ function SectionHeader({ title, showExample, onToggleExample, t }: any) {
   );
 }
 
-function ActionButton({ label, onClick, id, style, 'data-testid': testId, isSolutionShown }: { label: string; onClick: () => void; id?: string; style?: React.CSSProperties; 'data-testid'?: string; isSolutionShown?: boolean }) {
+function CheckButton({ label, onClick, id, style }: { label: string; onClick: () => void; id?: string; style?: React.CSSProperties }) {
   return (
     <div className="algebra-add-step-wrapper">
-      <button 
-        className="btn-check" 
-        onClick={onClick} 
-        id={id} 
-        style={{
-          ...style,
-          background: isSolutionShown ? 'var(--accent)' : '#27ae60',
-          transition: 'all 0.2s'
-        }} 
-        data-testid={testId}
-      >
-        {label}
-      </button>
-      {!isSolutionShown && <span className="algebra-kbd-tooltip" suppressHydrationWarning>{'↵'}</span>}
+      <button className="btn-check" onClick={onClick} id={id} style={style}>{label}</button>
+      <span className="algebra-kbd-tooltip" suppressHydrationWarning>{'↵'}</span>
     </div>
   );
 }
@@ -138,27 +124,19 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
   const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
-  const [isSolutionShown, setIsSolutionShown] = useSessionState(`session_algebra_sol_shown_${id}`, false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const lastShowTimeRef = useRef(0);
+  const lastSolClick = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
-    if (!isSolutionShown && prob && inputRef.current) {
+    if (prob && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [prob, isSolutionShown]);
+  }, [prob]);
 
-  const nextTimeoutRef = useRef<any>(null);
-  const next = () => {
-    if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current);
-    setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId());
-  };
-
-  useEffect(() => {
-    return () => { if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current); };
-  }, []);
+  const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -181,11 +159,9 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentVal, is_correct: isCorrect, error: errorMsg, lang });
 
     if (isCorrect) {
-      playSound('correct');
       setMsg(t('algebra_correct')); setMsgColor('green');
-      nextTimeoutRef.current = setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
+      setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
-      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -194,7 +170,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
   if (!prob) return null;
 
   return (
-    <div className="rules-box" data-solution-shown={isSolutionShown.toString()} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
+    <div className="rules-box" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
       <SectionHeader title={title} showExample={showExample} onToggleExample={() => setShowExample(!showExample)} t={t} />
       {showExample && <div style={{ background: '#fdfaf6', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>{exampleContent}</div>}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -202,27 +178,14 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); }}
-              onFocus={() => { if (Date.now() - lastShowTimeRef.current > 100) setIsSolutionShown(false); }}
+            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }}
+              onFocus={() => { if (Date.now() - lastSolClick.current > 100) setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            <ActionButton
-              label={isSolutionShown ? t('algebra_next_exercise') : t('algebra_check_ans')}
-              onClick={isSolutionShown ? next : check}
-              id={isSolutionShown ? `btn-next-exercise-${id}` : `btn-check-${id}`}
-              data-testid={isSolutionShown ? "btn-next-exercise" : "btn-check"}
-              isSolutionShown={isSolutionShown}
-            />
+            {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
             <WithTooltip tip={_solLabel}>
-              <button onClick={() => {
-                logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang });
-                playSound('solution');
-                setVal(String(prob.a));
-                lastShowTimeRef.current = Date.now();
-                setIsSolutionShown(true);
-                setMsg('');
-              }} className="btn-show-sol" data-testid="btn-show-solution" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+              <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
             </WithTooltip>
           </div>
         </div>
@@ -239,27 +202,19 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [solvedCount, setSolvedCount] = usePersistentState<number>(`algebra_solved_${id}`, 0);
-  const [isSolutionShown, setIsSolutionShown] = useSessionState(`session_algebra_sol_shown_${id}`, false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const lastShowTimeRef = useRef(0);
+  const lastSolClick = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
-    if (!isSolutionShown && prob && inputRef.current) {
+    if (prob && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [prob, isSolutionShown]);
+  }, [prob]);
 
-  const nextTimeoutRef = useRef<any>(null);
-  const next = () => {
-    if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current);
-    setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId());
-  };
-
-  useEffect(() => {
-    return () => { if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current); };
-  }, []);
+  const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -282,11 +237,9 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentVal, is_correct: isCorrect, error: errorMsg, lang });
 
     if (isCorrect) {
-      playSound('correct');
       setMsg(t('algebra_correct')); setMsgColor('green');
-      nextTimeoutRef.current = setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
+      setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
-      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -295,7 +248,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
   if (!prob) return null;
 
   return (
-    <div className="rules-box" data-solution-shown={isSolutionShown.toString()} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
+    <div className="rules-box" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
       <SectionHeader title={title} showExample={showExample} onToggleExample={() => setShowExample(!showExample)} t={t} />
       {showExample && <div style={{ background: '#fdfaf6', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>{exampleContent}</div>}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -303,27 +256,14 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
         <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={prob.q} fontSize="30px" /></div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
-            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); }}
-              onFocus={() => { if (Date.now() - lastShowTimeRef.current > 100) setIsSolutionShown(false); }}
+            <input ref={inputRef} type="number" step="any" value={val} onChange={e => { setVal(e.target.value); if (msgColor !== 'green') setMsg(''); setIsSolutionShown(false); }}
+              onFocus={() => { if (Date.now() - lastSolClick.current > 100) setIsSolutionShown(false); }}
               style={{ width: '120px', padding: '10px', fontSize: '1.4rem', borderRadius: '8px', border: '2px solid #ccc', textAlign: 'center' }} />
           </div>
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            <ActionButton
-              label={isSolutionShown ? t('algebra_next_exercise') : t('algebra_check_ans')}
-              onClick={isSolutionShown ? next : check}
-              id={isSolutionShown ? `btn-next-exercise-${id}` : `btn-check-${id}`}
-              data-testid={isSolutionShown ? "btn-next-exercise" : "btn-check"}
-              isSolutionShown={isSolutionShown}
-            />
+            {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
             <WithTooltip tip={_solLabel}>
-              <button onClick={() => {
-                logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang });
-                playSound('solution');
-                setVal(String(prob.a));
-                lastShowTimeRef.current = Date.now();
-                setIsSolutionShown(true);
-                setMsg('');
-              }} className="btn-show-sol" data-testid="btn-show-solution" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+              <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
             </WithTooltip>
           </div>
         </div>
@@ -340,26 +280,18 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   const [showExample, setShowExample] = useState(false);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
-  const [isSolutionShown, setIsSolutionShown] = useSessionState(`session_algebra_sol_shown_${id}`, false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
   const inputRefs = useRef<any[]>([]);
-  const lastShowTimeRef = useRef(0);
+  const lastSolClick = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
-    if (!isSolutionShown && problem && inputRefs.current[0]) {
+    if (problem && inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
-  }, [exerciseId, isSolutionShown]);
+  }, [exerciseId]);
 
-  const nextTimeoutRef = useRef<any>(null);
-  const nextProb = () => {
-    if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current);
-    const p = generateProblem(); setProblem(p); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId());
-  };
-
-  useEffect(() => {
-    return () => { if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current); };
-  }, []);
+  const nextProb = () => { const p = generateProblem(); setProblem(p); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -413,19 +345,14 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentSteps.join(' | '), is_correct: isCorrect, error: errorMsg, lang });
 
     if (notFullySolved) {
-      playSound('incorrect');
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
     } else if (needsSimplification) {
-      playSound('incorrect');
       setMsg(t('algebra_fraction_not_simplified'));
       setMsgColor('orange');
     } else if (isCorrect) {
-      playSound('correct');
-      setMsg(t('algebra_correct')); setMsgColor('green');
-      nextTimeoutRef.current = setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS);
+      setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS);
     } else {
-      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -434,7 +361,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   if (!problem) return null;
 
   return (
-    <div className="rules-box" data-solution-shown={isSolutionShown.toString()} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
+    <div className="rules-box" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
       <SectionHeader title={title} showExample={showExample} onToggleExample={() => setShowExample(!showExample)} t={t} />
       {showExample && <div style={{ background: '#fdfaf6', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>{exampleContent}</div>}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -447,36 +374,26 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
                 <MathInput
                   ref={el => inputRefs.current[i] = el}
                   value={steps[i]}
-                  onChange={v => { const ns = [...steps]; ns[i] = v; setSteps(ns); setMsg(''); }}
-                  onEnter={() => isSolutionShown ? nextProb() : check()}
-                  onFocus={() => {
-                    setMsg('');
-                    if (Date.now() - lastShowTimeRef.current > 500) setIsSolutionShown(false);
+                  onChange={v => {
+                    setSteps(prev => {
+                      const ns = [...prev];
+                      ns[i] = v;
+                      return ns;
+                    });
+                    if (msgColor !== 'green') setMsg('');
+                    setIsSolutionShown(false);
                   }}
+                  onEnter={() => isSolutionShown ? nextProb() : check()}
+                  onFocus={() => { if (Date.now() - lastSolClick.current > 100) setIsSolutionShown(false); }}
                 />
               </div>
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '25px' }}>
-          <ActionButton
-            label={isSolutionShown ? t('algebra_next_exercise') : t('algebra_check_ans')}
-            onClick={isSolutionShown ? nextProb : check}
-            id={`btn-action-${id}`}
-            data-testid={isSolutionShown ? "btn-next-exercise" : "btn-check"}
-            isSolutionShown={isSolutionShown}
-          />
-          <WithTooltip tip={t('btn_show_sol')}>
-            <button onClick={(e) => {
-              (e.currentTarget as HTMLElement).blur();
-              if (typeof window !== 'undefined') (document.activeElement as HTMLElement)?.blur();
-              logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, lang });
-              playSound('solution');
-              setSteps([...problem.steps]);
-              lastShowTimeRef.current = Date.now();
-              setIsSolutionShown(true);
-              setMsg('');
-            }} className="btn-show-sol" data-testid="btn-show-solution" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          {isSolutionShown ? <button className="btn-check" onClick={nextProb} style={{ padding: '10px 15px' }}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} style={{ padding: '10px 15px' }} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -500,21 +417,21 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, generateProblem);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
-  const [isSolutionShown, setIsSolutionShown] = useSessionState(`session_algebra_sol_shown_${id}`, false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
   const [showExample, setShowExample] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
   const inputRefs = useRef<any[]>([]);
-  const lastShowTimeRef = useRef(0);
+  const lastSolClick = useRef(0);
 
   const isMac = getIsMac();
   const shortcutLabel = isMac ? '⌘=' : 'Ctrl+=';
 
   // Autofocus on row change or new problem
   useEffect(() => {
-    if (!isSolutionShown && inputRefs.current[focusedIndex]) {
+    if (inputRefs.current[focusedIndex]) {
       inputRefs.current[focusedIndex].focus();
     }
-  }, [focusedIndex, rows.length, problem, isSolutionShown]);
+  }, [focusedIndex, rows.length, problem]);
 
   // Global Keyboard shortcut (Cmd/Ctrl + =)
   useEffect(() => {
@@ -535,7 +452,8 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
       if (isModifier && e.key === '/') {
         e.preventDefault();
         if (!isSolutionShown) {
-          showSolution();
+          logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang });
+          setIsSolutionShown(true); setMsg('');
         }
       }
       if (isModifier && (e.key === 'e' || e.key === 'E')) {
@@ -557,15 +475,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     setMsg('');
   };
 
-  const nextTimeoutRef = useRef<any>(null);
-  const nextProb = () => {
-    if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current);
-    const p = generateProblem(); setProblem(p); setRows([{ id: generateExerciseId(), val: '' }]); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId());
-  };
-
-  useEffect(() => {
-    return () => { if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current); };
-  }, []);
+  const nextProb = () => { setProblem(generateProblem()); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -580,15 +490,6 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
       }
     }
   }, [exerciseId, problem, id, lang]);
-
-  const showSolution = () => {
-    logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang });
-    playSound('solution');
-    setRows(problem.steps.map((s: string) => ({ id: generateExerciseId(), val: s })));
-    lastShowTimeRef.current = Date.now();
-    setIsSolutionShown(true);
-    setMsg('');
-  };
 
   const check = () => {
     // Read the very latest values from the DOM refs
@@ -634,38 +535,40 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     // 2. Step Enforcement (Only if the answer is fundamentally correct/simplified)
     const isStepEnforced = id === 'complex' && problem.steps && problem.steps.length > 1;
     if (isStepEnforced && isCorrect && !needsSimplification && !notFullySolved) {
+      const nonEmptyRows = currentRows.filter(r => r.trim() !== '');
+      const uniqueRows = new Set(nonEmptyRows.map(r => r.replace(/\s+/g, '').toLowerCase()));
+      
       if (currentRows.length < 2) {
-        isCorrect = false;
         needsSteps = true;
+        isCorrect = false;
+      } else if (nonEmptyRows.length >= 2 && uniqueRows.size < nonEmptyRows.length) {
+        needsSteps = true;
+        isCorrect = false;
       }
     }
 
     let errorMsg = null;
-    if (notFullySolved) errorMsg = 'not_fully_solved';
+    if (needsSteps) errorMsg = 'needs_steps';
+    else if (notFullySolved) errorMsg = 'not_fully_solved';
     else if (needsSimplification) errorMsg = 'needs_simplification';
-    else if (needsSteps) errorMsg = 'needs_steps';
     else if (!isCorrect) errorMsg = 'incorrect_algebraic';
 
+    // 3. Log Attempt (Always)
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentRows.join(' | '), is_correct: isCorrect, error: errorMsg, lang });
 
-    if (notFullySolved) {
-      playSound('incorrect');
+    // 4. Feedback Logic
+    if (needsSteps) {
+      setMsg(t('msg_must_show_steps') || 'Multi-step equation: Please show at least one intermediate step.');
+      setMsgColor('orange');
+    } else if (notFullySolved) {
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
     } else if (needsSimplification) {
-      playSound('incorrect');
       setMsg(t('algebra_fraction_not_simplified'));
       setMsgColor('orange');
-    } else if (needsSteps) {
-      playSound('incorrect');
-      setMsg(t('algebra_needs_steps') || 'Show your work! Add more steps to solve this problem.');
-      setMsgColor('orange');
     } else if (isCorrect) {
-      playSound('correct');
-      setMsg(t('algebra_correct')); setMsgColor('green');
-      nextTimeoutRef.current = setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS);
+      setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS);
     } else {
-      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -674,35 +577,41 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   if (!problem) return null;
 
   return (
-    <div className="rules-box" data-solution-shown={isSolutionShown.toString()} style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
+    <div className="rules-box" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
       <SectionHeader title={title} showExample={showExample} onToggleExample={() => setShowExample(!showExample)} t={t} />
       {showExample && <div style={{ background: '#fdfaf6', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>{exampleContent}</div>}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="question" style={{ margin: '20px', direction: 'ltr' }}><QuestionDisplay q={problem.q} fontSize="2.4rem" /></div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div className="question" style={{ background: '#fff', border: '1px solid #ddd', borderRadius: '12px', padding: '20px', width: '100%', marginBottom: '20px', textAlign: 'center', direction: 'ltr' }}>
+          <QuestionDisplay q={problem.q} />
+        </div>
+
         {isSolutionShown && problem.steps && (
-          <div data-testid="solution-steps" style={{ background: '#e8f4fd', border: '2px dashed #3498db', padding: '15px', borderRadius: '12px', marginBottom: '16px', width: '100%', maxWidth: '400px' }}>
-            <p style={{ fontWeight: 'bold', color: '#2980b9', marginBottom: '8px' }}>{t('algebra_solution_steps') || 'Solution Steps'}:</p>
+          <div data-testid="solution-steps" style={{ background: '#e8f4fd', border: '2px dashed #3498db', padding: '15px', borderRadius: '12px', marginBottom: '20px', width: '100%' }}>
+            <p style={{ fontWeight: 'bold', color: '#2980b9', marginBottom: '8px' }}>{t('algebra_solution_steps') || "Solution Steps"}:</p>
             {problem.steps.map((s: string, i: number) => (
               <div key={i} data-step-value={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
                 <span style={{ fontSize: '1rem', color: '#7f8c8d' }}>{`${t('algebra_step_label')} ${i + 1}:`}</span>
-                <div style={{ direction: 'ltr' }}><QuestionDisplay q={s} fontSize="1.2rem" /></div>
+                <div style={{ direction: 'ltr' }}>
+                  <QuestionDisplay q={s} fontSize="1.2rem" />
+                </div>
               </div>
             ))}
           </div>
         )}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '400px' }}>
-          {rows.map((row, i) => (
-            <div key={row.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '4px' }}>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '350px' }}>
+          {rows.map((r, i) => (
+            <div key={r.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
               <span data-testid={`row-label-${i}`} style={{ fontSize: '0.75rem', color: '#7f8c8d', marginBottom: '2px' }}>{rows.length > 1 && i === rows.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i + 1}`}</span>
-              <div style={{ display: 'flex', gap: '6px' }}>
-                <div style={{ flex: 1, border: '2px solid #ccc', borderRadius: '12px', background: '#fff', overflow: 'hidden' }}>
+              <div style={{ display: 'flex', gap: '6px', direction: 'ltr' }}>
+                <div style={{ flex: 1, border: '2px solid #ccc', borderRadius: '8px', background: '#fff' }}>
                   <MathInput
                     ref={el => inputRefs.current[i] = el}
-                    value={row.val}
+                    value={r.val}
                     onChange={v => {
                       setRows(prev => {
                         const nr = [...prev];
-                        const idx = nr.findIndex(x => x.id === row.id);
+                        const idx = nr.findIndex(x => x.id === r.id);
                         if (idx !== -1) {
                           nr[idx] = { ...nr[idx], val: v };
                         }
@@ -711,44 +620,32 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
                       if (msgColor !== 'green') setMsg('');
                       setIsSolutionShown(false);
                     }}
+                    onEnter={() => isSolutionShown ? nextProb() : check()}
                     onFocus={() => {
                       setFocusedIndex(i);
-                      setMsg('');
-                      if (Date.now() - lastShowTimeRef.current > 500) setIsSolutionShown(false);
+                      if (Date.now() - lastSolClick.current > 200) setIsSolutionShown(false);
                     }}
-                    onEnter={() => isSolutionShown ? nextProb() : check()}
                   />
                 </div>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <WithTooltip tip={shortcutLabel}>
-                    <button onClick={() => addRow(i)} id={`btn-add-row-${i}`} className="btn-add-row" style={{ padding: '8px 12px', background: 'var(--accent)', color: '#fff', borderRadius: '8px', border: 'none', cursor: 'pointer' }}>+</button>
-                  </WithTooltip>
-                  {rows.length > 1 && (
-                    <WithTooltip tip={isMac ? '⌘-' : 'Ctrl+-'}>
-                      <button onClick={() => {
-                        setRows(prev => prev.filter(x => x.id !== row.id));
-                        setFocusedIndex(Math.max(0, i - 1));
-                      }} id={`btn-remove-step-${i}`} className="btn-remove-step" style={{ padding: '8px 12px', background: '#e74c3c', color: '#fff', borderRadius: '8px', border: 'none', cursor: 'pointer' }}>×</button>
-                    </WithTooltip>
-                  )}
+                <WithTooltip tip={_removeLabel}>
+                  <button onClick={() => { if (rows.length > 1) { setRows(prev => prev.filter(x => x.id !== r.id)); setFocusedIndex(Math.max(0, i - 1)); } setMsg(''); }} className="btn-remove-step" id={`btn-remove-step-${i}`} style={{ padding: '8px 14px', margin: 0, background: '#e74c3c', color: '#fff', borderRadius: '4px', border: 'none' }}>×</button>
+                </WithTooltip>
+                <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'stretch' }} className="algebra-add-step-wrapper">
+                  <button onClick={() => addRow(i)} className="btn-add-row" id={`btn-add-row-${i}`} style={{ padding: '8px 14px', margin: 0, background: 'var(--accent)', color: '#fff', borderRadius: '4px', border: 'none', cursor: 'pointer' }}>+</button>
+                  <span className="algebra-kbd-tooltip" suppressHydrationWarning>{shortcutLabel}</span>
                 </div>
+
               </div>
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '25px' }}>
-          <ActionButton
-            label={isSolutionShown ? t('algebra_next_exercise') : t('algebra_check_ans')}
-            onClick={isSolutionShown ? nextProb : check}
-            id={isSolutionShown ? `btn-next-exercise-${id}` : `btn-check-${id}`}
-            data-testid={isSolutionShown ? "btn-next-exercise" : "btn-check"}
-            isSolutionShown={isSolutionShown}
-          />
-          <WithTooltip tip={t('btn_show_sol')}>
-            <button onClick={showSolution} className="btn-show-sol" data-testid="btn-show-solution" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+          {isSolutionShown ? <button className="btn-check" onClick={nextProb}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
+          <WithTooltip tip={_solLabel}>
+            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
-        {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
+        {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '10px' }} data-testid="algebra-result">{msg}</p>}
       </div>
     </div>
   );
@@ -759,34 +656,22 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
   const [eq, setEq] = useSessionState(`session_algebra_eq_wordproblem_${exerciseId}`, '');
   const [sol, setSol] = useSessionState(`session_algebra_sol_wordproblem_${exerciseId}`, '');
   const [msg, setMsg] = useState('');
-  const [isSolutionShown, setIsSolutionShown] = useSessionState(`session_algebra_sol_shown_wordproblem`, false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
 
   const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_wordproblem`, generateProblem);
   const [phase, setPhase] = useSessionState<'eq' | 'sol'>(`session_algebra_phase_wordproblem`, 'eq');
   const eqRef = useRef<HTMLInputElement>(null);
   const solRef = useRef<HTMLInputElement>(null);
-  const lastShowTimeRef = useRef(0);
 
   // Autofocus based on phase or new problem
   useEffect(() => {
-    if (!isSolutionShown) {
-      if (phase === 'eq' && eqRef.current) {
-        eqRef.current.focus();
-      } else if (phase === 'sol' && solRef.current) {
-        solRef.current.focus();
-      }
+    if (phase === 'eq' && eqRef.current) {
+      eqRef.current.focus();
+    } else if (phase === 'sol' && solRef.current) {
+      solRef.current.focus();
     }
-  }, [phase, prob, isSolutionShown]);
-
-  const nextTimeoutRef = useRef<any>(null);
-  const next = () => {
-    if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current);
-    setProb(generateProblem()); setPhase('eq'); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId());
-  };
-
-  useEffect(() => {
-    return () => { if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current); };
-  }, []);
+  }, [phase, prob]);
+  const next = () => { setProb(generateProblem()); setPhase('eq'); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -808,11 +693,9 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
 
     if (phase === 'eq') {
       if (currentEq.includes('x')) {
-        playSound('correct');
         logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: true, lang });
         setPhase('sol');
       } else {
-        playSound('incorrect');
         logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: false, error: 'missing_variable', lang });
         setMsg(t('error_equation_variable_missing'));
       }
@@ -821,13 +704,9 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
       const errorMsg = isCorrect ? null : 'incorrect_numeric';
       logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: currentSol, is_correct: isCorrect, error: errorMsg, lang });
       if (isCorrect) {
-        playSound('correct');
         setMsg(t('algebra_correct'));
-        nextTimeoutRef.current = setTimeout(next, NEXT_PROBLEM_DELAY_MS);
-      } else {
-        playSound('incorrect');
-        setMsg(t('algebra_incorrect'));
-      }
+        setTimeout(next, NEXT_PROBLEM_DELAY_MS);
+      } else setMsg(t('algebra_incorrect'));
     }
   };
 
@@ -835,30 +714,16 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
   if (!prob) return null;
 
   return (
-    <div className="rules-box" data-solution-shown={isSolutionShown.toString()} style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
+    <div className="rules-box" style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
       <SectionHeader title={title} t={t} />
       <div className="question" style={{ margin: '20px', fontSize: '1.2rem' }}>{prob.text}</div>
       <div style={{ margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '300px' }}>
-        <input ref={eqRef} placeholder={t('placeholder_equation')} value={eq} onChange={e => { setEq(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); if (Date.now() - lastShowTimeRef.current > 100) setIsSolutionShown(false); }} disabled={phase === 'sol'} style={{ padding: '10px' }} />
-        {phase === 'sol' && <input ref={solRef} placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); if (Date.now() - lastShowTimeRef.current > 100) setIsSolutionShown(false); }} style={{ padding: '10px' }} type="number" step="any" />}
+        <input ref={eqRef} placeholder={t('placeholder_equation')} value={eq} onChange={e => { setEq(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} disabled={phase === 'sol'} style={{ padding: '10px' }} />
+        {phase === 'sol' && <input ref={solRef} placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px' }} type="number" step="any" />}
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'center' }}>
-          <ActionButton
-            label={isSolutionShown ? t('algebra_next_exercise') : t('algebra_check_ans')}
-            onClick={isSolutionShown ? next : check}
-            id="btn-action-wordproblem"
-            data-testid={isSolutionShown ? "btn-next-exercise" : "btn-check"}
-            isSolutionShown={isSolutionShown}
-          />
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => {
-              logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: { equation: prob.equation, answer: prob.a }, lang });
-              playSound('solution');
-              setPhase('sol');
-              setEq(prob.equation);
-              setSol(String(prob.a));
-              lastShowTimeRef.current = Date.now();
-              setIsSolutionShown(true);
-            }} className="btn-show-sol" data-testid="btn-show-solution" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: { equation: prob.equation, answer: prob.a }, lang }); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
       </div>
@@ -872,26 +737,17 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
   const [ans, setAns] = useSessionState(`session_algebra_ans_finalexam_${exerciseId}`, '');
   const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_finalexam`, generateProblem);
   const [msg, setMsg] = useState('');
-  const [isSolutionShown, setIsSolutionShown] = useSessionState(`session_algebra_sol_shown_finalexam`, false);
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const lastShowTimeRef = useRef(0);
 
   // Autofocus on new problem
   useEffect(() => {
-    if (!isSolutionShown && prob && inputRef.current) {
+    if (prob && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [prob, isSolutionShown]);
+  }, [prob]);
 
-  const nextTimeoutRef = useRef<any>(null);
-  const next = () => {
-    if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current);
-    setProb(generateProblem()); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId());
-  };
-
-  useEffect(() => {
-    return () => { if (nextTimeoutRef.current) clearTimeout(nextTimeoutRef.current); };
-  }, []);
+  const next = () => { setProb(generateProblem()); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -913,43 +769,26 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
     const errorMsg = isCorrect ? null : 'incorrect_numeric';
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentAns, is_correct: isCorrect, error: errorMsg, lang });
     if (isCorrect) {
-      playSound('correct');
       setMsg(t('algebra_correct'));
-      nextTimeoutRef.current = setTimeout(next, NEXT_PROBLEM_DELAY_MS);
-    } else {
-      playSound('incorrect');
-      setMsg(t('algebra_incorrect'));
-    }
+      setTimeout(next, NEXT_PROBLEM_DELAY_MS);
+    } else setMsg(t('algebra_incorrect'));
   };
 
 
   if (!prob) return null;
 
   return (
-    <div className="rules-box" data-solution-shown={isSolutionShown.toString()} style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
+    <div className="rules-box" style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
       <SectionHeader title={title} t={t} />
       <div className="question" style={{ fontSize: '1.7rem', margin: '30px', direction: 'ltr' }}>{prob.q}</div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
-          <input ref={inputRef} value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); if (Date.now() - lastShowTimeRef.current > 100) setIsSolutionShown(false); }} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
-          <ActionButton
-            label={isSolutionShown ? t('algebra_next_exercise') : t('algebra_check_ans')}
-            onClick={isSolutionShown ? next : check}
-            id="btn-action-finalexam"
-            data-testid={isSolutionShown ? "btn-next-exercise" : "btn-check"}
-            isSolutionShown={isSolutionShown}
-          />
+          <input ref={inputRef} value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
+          {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} />}
         </div>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => {
-              logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang });
-              playSound('solution');
-              setAns(String(prob.a));
-              lastShowTimeRef.current = Date.now();
-              setIsSolutionShown(true);
-              setMsg('');
-            }} className="btn-show-sol" data-testid="btn-show-solution" style={{ background: '#95a5a6', color: '#fff', padding: '10px 15px', border: 'none', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
           <button onClick={() => alert(t('exam_finish'))} style={{ background: '#2ecc71', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>{t('exam_finish')}</button>
         </div>

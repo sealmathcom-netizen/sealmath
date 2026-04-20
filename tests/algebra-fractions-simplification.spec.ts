@@ -15,7 +15,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
       secure: baseURL.startsWith('https'),
       sameSite: 'Lax'
     }]);
-    
+
     await page.goto('/algebra');
     await page.evaluate(() => localStorage.clear());
     await page.waitForLoadState('networkidle');
@@ -26,16 +26,16 @@ test.describe('Algebra Fraction UX Refinement', () => {
     // 1. Calculate a wrong answer
     const questionText = await page.locator('.question').innerText();
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
-    
+
     // Trigger an error with a definitely wrong numeric answer
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, v: string) => { 
-        el.value = `999${v}`; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, v: string) => {
+      el.value = `999${v}`;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, variable);
-    
+
     await page.locator('.btn-check').click({ force: true });
-    
+
     // Verify an error is visible - wait a bit for it
     const rulesBox = page.locator('.rules-box');
     await expect(rulesBox).not.toBeEmpty();
@@ -44,7 +44,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
 
     // 2. Click "Show Solution"
     await page.locator('button:has-text("Show Solution"), button:has-text("הצג פתרון"), button:has-text("Toon Oplossing")').click({ force: true });
-    
+
     // 3. Verify everything is clear
     await expect(page.locator('.rules-box')).not.toContainText(/Please simplify/i);
     await expect(page.locator('.rules-box')).not.toContainText(/Incorrect|נסה שוב|Incorrect/i);
@@ -57,7 +57,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const questionText = await page.locator('.question').innerText();
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -65,14 +65,14 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const n2 = parseInt(matches[1][1]);
     const d2 = parseInt(matches[1][2]);
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
-    
+
     const targetNum = isAdd ? (n1 * d2 + n2 * d1) : (n1 * d2 - n2 * d1);
     const targetDen = d1 * d2;
 
     if (targetNum >= 0) {
-        // If not negative, we can't test leading minus specifically here.
-        // We assume the engine is tested elsewhere or retry.
-        return; 
+      // If not negative, we can't test leading minus specifically here.
+      // We assume the engine is tested elsewhere or retry.
+      return;
     }
 
     const getGcd = (a: number, b: number): number => b === 0 ? Math.abs(a) : getGcd(b, a % b);
@@ -83,9 +83,9 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const negativeLatex = `-\\frac{${sNum}}{${sDen}}${variable}`;
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, negativeLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -97,7 +97,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -106,27 +106,27 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const d2 = parseInt(matches[1][2]);
     const tNum = isAdd ? (n1 * d2 + n2 * d1) : (n1 * d2 - n2 * d1);
     const tDen = d1 * d2;
-    
+
     if (tNum !== tDen) return; // Only test when target is 1x
 
     // 1. Input "1x"
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, v: string) => { 
-        el.value = `1${v}`; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, v: string) => {
+      el.value = `1${v}`;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, variable);
     await page.locator('.btn-check').click({ force: true });
-    
+
     // Verify simplification error
     await expect(page.locator('text=Please simplify your final answer.')).toBeVisible();
 
     // 2. Input "x"
-    await mathField.evaluate((el: any, v: string) => { 
-        el.value = v; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, v: string) => {
+      el.value = v;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, variable);
     await page.locator('.btn-check').click({ force: true });
-    
+
     // Verify correct
     await expect(page.locator('.rules-box')).toContainText(/Correct|נכון|Juist/i);
   });
@@ -137,21 +137,21 @@ test.describe('Algebra Fraction UX Refinement', () => {
 
     // 1. Trigger an error with a wrong numeric answer
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, v: string) => { 
-        el.value = `999${v}`; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, v: string) => {
+      el.value = `999${v}`;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, variable);
     await page.locator('.btn-check').click({ force: true });
-    
+
     // Result should be visible
     await expect(page.getByTestId('algebra-result')).toBeVisible();
 
     // 2. Focus the input -> should clear
     await mathField.click();
     await mathField.evaluate((el: any) => {
-        // Trigger both input change and mousedown to ensure state clearing
-        el.dispatchEvent(new Event('mousedown', { bubbles: true }));
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+      // Trigger both input change and mousedown to ensure state clearing
+      el.dispatchEvent(new Event('mousedown', { bubbles: true }));
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     });
     // Wait for react state update
     await page.waitForTimeout(50);
@@ -172,7 +172,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const questionText = await page.locator('.question').innerText();
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -193,9 +193,9 @@ test.describe('Algebra Fraction UX Refinement', () => {
     // 1. Enter unsimplified in Step 1
     const unsimplifiedVal = `${targetNum}/${targetDen}${variable}`;
     const mathFields = page.locator('math-field');
-    await mathFields.nth(0).evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathFields.nth(0).evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, unsimplifiedVal);
 
     await page.locator('.btn-check').click({ force: true });
@@ -204,9 +204,9 @@ test.describe('Algebra Fraction UX Refinement', () => {
     // 2. Add Row and enter simplified
     await page.click('#btn-add-row', { force: true });
     const simplifiedVal = `${sNum}/${sDen}${variable}`;
-    await mathFields.nth(1).evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathFields.nth(1).evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, simplifiedVal);
 
     await page.locator('.btn-check').click({ force: true });
@@ -217,7 +217,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const questionText = await page.locator('.question').innerText();
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -238,9 +238,9 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const artifactLatex = `${sign}\\frac{${sNum}}{${sDen}}{${variable}}`;
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, artifactLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -251,7 +251,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const questionText = await page.locator('.question').innerText();
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -276,9 +276,9 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const mixedArtifactLatex = `${sign}${whole}\\frac{\\text{ }${sNum}}{${sDen}}{${variable}}`;
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, mixedArtifactLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -290,7 +290,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -308,20 +308,20 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const sDen = tDen / common;
 
     const mathFields = page.locator('math-field');
-    
+
     // 1. Step 1: Parenthetical unsimplified expression
-    const step1 = `\\left(\\frac{${n1*d2}}{${d1*d2}}-\\frac{${n2*d1}}{${d1*d2}}\\right)${variable}`;
-    await mathFields.nth(0).evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    const step1 = `\\left(\\frac{${n1 * d2}}{${d1 * d2}}-\\frac{${n2 * d1}}{${d1 * d2}}\\right)${variable}`;
+    await mathFields.nth(0).evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, step1);
 
     // 2. Step 2: Final simplified fraction
     await page.click('#btn-add-row', { force: true });
     const step2 = `-\\frac{${sNum}}{${sDen}}{${variable}}`;
-    await mathFields.nth(1).evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathFields.nth(1).evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, step2);
 
     await page.locator('.btn-check').click({ force: true });
@@ -333,7 +333,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -349,15 +349,15 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const sDen = tDen / common;
 
     // Shorthand format: \fracAB (only works for single digits, so skip if multichar)
-    if (sNum > 9 || sDen > 9) return; 
+    if (sNum > 9 || sDen > 9) return;
 
     const sign = tNum < 0 ? '-' : '';
     const shorthandLatex = `${sign}\\frac${sNum}${sDen}${variable}`;
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, shorthandLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -369,7 +369,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -388,9 +388,9 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const standardLatex = `\\frac{${sNum}}{${sDen}}{${variable}}`;
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, standardLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -402,7 +402,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -421,10 +421,10 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
     // Construct LaTeX with braced var - this was previously failing if var was 'd'
     const latex = `${sign}\\frac{${sNum}}{${sDen}}{${variable}}`;
-    
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, latex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -435,7 +435,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const questionText = await page.locator('.question').innerText();
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -450,14 +450,14 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const sNum = Math.abs(tNum / common);
     const sDen = tDen / common;
     const sign = tNum < 0 ? '-' : '';
-    
+
     // Explicitly test with variable 't' which is dangerous in LaTeX commands
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
     const latex = `${sign}\\frac{${sNum}}{${sDen}}{t}`;
-    
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, latex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -469,7 +469,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -486,10 +486,10 @@ test.describe('Algebra Fraction UX Refinement', () => {
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
     const standardLatex = `\\frac{${sNum}}{${sDen}}{${variable}}`;
-    
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, standardLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -501,7 +501,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const variable = questionText.match(/[a-z]/)?.[0] || 'x';
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -519,10 +519,10 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
     // Construct "spongy" LaTeX with lots of internal spaces
     const standardLatex = `\\frac{  ${sNum}  }{  ${sDen}  }{ ${variable} }`;
-    
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, standardLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -533,7 +533,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const questionText = await page.locator('.question').innerText();
     const matches = [...questionText.matchAll(/(\d+)\/(\d+)/g)];
     const isAdd = questionText.includes('+');
-    
+
     if (matches.length < 2) return;
 
     const n1 = parseInt(matches[0][1]);
@@ -556,10 +556,10 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
     // Construct "dirty" mixed LaTeX with text artifacts and variable braces
     const artifactLatex = `${sign}${whole}\\frac{\\text{ }${sNum}}{${sDen}}{y}`;
-    
-    await mathField.evaluate((el: any, val: string) => { 
-        el.value = val; 
-        el.dispatchEvent(new Event('input', { bubbles: true }));
+
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
     }, artifactLatex);
 
     await page.locator('.btn-check').click({ force: true });
@@ -570,12 +570,12 @@ test.describe('Algebra Fraction UX Refinement', () => {
     // Nav to algebra fraction addition
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // Enter "y" (implicit 1y) in a field and expect it to be accepted if math is correct
     // We will verify it doesn't trigger "Please simplify"
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any) => { 
-      el.value = "y"; 
+    await mathField.evaluate((el: any) => {
+      el.value = "y";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
     // This is essentially checking our walk function correctly handles standalone strings 
@@ -589,7 +589,7 @@ test.describe('Algebra Fraction UX Refinement', () => {
     // Nav to algebra fraction addition
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // Find a problem where we can enter a mixed fraction
     // Since we can't force the generator easily, we'll verify it parses correctly 
     // by using a known-working state or just trusting the previous 38 tests + this logic.
@@ -627,8 +627,8 @@ test.describe('Algebra Fraction UX Refinement', () => {
     const uLatex = `\\frac{ ${uNum} }{ ${uDen} }y`;
 
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any, val: string) => { 
-      el.value = val; 
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }, uLatex);
 
@@ -637,16 +637,16 @@ test.describe('Algebra Fraction UX Refinement', () => {
 
     // 3. Enter unsimplified version with slash: 4/6y
     const uSlash = `${uNum}/${uDen}y`;
-    await mathField.evaluate((el: any, val: string) => { 
-      el.value = val; 
+    await mathField.evaluate((el: any, val: string) => {
+      el.value = val;
       el.dispatchEvent(new Event('input', { bubbles: true }));
     }, uSlash);
     await page.click('text=בדוק תשובה', { force: true });
     await expect(page.locator('.rules-box')).toContainText(/נא לפשט/i);
 
     // Test shorthand LaTeX: \frac46y
-    await mathField.evaluate((el: any) => { 
-      el.value = "\\frac46y"; 
+    await mathField.evaluate((el: any) => {
+      el.value = "\\frac46y";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
     await page.click('text=בדוק תשובה', { force: true });
@@ -656,12 +656,12 @@ test.describe('Algebra Fraction UX Refinement', () => {
   test('should accept mathematically equivalent decimals like -0.25y', async ({ page }) => {
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // For a problem that results in -1/4y, entering -0.25y should be OK
     // (We will force the problem to be 1/4y - 2/4y = -1/4y)
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any) => { 
-      el.value = "-0.25y"; 
+    await mathField.evaluate((el: any) => {
+      el.value = "-0.25y";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
     // This depends on the random problem, but we check that it DOES NOT say "Please simplify" 
@@ -674,17 +674,17 @@ test.describe('Algebra Fraction UX Refinement', () => {
   test('should accept mixed numbers like 1 \frac{1}{6}x as correct simplified answers', async ({ page }) => {
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any) => { 
+    await mathField.evaluate((el: any) => {
       // 1 1/6x
-      el.value = "1\\frac{\\text{ }1}{6}x"; 
+      el.value = "1\\frac{\\text{ }1}{6}x";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
-    
+
     await page.click('text=בדוק תשובה', { force: true });
     const msg = await page.locator('.result').innerText();
-    
+
     // Check it's not rejected with "Please simplify"
     expect(msg).not.toContain('נא לפשט');
   });
@@ -692,18 +692,18 @@ test.describe('Algebra Fraction UX Refinement', () => {
   test('should accept negative mixed numbers like -1 \frac{1}{2}', async ({ page }) => {
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // Set a predictable target for -1.5 (e.g., -3/2)
     // Actually, I'll just check if it's NOT rejected with simplification error
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any) => { 
-      el.value = "-1\\frac{\\text{ }1}{2}"; 
+    await mathField.evaluate((el: any) => {
+      el.value = "-1\\frac{\\text{ }1}{2}";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
-    
+
     await page.click('text=בדוק תשובה', { force: true });
     const msg = await page.locator('.result').innerText();
-    
+
     // It might be "Incorrect" if the target isn't -1.5, BUT it shouldn't be "Please simplify"
     expect(msg).not.toContain('נא לפשט');
     // Check it's not rejected with "Please simplify"
@@ -713,17 +713,17 @@ test.describe('Algebra Fraction UX Refinement', () => {
   test('should accept final answer -7/20y for exercise 1/4y - 3/5y', async ({ page }) => {
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // Attempting to catch -0.35y
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any) => { 
-      el.value = "-\\frac{7}{20}y"; 
+    await mathField.evaluate((el: any) => {
+      el.value = "-\\frac{7}{20}y";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
-    
+
     await page.click('text=בדוק תשובה', { force: true });
     const msg = await page.locator('.result').innerText();
-    
+
     // Should NOT say "Please simplify"
     expect(msg).not.toContain('נא לפשט');
   });
@@ -731,18 +731,18 @@ test.describe('Algebra Fraction UX Refinement', () => {
   test('should proceed to next exercise on Enter with correct answer', async ({ page }) => {
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // 1. Get current problem state
     const firstProblemText = await page.locator('.question').innerText();
-    
+
     // 2. Type correct answer
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
     await page.click('text=הצג פתרון'); // Fills the correct answer
-    
+
     // 3. Press Enter
     await mathField.focus();
     await page.keyboard.press('Enter');
-    
+
     // 4. Expectation: THE PROBLEM SHOULD CHANGE (wait for it because of the 1s delay)
     await expect(async () => {
       const currentText = await page.locator('.question').evaluate(el => {
@@ -757,21 +757,21 @@ test.describe('Algebra Fraction UX Refinement', () => {
   test('should do nothing on Enter with incorrect answer', async ({ page }) => {
     await page.goto('/he/algebra');
     await page.click('text=שברים וכינוס איברים');
-    
+
     // 1. Get current problem state
     const firstProblemText = await page.locator('.question').innerText();
-    
+
     // 2. Type incorrect answer
     const mathField = page.locator('div:has(> [data-testid="row-label-0"]) math-field, [data-testid="row-label-0"] ~ div math-field').first(); // Safely targets the actual interactive row
-    await mathField.evaluate((el: any) => { 
-      el.value = "999"; 
+    await mathField.evaluate((el: any) => {
+      el.value = "999";
       el.dispatchEvent(new Event('input', { bubbles: true }));
     });
-    
+
     // 3. Press Enter
     await mathField.focus();
     await page.keyboard.press('Enter');
-    
+
     // 4. Expectation: Nothing happens, problem stays the same
     const secondProblemText = await page.locator('.question').evaluate(el => {
       const mf = el.querySelector('math-field');
