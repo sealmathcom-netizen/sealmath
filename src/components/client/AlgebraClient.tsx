@@ -900,8 +900,8 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
     { id: 'combinelike', key: 'algebra_btn_combinelike' },
     { id: 'fractionlike', key: 'algebra_btn_fraction_like' },
     { id: 'complex', key: 'algebra_btn_complex' },
-    { id: 'wordproblem', key: 'algebra_btn_word_problem' },
-    { id: 'finalexam', key: 'algebra_btn_final_exam' }
+    // { id: 'wordproblem', key: 'algebra_btn_word_problem' },
+    // { id: 'finalexam', key: 'algebra_btn_final_exam' }
   ];
   const getExample = (id: string) => (
     <div>
