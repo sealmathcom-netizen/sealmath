@@ -299,7 +299,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
     }
   }, [exerciseId]);
 
-  const nextProb = () => { const p = generateProblem(); setProblem(p); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const nextProb = () => { const p = generateProblem(); setProblem(p); setSteps([]); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -500,7 +500,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     setMsg('');
   };
 
-  const nextProb = () => { setProblem(generateProblem()); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const nextProb = () => { setProblem(generateProblem()); setRows([{ id: generateExerciseId(), val: '' }]); setFocusedIndex(0); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
@@ -695,7 +695,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
       solRef.current.focus();
     }
   }, [phase, prob]);
-  const next = () => { setProb(generateProblem()); setPhase('eq'); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -779,7 +779,7 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
     }
   }, [prob]);
 
-  const next = () => { setProb(generateProblem()); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+  const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();

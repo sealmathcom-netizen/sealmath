@@ -110,7 +110,23 @@ test.describe('Algebra Basics', () => {
     // In FixedStepWindow (twostep), we check for the step labels instead of a general "Solution Steps" heading
     await expect(page.getByText(/Step 1|שלב 1|Stap 1/).first().first()).toBeVisible();
 
+    // Verify fields are filled
+    const mathFields = page.getByTestId('algebra-input');
+    await expect(async () => {
+      const val = await mathFields.first().evaluate((el: any) => el.value);
+      expect(val).not.toBe('');
+    }).toPass();
+
     await page.click('text=Next Exercise', { force: true });
+
+    // Verify fields are cleared (Regression Fix)
+    await expect(async () => {
+      const fieldValues = await mathFields.all();
+      for (const field of fieldValues) {
+        const val = await field.evaluate((el: any) => el.value);
+        expect(val).toBe('');
+      }
+    }).toPass();
 
     // Wait for the question to actually change to avoid race conditions
     await expect(async () => {

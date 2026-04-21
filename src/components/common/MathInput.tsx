@@ -57,8 +57,9 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
     mf.readOnly = readonly || false;
     
     // Set initial value if changed from outside
-    if (mf.value !== value) {
-      mf.value = value;
+    const safeValue = value || '';
+    if (mf.value !== safeValue) {
+      mf.value = safeValue;
     }
 
     const handleInput = (e: any) => {
@@ -103,8 +104,9 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
 
   // Update value when it changes externally
   useEffect(() => {
-    if (mfRef.current && mfRef.current.value !== value) {
-      mfRef.current.value = value;
+    const safeValue = value || '';
+    if (mfRef.current && mfRef.current.value !== safeValue) {
+      mfRef.current.value = safeValue;
     }
   }, [value]);
 
