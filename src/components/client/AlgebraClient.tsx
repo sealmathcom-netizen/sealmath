@@ -23,8 +23,8 @@ const NEXT_PROBLEM_DELAY_MS = 700;
 const emptyFn = () => { };
 
 const _isMac = getIsMac();
-const _addLabel = _isMac ? '⌘=' : 'Ctrl+=';
-const _removeLabel = _isMac ? '⌘-' : 'Ctrl+-';
+const _addLabel = _isMac ? '⌘F12' : 'Ctrl+F12';
+const _removeLabel = _isMac ? '⌘F11' : 'Ctrl+F11';
 const _solLabel = _isMac ? '⌘/' : 'Ctrl+/';
 const _exLabel = _isMac ? '⌘E' : 'Ctrl+E';
 
@@ -460,7 +460,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   const lastSolClick = useRef(0);
 
   const isMac = getIsMac();
-  const shortcutLabel = isMac ? '⌘=' : 'Ctrl+=';
+  const shortcutLabel = isMac ? '⌘F12' : 'Ctrl+F12';
 
   // Autofocus on row change or new problem
   useEffect(() => {
@@ -472,15 +472,15 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     }, 100);
   }, [focusedIndex, rows.length, problem, isSolutionShown]);
 
-  // Global Keyboard shortcut (Cmd/Ctrl + =)
+  // Global keyboard shortcuts (Cmd/Ctrl + F12/F11)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const isModifier = isMac ? e.metaKey : e.ctrlKey;
-      if (isModifier && e.key === '=') {
+      if (isModifier && e.key === 'F12') {
         e.preventDefault();
         addRow(focusedIndex);
       }
-      if (isModifier && e.key === '-') {
+      if (isModifier && e.key === 'F11') {
         e.preventDefault();
         if (rows.length > 1) {
           setRows(prev => prev.filter((_, idx) => idx !== focusedIndex));
