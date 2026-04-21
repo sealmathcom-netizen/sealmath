@@ -36,7 +36,9 @@ const MathInput = forwardRef<any, MathInputProps>(({ value, onChange, onFocus, o
   useImperativeHandle(ref, () => ({
     focus: () => {
       if (mfRef.current) {
-        mfRef.current.focus();
+        setTimeout(() => {
+          if (mfRef.current) mfRef.current.focus();
+        }, 50);
       }
     },
     get value() {

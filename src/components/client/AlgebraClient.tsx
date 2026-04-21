@@ -155,6 +155,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
   }, [exerciseId, prob, id, lang]);
 
   const check = () => {
+    inputRef.current?.focus();
     const currentVal = inputRef.current?.value || '';
     const isCorrect = MathEngine.checkNumeric(currentVal, prob.a);
     const errorMsg = isCorrect ? null : 'incorrect_numeric';
@@ -235,6 +236,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
   }, [exerciseId, prob, id, lang]);
 
   const check = () => {
+    inputRef.current?.focus();
     const currentVal = inputRef.current?.value || '';
     const isCorrect = MathEngine.checkNumeric(currentVal, prob.a);
     const errorMsg = isCorrect ? null : 'incorrect_numeric';
@@ -316,6 +318,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   const check = () => {
     // Read the very latest values from the DOM refs
     const currentSteps = inputRefs.current.slice(0, steps.length).map(ref => ref?.value || '');
+    if (inputRefs.current[steps.length - 1]) inputRefs.current[steps.length - 1].focus();
     let stepsCorrect = true;
     for (let i = 0; i < currentSteps.length; i++) {
       const s = currentSteps[i];
@@ -447,9 +450,11 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 
   // Autofocus on row change or new problem
   useEffect(() => {
-    if (inputRefs.current[focusedIndex]) {
-      inputRefs.current[focusedIndex].focus();
-    }
+    setTimeout(() => {
+      if (inputRefs.current[focusedIndex]) {
+        inputRefs.current[focusedIndex].focus();
+      }
+    }, 100);
   }, [focusedIndex, rows.length, problem]);
 
   // Global Keyboard shortcut (Cmd/Ctrl + =)
@@ -514,6 +519,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   const check = () => {
     // Read the very latest values from the DOM refs
     const currentRows = rows.map((r, i) => inputRefs.current[i]?.value || '');
+    if (inputRefs.current[rows.length - 1]) inputRefs.current[rows.length - 1].focus();
     const lastRow = currentRows[currentRows.length - 1];
     const v = problem.variable || 'x';
 
@@ -710,6 +716,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     const currentSol = solRef.current?.value || '';
 
     if (phase === 'eq') {
+      eqRef.current?.focus();
       if (currentEq.includes('x')) {
         playSound('correct');
         logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: true, lang });
@@ -722,6 +729,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     } else {
       const isCorrect = MathEngine.checkNumeric(currentSol, prob.a);
       const errorMsg = isCorrect ? null : 'incorrect_numeric';
+      solRef.current?.focus();
       logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: currentSol, is_correct: isCorrect, error: errorMsg, lang });
       if (isCorrect) {
         playSound('correct');
@@ -788,6 +796,7 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
   }, [exerciseId, prob, lang]);
 
   const check = () => {
+    inputRef.current?.focus();
     const currentAns = inputRef.current?.value || '';
     const isCorrect = MathEngine.checkNumeric(currentAns, prob.a);
     const errorMsg = isCorrect ? null : 'incorrect_numeric';
