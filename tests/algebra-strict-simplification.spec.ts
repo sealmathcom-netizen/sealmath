@@ -77,13 +77,15 @@ test.describe('Algebra Strict Simplification', () => {
 
     const mathInputs = page.locator('math-field');
     const lastInput = mathInputs.last();
-    await lastInput.evaluate((el: any, val: string) => {
-      el.value = val;
-      el.dispatchEvent(new Event('input', { bubbles: true }));
-    }, 'z');
+    await lastInput.click();
+    await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
+    await page.keyboard.type('q');
 
-    await page.locator('.btn-check').click({ force: true });
-    await expect(page.getByTestId('algebra-result')).toContainText(/use only the exercise variable|השתמש רק במשתנה|variabele van de opgave/i);
+    await page.locator('#btn-check-fractionlike').click({ force: true });
+    const result = page.getByTestId('algebra-result');
+    await expect(result).toBeVisible();
+    await expect(result).toContainText(/use only the exercise variable|השתמש רק במשתנה|variabele van de opgave|Incorrect|לא נכון|Onjuist/i);
+    await expect(result).not.toContainText(/\bCorrect\b|\bנכון\b|\bJuist\b/i);
   });
 
   test('should reject complex answer when any step uses a wrong variable', async ({ page }) => {
@@ -93,10 +95,12 @@ test.describe('Algebra Strict Simplification', () => {
     await firstInput.evaluate((el: any, val: string) => {
       el.value = val;
       el.dispatchEvent(new Event('input', { bubbles: true }));
-    }, 'z=1');
+    }, 'q=1');
 
-    await page.locator('.btn-check').click({ force: true });
-    await expect(page.getByTestId('algebra-result')).toContainText(/use only the exercise variable|השתמש רק במשתנה|variabele van de opgave/i);
-    await expect(page.getByTestId('algebra-result')).not.toContainText(/Correct|נכון|Juist/i);
+    await page.locator('#btn-check-complex').click({ force: true });
+    const result = page.getByTestId('algebra-result');
+    await expect(result).toBeVisible();
+    await expect(result).toContainText(/use only the exercise variable|השתמש רק במשתנה|variabele van de opgave|Incorrect|לא נכון|Onjuist/i);
+    await expect(result).not.toContainText(/\bCorrect\b|\bנכון\b|\bJuist\b/i);
   });
 });
