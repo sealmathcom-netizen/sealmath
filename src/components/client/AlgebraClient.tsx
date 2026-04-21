@@ -7,6 +7,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import MathInput from '../common/MathInput';
 import type { Lang } from '../../i18n/translations';
 import { logToAxiom } from '../../utils/logger';
+import { playSound } from '../../utils/audio';
 import * as MathEngine from '../../utils/math/evaluators';
 import * as MathGen from '../../utils/math/generators';
 
@@ -160,9 +161,11 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentVal, is_correct: isCorrect, error: errorMsg, lang });
 
     if (isCorrect) {
+      playSound('correct');
       setMsg(t('algebra_correct')); setMsgColor('green');
       setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
+      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -186,7 +189,7 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
             <WithTooltip tip={_solLabel}>
-              <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+              <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); playSound('solution'); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
             </WithTooltip>
           </div>
         </div>
@@ -238,9 +241,11 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentVal, is_correct: isCorrect, error: errorMsg, lang });
 
     if (isCorrect) {
+      playSound('correct');
       setMsg(t('algebra_correct')); setMsgColor('green');
       setTimeout(() => { setSolvedCount(solvedCount + 1); next(); }, NEXT_PROBLEM_DELAY_MS);
     } else {
+      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -264,7 +269,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
           <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
             {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
             <WithTooltip tip={_solLabel}>
-              <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+              <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); playSound('solution'); setVal(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
             </WithTooltip>
           </div>
         </div>
@@ -346,14 +351,18 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentSteps.join(' | '), is_correct: isCorrect, error: errorMsg, lang });
 
     if (notFullySolved) {
+      playSound('incorrect');
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
     } else if (needsSimplification) {
+      playSound('incorrect');
       setMsg(t('algebra_fraction_not_simplified'));
       setMsgColor('orange');
     } else if (isCorrect) {
+      playSound('correct');
       setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS);
     } else {
+      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -397,6 +406,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
             <button onClick={() => { 
               lastSolClick.current = Date.now(); 
               logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); 
+              playSound('solution');
               if (problem.steps) {
                 setSteps(problem.steps);
               }
@@ -462,6 +472,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
         e.preventDefault();
         if (!isSolutionShown) {
           logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang });
+          playSound('solution');
           setIsSolutionShown(true); setMsg('');
         }
       }
@@ -567,17 +578,22 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 
     // 4. Feedback Logic
     if (needsSteps) {
+      playSound('incorrect');
       setMsg(t('msg_must_show_steps') || 'Multi-step equation: Please show at least one intermediate step.');
       setMsgColor('orange');
     } else if (notFullySolved) {
+      playSound('incorrect');
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
     } else if (needsSimplification) {
+      playSound('incorrect');
       setMsg(t('algebra_fraction_not_simplified'));
       setMsgColor('orange');
     } else if (isCorrect) {
+      playSound('correct');
       setMsg(t('algebra_correct')); setMsgColor('green'); setTimeout(nextProb, NEXT_PROBLEM_DELAY_MS);
     } else {
+      playSound('incorrect');
       setMsg(t('algebra_incorrect')); setMsgColor('red');
     }
   };
@@ -638,6 +654,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
             <button onClick={() => { 
               lastSolClick.current = Date.now(); 
               logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); 
+              playSound('solution');
               if (problem.steps && problem.steps.length > 0) {
                 setRows(problem.steps.map((s: string) => ({ id: generateExerciseId(), val: s })));
               }
@@ -694,9 +711,11 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
 
     if (phase === 'eq') {
       if (currentEq.includes('x')) {
+        playSound('correct');
         logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: true, lang });
         setPhase('sol');
       } else {
+        playSound('incorrect');
         logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: false, error: 'missing_variable', lang });
         setMsg(t('error_equation_variable_missing'));
       }
@@ -705,9 +724,13 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
       const errorMsg = isCorrect ? null : 'incorrect_numeric';
       logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: currentSol, is_correct: isCorrect, error: errorMsg, lang });
       if (isCorrect) {
+        playSound('correct');
         setMsg(t('algebra_correct'));
         setTimeout(next, NEXT_PROBLEM_DELAY_MS);
-      } else setMsg(t('algebra_incorrect'));
+      } else {
+        playSound('incorrect');
+        setMsg(t('algebra_incorrect'));
+      }
     }
   };
 
@@ -724,7 +747,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'center' }}>
           {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: { equation: prob.equation, answer: prob.a }, lang }); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: { equation: prob.equation, answer: prob.a }, lang }); playSound('solution'); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
       </div>
@@ -770,9 +793,13 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
     const errorMsg = isCorrect ? null : 'incorrect_numeric';
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentAns, is_correct: isCorrect, error: errorMsg, lang });
     if (isCorrect) {
+      playSound('correct');
       setMsg(t('algebra_correct'));
       setTimeout(next, NEXT_PROBLEM_DELAY_MS);
-    } else setMsg(t('algebra_incorrect'));
+    } else {
+      playSound('incorrect');
+      setMsg(t('algebra_incorrect'));
+    }
   };
 
 
@@ -789,7 +816,7 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
         </div>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '20px' }}>
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: prob.a, lang }); playSound('solution'); setAns(String(prob.a)); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', padding: '10px', border: 'none', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
           <button onClick={() => alert(t('exam_finish'))} style={{ background: '#2ecc71', color: '#fff', padding: '10px 20px', border: 'none', borderRadius: '8px' }}>{t('exam_finish')}</button>
         </div>
