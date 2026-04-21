@@ -144,7 +144,7 @@ export function getProblemGenerator(type: string, t?: any) {
       else if (coeff === 1) ans = variable;
       else if (coeff === -1) ans = `-${variable}`;
 
-      return { q: `${a}${variable} ${isAdd ? '+' : '-'} ${b}${variable}`, a: ans, steps: [ans] };
+      return { q: `${a}${variable} ${isAdd ? '+' : '-'} ${b}${variable}`, a: ans, steps: [ans], variable };
     }
     if (type === 'fractions-like-terms') {
       const genFrac = () => {
@@ -185,7 +185,7 @@ export function getProblemGenerator(type: string, t?: any) {
           : `+ ${formatFracStr(f2.num, f2.den)}`;
       const q = `${q_t1}${variable} ${q_t2}${variable}`;
       
-      return { q, a: ans, steps: [ans] };
+      return { q, a: ans, steps: [ans], variable };
     }
     return { q: "2x = 4", a: 2 };
   };
