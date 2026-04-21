@@ -183,9 +183,19 @@ export default function CaptureClient({ lang, dict, children }: Props) {
       else next = [index]
     }
 
+    const nextOp = next.length === 0 ? null : selectedCaptureOp
+
     setSelectedIngIndices(next)
-    setSessionCaptureDraft(prev => ({ ...prev, gameKey: currentGameKey, selectedIngIndices: next }))
-    checkCaptureWin(next, selectedCaptureOp)
+    if (next.length === 0) {
+      setSelectedCaptureOp(null)
+    }
+    setSessionCaptureDraft(prev => ({
+      ...prev,
+      gameKey: currentGameKey,
+      selectedIngIndices: next,
+      selectedCaptureOp: nextOp
+    }))
+    checkCaptureWin(next, nextOp)
   }
 
   const selectOp = (op: string) => {
