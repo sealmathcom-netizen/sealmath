@@ -201,9 +201,13 @@ export default function CaptureClient({ lang, dict, children }: Props) {
   const selectOp = (op: string) => {
     if (captureGameOver) return
     setFeedback('')
-    setSelectedCaptureOp(op)
-    setSessionCaptureDraft(prev => ({ ...prev, gameKey: currentGameKey, selectedCaptureOp: op }))
-    checkCaptureWin(selectedIngIndices, op)
+    const shouldClearOp =
+      selectedIngIndices.length === 1 &&
+      selectedCaptureOp === op
+    const nextOp = shouldClearOp ? null : op
+    setSelectedCaptureOp(nextOp)
+    setSessionCaptureDraft(prev => ({ ...prev, gameKey: currentGameKey, selectedCaptureOp: nextOp }))
+    checkCaptureWin(selectedIngIndices, nextOp)
   }
 
   const preview = useMemo(() => {
