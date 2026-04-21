@@ -56,15 +56,18 @@ test.describe('Games', () => {
     });
 
     test('should show solution for a puzzle', async ({ page }) => {
-      // Ensure puzzle is loaded
+      // Ensure puzzle is loaded and hydration finished
       await expect(page.locator('#n1')).toHaveValue('1');
+      await expect(page.locator('#n2')).toHaveValue('2');
+      await expect(page.locator('#n3')).toHaveValue('3');
+      await expect(page.locator('#n4')).toHaveValue('4');
       
-      // Ensure button is enabled (hydrated)
-      const solveBtn = page.locator('text=Show Solution');
+      // Scope strictly to the 24-challenge solve button (avoid matching hidden/other buttons)
+      const solveBtn = page.locator('button.btn-solve').filter({ hasText: /show solution|הצג פתרון|toon oplossing/i }).first();
       await expect(solveBtn).toBeEnabled();
       
       await solveBtn.click();
-      await expect(page.locator('#result')).toContainText('Solution:', { timeout: 10000 });
+      await expect(page.locator('#result')).toContainText(/solution:|פתרון:|oplossing:/i, { timeout: 10000 });
     });
   });
 

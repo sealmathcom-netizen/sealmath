@@ -75,11 +75,11 @@ test.describe('Algebra Strict Simplification', () => {
   test('should reject using the wrong variable in Fractions + Like Terms', async ({ page }) => {
     await page.click('#tab-fractionlike', { force: true });
 
-    const mathInputs = page.locator('math-field');
-    const lastInput = mathInputs.last();
-    await lastInput.click();
-    await page.keyboard.press(process.platform === 'darwin' ? 'Meta+A' : 'Control+A');
-    await page.keyboard.type('q');
+    const lastInput = page.getByTestId('solution-steps').locator('math-field').last();
+    await lastInput.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, 'q=1');
 
     await page.locator('#btn-check-fractionlike').click({ force: true });
     const result = page.getByTestId('algebra-result');

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { usePersistentState } from '../../hooks/usePersistentState'
+import { useSessionState } from '../../hooks/useSessionState'
 import {
   type Frac,
   calculateFrac,
@@ -42,14 +43,16 @@ export default function CaptureClient({ lang, dict, children }: Props) {
     target: Frac;
     ingredients: Frac[];
     gameOver: boolean;
+    shownSolution: string | null;
   }>('captureGameState', {
     target: { n: 0, d: 1 },
     ingredients: [],
-    gameOver: false
+    gameOver: false,
+    shownSolution: null
   })
 
   // Destructure for easy access
-  const { target: captureTarget, ingredients: captureIngredients, gameOver: captureGameOver } = gameState
+  const { target: captureTarget, ingredients: captureIngredients, gameOver: captureGameOver, shownSolution } = gameState
 
   const [feedback, setFeedback] = useState('')
   const [feedbackColor, setFeedbackColor] = useState('var(--dark)')
@@ -57,6 +60,51 @@ export default function CaptureClient({ lang, dict, children }: Props) {
   const [showRulesCapture, setShowRulesCapture] = useState(false)
   const [selectedIngIndices, setSelectedIngIndices] = useState<number[]>([])
   const [selectedCaptureOp, setSelectedCaptureOp] = useState<string | null>(null)
+  const [sessionCaptureDraft, setSessionCaptureDraft] = useSessionState<{
+    gameKey: string | null;
+    selectedIngIndices: number[];
+    selectedCaptureOp: string | null;
+  }>('session_capture_draft', {
+    gameKey: null,
+    selectedIngIndices: [],
+    selectedCaptureOp: null
+  })
+  const [sessionGameState, setSessionGameState] = useSessionState<{
+    target: Frac;
+    ingredients: Frac[];
+    gameOver: boolean;
+    shownSolution: string | null;
+  }>('session_capture_game_state', {
+    target: { n: 0, d: 1 },
+    ingredients: [],
+    gameOver: false,
+    shownSolution: null
+  })
+  const [sessionShownSolution, setSessionShownSolution] = useSessionState<string | null>('session_capture_shown_solution', null)
+  const [sessionShownSolutionGameKey, setSessionShownSolutionGameKey] = useSessionState<string | null>('session_capture_shown_solution_game_key', null)
+
+  const currentGameKey = useMemo(() => {
+    const targetKey = `${captureTarget.n}/${captureTarget.d}`
+    const ingredientsKey = captureIngredients.map(f => `${f.n}/${f.d}`).join('|')
+    return `${targetKey}::${ingredientsKey}`
+  }, [captureIngredients, captureTarget.d, captureTarget.n])
+
+  useEffect(() => {
+    if (!currentGameKey || currentGameKey === '0/1::') return
+    if (sessionCaptureDraft.gameKey === currentGameKey) {
+      setSelectedIngIndices(sessionCaptureDraft.selectedIngIndices)
+      setSelectedCaptureOp(sessionCaptureDraft.selectedCaptureOp)
+      return
+    }
+    // Different exercise from DB/session snapshot => clear insertion draft.
+    setSelectedIngIndices([])
+    setSelectedCaptureOp(null)
+    setSessionCaptureDraft({
+      gameKey: currentGameKey,
+      selectedIngIndices: [],
+      selectedCaptureOp: null
+    })
+  }, [currentGameKey, sessionCaptureDraft, setSessionCaptureDraft])
 
   const checkCaptureWin = (nextSelected: number[], op: string | null) => {
     if (nextSelected.length !== 2 || !op) return
@@ -86,27 +134,46 @@ export default function CaptureClient({ lang, dict, children }: Props) {
     setSelectedCaptureOp(null)
     setFeedback('')
     setFeedbackColor('var(--dark)')
-
     const { target, ingredients } = generateNewGame()
     setGameState({
       target,
       ingredients,
-      gameOver: false
+      gameOver: false,
+      shownSolution: null
+    })
+    setSessionShownSolution(null)
+    setSessionShownSolutionGameKey(null)
+    const newGameKey = `${target.n}/${target.d}::${ingredients.map(f => `${f.n}/${f.d}`).join('|')}`
+    setSessionCaptureDraft({
+      gameKey: newGameKey,
+      selectedIngIndices: [],
+      selectedCaptureOp: null
     })
   }
+
+  useEffect(() => {
+    if (captureIngredients.length > 0) {
+      setSessionGameState(gameState)
+    }
+  }, [captureIngredients.length, gameState, setSessionGameState])
 
   // Use effect once on mount to handle initial generation if empty
   useEffect(() => {
     if (!loading && captureIngredients.length === 0) {
-      initFractionCapture()
+      if (sessionGameState.ingredients.length > 0) {
+        setGameState(sessionGameState)
+      } else {
+        initFractionCapture()
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading])
 
   const selectIng = (index: number) => {
-    if (captureGameOver) return
-
     setFeedback('')
+    setGameState(prev => ({ ...prev, gameOver: false, shownSolution: null }))
+    setSessionShownSolution(null)
+    setSessionShownSolutionGameKey(null)
     const pos = selectedIngIndices.indexOf(index)
     let next: number[]
     if (pos > -1) {
@@ -117,6 +184,7 @@ export default function CaptureClient({ lang, dict, children }: Props) {
     }
 
     setSelectedIngIndices(next)
+    setSessionCaptureDraft(prev => ({ ...prev, gameKey: currentGameKey, selectedIngIndices: next }))
     checkCaptureWin(next, selectedCaptureOp)
   }
 
@@ -124,6 +192,7 @@ export default function CaptureClient({ lang, dict, children }: Props) {
     if (captureGameOver) return
     setFeedback('')
     setSelectedCaptureOp(op)
+    setSessionCaptureDraft(prev => ({ ...prev, gameKey: currentGameKey, selectedCaptureOp: op }))
     checkCaptureWin(selectedIngIndices, op)
   }
 
@@ -161,10 +230,28 @@ export default function CaptureClient({ lang, dict, children }: Props) {
   const showFractionSolution = () => {
     const solStr = findSolution(captureIngredients, captureTarget)
     if (!solStr) return
-    const solForDisplay = lang === 'he' ? `\u2066${solStr}\u2069` : solStr
-    setFeedback(t('msg_sol_is', { sol: solForDisplay }))
-    setFeedbackColor('var(--accent)')
+    setGameState(prev => ({ ...prev, shownSolution: solStr }))
+    setSessionShownSolution(solStr)
+    setSessionShownSolutionGameKey(currentGameKey)
   }
+
+  const sessionSolutionForCurrentGame =
+    sessionShownSolutionGameKey === currentGameKey ? sessionShownSolution : null
+  const displayedSolutionRaw = (
+    !loading &&
+    shownSolution &&
+    sessionSolutionForCurrentGame &&
+    shownSolution !== sessionSolutionForCurrentGame
+  )
+    ? shownSolution
+    : (sessionSolutionForCurrentGame ?? shownSolution)
+  const displayedSolution = displayedSolutionRaw
+    ? (lang === 'he' ? `\u2066${displayedSolutionRaw}\u2069` : displayedSolutionRaw)
+    : null
+  const effectiveFeedback = displayedSolution
+    ? t('msg_sol_is', { sol: displayedSolution })
+    : feedback
+  const effectiveFeedbackColor = displayedSolution ? 'var(--accent)' : feedbackColor
 
   return (
     <>
@@ -298,8 +385,8 @@ export default function CaptureClient({ lang, dict, children }: Props) {
             {preview}
           </div>
 
-          <div id="capture-feedback" style={{ marginTop: 20, fontWeight: 'bold', minHeight: 24, color: feedbackColor }}>
-            {feedback}
+          <div id="capture-feedback" style={{ marginTop: 20, fontWeight: 'bold', minHeight: 24, color: effectiveFeedbackColor }}>
+            {effectiveFeedback}
           </div>
 
           <div style={{ display: 'flex', gap: 10, marginTop: 20 }}>
