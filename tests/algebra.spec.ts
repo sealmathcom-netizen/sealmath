@@ -27,7 +27,6 @@ test.describe('Algebra Basics', () => {
   test('should use "Show Solution" in Fractions', async ({ page }) => {
     await page.click('button:has-text("Fractions + Like Terms")', { force: true });
     await page.locator('button:has-text("Show Solution"), button:has-text("הצג פתרון"), button:has-text("Toon Oplossing")').click({ force: true });
-    await expect(page.locator('text=/Solution Steps|שלבי הפתרון|Oplosstappen/').first()).toBeVisible();
     await expect(page.getByText(/Step 1|שלב 1|Stap 1/).first()).toBeVisible();
   });
 
@@ -179,7 +178,6 @@ test.describe('Algebra Basics', () => {
   test('should use "Show Solution" in Combining Like Terms', async ({ page }) => {
     await page.click('#tab-combinelike', { force: true });
     await page.locator('button:has-text("Show Solution"), button:has-text("הצג פתרון"), button:has-text("Toon Oplossing")').click({ force: true });
-    await expect(page.locator('text=/Solution Steps|שלבי הפתרון|Oplosstappen/').first()).toBeVisible();
     // Verify that some result is shown
     await expect(page.getByText(/Step 1|שלב 1|Stap 1/).first()).toBeVisible();
   });

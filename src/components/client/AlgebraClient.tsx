@@ -394,7 +394,15 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={nextProb} style={{ padding: '10px 15px' }}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} style={{ padding: '10px 15px' }} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { 
+              lastSolClick.current = Date.now(); 
+              logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); 
+              if (problem.steps) {
+                setSteps(problem.steps);
+              }
+              setIsSolutionShown(true); 
+              setMsg(''); 
+            }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '15px' }} data-testid="algebra-result">{msg}</p>}
@@ -584,25 +592,9 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div className="question" style={{ background: '#fff', border: '1px solid #ddd', borderRadius: '12px', padding: '20px', width: '100%', marginBottom: '20px', textAlign: 'center', direction: 'ltr' }}>
           <QuestionDisplay q={problem.q} />
-        </div>
-
-        {isSolutionShown && problem.steps && (
-          <div data-testid="solution-steps" style={{ background: '#e8f4fd', border: '2px dashed #3498db', padding: '15px', borderRadius: '12px', marginBottom: '20px', width: '100%' }}>
-            <p style={{ fontWeight: 'bold', color: '#2980b9', marginBottom: '8px' }}>{t('algebra_solution_steps') || "Solution Steps"}:</p>
-            {problem.steps.map((s: string, i: number) => (
-              <div key={i} data-step-value={s} style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: '4px 0' }}>
-                <span style={{ fontSize: '1rem', color: '#7f8c8d' }}>{`${t('algebra_step_label')} ${i + 1}:`}</span>
-                <div style={{ direction: 'ltr' }}>
-                  <QuestionDisplay q={s} fontSize="1.2rem" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '350px' }}>
+        </div>        <div data-testid="solution-steps" style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '350px' }}>
           {rows.map((r, i) => (
-            <div key={r.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
+            <div key={r.id} data-step-value={r.val} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
               <span data-testid={`row-label-${i}`} style={{ fontSize: '0.75rem', color: '#7f8c8d', marginBottom: '2px' }}>{rows.length > 1 && i === rows.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i + 1}`}</span>
               <div style={{ display: 'flex', gap: '6px', direction: 'ltr' }}>
                 <div style={{ flex: 1, border: '2px solid #ccc', borderRadius: '8px', background: '#fff' }}>
@@ -643,7 +635,15 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
           {isSolutionShown ? <button className="btn-check" onClick={nextProb}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} id={`btn-check-${id}`} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { lastSolClick.current = Date.now(); logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); setIsSolutionShown(true); setMsg(''); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { 
+              lastSolClick.current = Date.now(); 
+              logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang }); 
+              if (problem.steps && problem.steps.length > 0) {
+                setRows(problem.steps.map((s: string) => ({ id: generateExerciseId(), val: s })));
+              }
+              setIsSolutionShown(true); 
+              setMsg(''); 
+            }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
         {msg && <p className="result" style={{ color: msgColor, fontWeight: 'bold', marginTop: '10px' }} data-testid="algebra-result">{msg}</p>}
