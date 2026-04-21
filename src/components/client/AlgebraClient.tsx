@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, type ReactNode } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useSessionState } from '../../hooks/useSessionState';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import MathInput from '../common/MathInput';
 import type { Lang } from '../../i18n/translations';
 import { logToAxiom } from '../../utils/logger';
@@ -70,6 +70,7 @@ type Props = {
   lang: Lang;
   dict: Record<string, string>;
   children?: React.ReactNode;
+  initialTab?: string;
 };
 
 // --- Helpers ---
@@ -798,45 +799,46 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
   );
 }
 
-export default function AlgebraClient({ lang, dict, children }: Props) {
+export default function AlgebraClient({ lang, dict, children, initialTab }: Props) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const pathname = usePathname();
 
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Initialize with null to prevent 'addsub' being highlighted by default
-  const [activeTab, _setActiveTab] = usePersistentState<any>('algebraActiveTab', null);
-
-  const urlTab = searchParams?.get('tab');
+  // Initialize from props or fallback to 'addsub'
+  const [activeTab, _setActiveTab] = usePersistentState<any>('algebraActiveTab', initialTab || 'addsub');
 
   useEffect(() => {
-    try {
-      if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return;
 
-      // Sync logic on mount (The truth-seeking phase)
+    const syncTab = () => {
+      const params = new URLSearchParams(window.location.search);
+      const urlTab = params.get('tab');
+      
       const cookies = document.cookie.split('; ');
       const cookieValue = cookies.find(row => row.startsWith('algebra_active_tab='))?.split('=')?.[1];
       const sessionTab = sessionStorage.getItem('session_algebra_active_tab');
 
-      // Fallback to 'addsub' only if no other intent exists
-      const target = urlTab || cookieValue || sessionTab || 'addsub';
+      // Priority: URL > Cookie > Session > Default
+      const target = urlTab || cookieValue || sessionTab || initialTab || 'addsub';
 
       if (target && target !== activeTab) {
         _setActiveTab(target);
       }
-    } catch (err) {
-      console.error('Hydration sync failed:', err);
-    } finally {
-      setIsHydrated(true);
-    }
-  }, [urlTab, activeTab, _setActiveTab]);
+    };
+
+    syncTab();
+    setIsHydrated(true);
+
+    window.addEventListener('popstate', syncTab);
+    return () => window.removeEventListener('popstate', syncTab);
+  }, [initialTab, _setActiveTab]);
 
   // If the user changes tab, we update URL, Cookie, and Session
   const setActiveTab = (tab: string) => {
     _setActiveTab(tab);
 
-    const params = new URLSearchParams(searchParams?.toString() || '');
+    const params = new URLSearchParams(window.location.search);
     params.set('tab', tab);
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
 
@@ -939,10 +941,18 @@ export default function AlgebraClient({ lang, dict, children }: Props) {
               >{t(tab.key)}</button>
             ))}
           </div>
-          <div style={{ flex: '3 1 350px' }}>
+          <div style={{ flex: '3 1 350px', position: 'relative' }}>
             {!isHydrated ? (
-              <div style={{ background: '#fff', borderRadius: '12px', padding: '40px', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                <p style={{ color: '#7f8c8d' }}>{t('algebra_loading') || 'Loading exercise...'}</p>
+              <div className="rules-box" style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '400px', padding: '25px' }}>
+                <SectionHeader title={initialTab ? t(`algebra_btn_${initialTab}`) : t('algebra_loading')} t={t} />
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                   <div style={{ width: '120px', height: '24px', background: '#eee', borderRadius: '4px', marginBottom: '30px' }}></div>
+                   <div style={{ width: '240px', height: '60px', background: '#f5f5f5', borderRadius: '12px', marginBottom: '40px' }}></div>
+                   <div style={{ display: 'flex', gap: '15px' }}>
+                     <div style={{ width: '140px', height: '45px', background: '#eee', borderRadius: '10px' }}></div>
+                     <div style={{ width: '100px', height: '45px', background: '#eee', borderRadius: '10px' }}></div>
+                   </div>
+                </div>
               </div>
             ) : (
               <>

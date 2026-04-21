@@ -50,18 +50,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 import AuthWall from '@/components/auth/AuthWall'
 import { Suspense } from 'react'
 
-export default async function AlgebraPage({ params }: Props) {
-  const { lang: langParam } = await params
+export default async function AlgebraPage({ params, searchParams }: Props) {
+  const [{ lang: langParam }, { tab: initialTab }] = await Promise.all([params, searchParams])
   const { lang, dict, t } = await getTranslations(langParam as Lang)
+  const initialTabStr = Array.isArray(initialTab) ? initialTab[0] : initialTab;
 
   return (
     <AuthWall lang={lang} dict={dict}>
-      <Suspense fallback={null}>
-        <AlgebraClient lang={lang} dict={dict}>
-          <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('algebra_page_title')}</h1>
-          <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '2rem' }}>{t('meta_description_algebra')}</p>
-        </AlgebraClient>
-      </Suspense>
+      <AlgebraClient lang={lang} dict={dict} initialTab={initialTabStr as string}>
+        <h1 style={{ fontSize: '2.2rem', marginTop: 0, marginBottom: '10px', textAlign: 'center' }}>{t('algebra_page_title')}</h1>
+        <p style={{ textAlign: 'center', color: '#7f8c8d', marginBottom: '2rem' }}>{t('meta_description_algebra')}</p>
+      </AlgebraClient>
     </AuthWall>
   )
 }
