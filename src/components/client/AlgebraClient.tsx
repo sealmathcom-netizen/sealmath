@@ -450,12 +450,13 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 
   // Autofocus on row change or new problem
   useEffect(() => {
+    if (isSolutionShown) return;
     setTimeout(() => {
-      if (inputRefs.current[focusedIndex]) {
+      if (!isSolutionShown && inputRefs.current[focusedIndex]) {
         inputRefs.current[focusedIndex].focus();
       }
     }, 100);
-  }, [focusedIndex, rows.length, problem]);
+  }, [focusedIndex, rows.length, problem, isSolutionShown]);
 
   // Global Keyboard shortcut (Cmd/Ctrl + =)
   useEffect(() => {

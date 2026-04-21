@@ -44,4 +44,22 @@ test.describe('Algebra Focus Test', () => {
     
     expect(nextFocused).toBe('MATH-FIELD');
   });
+
+  test('should NOT revert "Next Exercise" button due to autofocus after clicking "Show Solution"', async ({ page }) => {
+    await page.click('#tab-complex', { force: true });
+    
+    // 1. Click Show Solution
+    await page.locator('button:has-text("Show Solution")').first().click();
+    
+    // 2. Wait for potential autofocus (the 100ms timeout in the component)
+    await page.waitForTimeout(500);
+    
+    // 3. Verify the button is STILL "Next Exercise"
+    const nextBtn = page.locator('button:has-text("Next Exercise")');
+    await expect(nextBtn).toBeVisible();
+    
+    // 4. Verify the check button is NOT visible
+    const checkBtn = page.locator('button:has-text("Check Answer")');
+    await expect(checkBtn).not.toBeVisible();
+  });
 });
