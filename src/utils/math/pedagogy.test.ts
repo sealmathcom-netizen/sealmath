@@ -12,23 +12,26 @@ describe('Pedagogical Standards', () => {
   ];
 
   it('should never generate questions containing "1x" or "-1x" (as a lone coefficient)', () => {
-    // Run each generator 100 times to catch random edge cases
+    // Run each generator 200 times to catch random edge cases
     categories.forEach(category => {
       const generator = MathGen.getProblemGenerator(category);
-      for (let i = 0; i < 100; i++) {
+      for (let i = 0; i < 200; i++) {
         const problem = generator();
-        const q = problem.q;
+        const searchStrings = [problem.q, problem.a, ...(problem.steps || [])].map(String);
         
-        // Match 1x, -1x followed by a variable or end of string
-        const illegalPattern = /(^|[^\d])(-?1[a-z])/i;
-        
-        const match = q.match(illegalPattern);
-        if (match) {
-          throw new Error(`Category "${category}" generated an illegal string: "${q}". Standard: "1x" should be "x".`);
-        }
-        
-        expect(q).not.toMatch(/(^|\s)1[a-z]/);
-        expect(q).not.toMatch(/(^|\s)-1[a-z]/);
+        searchStrings.forEach(str => {
+          // Match 1x, -1x followed by a variable or end of string, and also catch 0x
+          const illegalPattern = /(^|[^\d])(-?1[a-z]|0[a-z])/i;
+          
+          const match = str.match(illegalPattern);
+          if (match) {
+            throw new Error(`Category "${category}" generated an illegal string: "${str}". Standard: "1x" should be "x", "0x" should be "0".`);
+          }
+          
+          expect(str).not.toMatch(/(^|\s)1[a-z]/i);
+          expect(str).not.toMatch(/(^|\s)-1[a-z]/i);
+          expect(str).not.toMatch(/(^|\s)0[a-z]/i);
+        });
       }
     });
   });

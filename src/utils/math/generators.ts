@@ -137,7 +137,13 @@ export function getProblemGenerator(type: string, t?: any) {
       const b = Math.floor(Math.random() * 12) + 2;
       const variable = ['x', 'y', 'z', 'a', 'b'][Math.floor(Math.random() * 5)];
       const isAdd = Math.random() < 0.5;
-      const ans = `${isAdd ? a + b : a - b}${variable}`;
+      
+      const coeff = isAdd ? a + b : a - b;
+      let ans = `${coeff}${variable}`;
+      if (coeff === 0) ans = "0";
+      else if (coeff === 1) ans = variable;
+      else if (coeff === -1) ans = `-${variable}`;
+
       return { q: `${a}${variable} ${isAdd ? '+' : '-'} ${b}${variable}`, a: ans, steps: [ans] };
     }
     if (type === 'fractions-like-terms') {
