@@ -92,6 +92,20 @@ export function latexToMathJS(latex: string, variable: string): string {
   return clean.trim();
 }
 
+function stripLatexCommands(input: string): string {
+  return input
+    .replace(/\\text\{[^{}]*\}/g, '')
+    .replace(/\\[a-zA-Z]+/g, '')
+    .replace(/[{}]/g, '');
+}
+
+export function hasUnexpectedVariable(input: string, expectedVariable: string = 'x'): boolean {
+  const v = (expectedVariable || 'x').toLowerCase();
+  const cleaned = stripLatexCommands(input);
+  const matches = cleaned.match(/[a-z]/gi) || [];
+  return matches.some((ch) => ch.toLowerCase() !== v);
+}
+
 export function checkAlgebraicResult(
   userInput: string,
   target: { num: number; den: number } | string | number,
@@ -100,6 +114,7 @@ export function checkAlgebraicResult(
   if (!userInput) return false;
 
   const v = variable || 'x';
+  if (hasUnexpectedVariable(userInput, v)) return false;
   const probeVal = 1.234567;
   const mathString = latexToMathJS(userInput, v);
 
@@ -188,14 +203,14 @@ export function evalSide(expr: string, variable: string, val: number): number {
   }
 }
 
-export function checkEquationStep(step: string, targetRoot: number): boolean {
+export function checkEquationStep(step: string, targetRoot: number, expectedVariable: string = 'x'): boolean {
   if (!step || !step.includes('=')) return false;
+  if (hasUnexpectedVariable(step, expectedVariable)) return false;
   const parts = step.split('=');
   if (parts.length !== 2) return false;
-  
-  const varMatch = step.match(/[a-z]/i);
-  const variable = varMatch ? varMatch[0].toLowerCase() : 'x';
-  
+
+  const variable = expectedVariable.toLowerCase();
+
   const lVal = evalSide(parts[0], variable, targetRoot);
   const rVal = evalSide(parts[1], variable, targetRoot);
   

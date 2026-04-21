@@ -71,4 +71,32 @@ test.describe('Algebra Strict Simplification', () => {
     // Should show "Please simplify"
     await expect(page.getByTestId('algebra-result')).toContainText(/Please simplify|נא לפשט|Vereenvoudig/i);
   });
+
+  test('should reject using the wrong variable in Fractions + Like Terms', async ({ page }) => {
+    await page.click('#tab-fractionlike', { force: true });
+
+    const mathInputs = page.locator('math-field');
+    const lastInput = mathInputs.last();
+    await lastInput.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, 'z');
+
+    await page.locator('.btn-check').click({ force: true });
+    await expect(page.getByTestId('algebra-result')).toContainText(/use only the exercise variable|השתמש רק במשתנה|variabele van de opgave/i);
+  });
+
+  test('should reject complex answer when any step uses a wrong variable', async ({ page }) => {
+    await page.click('#tab-complex', { force: true });
+
+    const firstInput = page.locator('math-field').first();
+    await firstInput.evaluate((el: any, val: string) => {
+      el.value = val;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, 'z=1');
+
+    await page.locator('.btn-check').click({ force: true });
+    await expect(page.getByTestId('algebra-result')).toContainText(/use only the exercise variable|השתמש רק במשתנה|variabele van de opgave/i);
+    await expect(page.getByTestId('algebra-result')).not.toContainText(/Correct|נכון|Juist/i);
+  });
 });

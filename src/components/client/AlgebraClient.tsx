@@ -323,17 +323,26 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
     for (let i = 0; i < currentSteps.length; i++) {
       const s = currentSteps[i];
       if (!s || !s.includes('=')) { stepsCorrect = false; break; }
-      if (!MathEngine.checkEquationStep(s, problem.a)) { stepsCorrect = false; break; }
+      if (!MathEngine.checkEquationStep(s, problem.a, problem.variable || 'x')) { stepsCorrect = false; break; }
     }
 
     let isCorrect = stepsCorrect;
     let notFullySolved = false;
     let needsSimplification = false;
+    let wrongVariable = false;
     const v = problem.variable || 'x';
+
+    const nonEmptySteps = currentSteps.filter(s => s.trim() !== '');
+    if (nonEmptySteps.some(s => MathEngine.hasUnexpectedVariable(s, v))) {
+      isCorrect = false;
+      wrongVariable = true;
+    }
 
     if (isCorrect && currentSteps.length > 0) {
       const finalStep = currentSteps[currentSteps.length - 1];
-      if (!MathEngine.isEquationFullySolved(finalStep, v)) {
+      if (!MathEngine.checkEquationStep(finalStep, problem.a, v)) {
+        isCorrect = false;
+      } else if (!MathEngine.isEquationFullySolved(finalStep, v)) {
         isCorrect = false;
         notFullySolved = true;
       } else {
@@ -347,13 +356,18 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
     }
 
     let errorMsg = null;
-    if (notFullySolved) errorMsg = 'not_fully_solved';
+    if (wrongVariable) errorMsg = 'wrong_variable';
+    else if (notFullySolved) errorMsg = 'not_fully_solved';
     else if (needsSimplification) errorMsg = 'needs_simplification';
     else if (!isCorrect) errorMsg = 'incorrect_algebraic';
 
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentSteps.join(' | '), is_correct: isCorrect, error: errorMsg, lang });
 
-    if (notFullySolved) {
+    if (wrongVariable) {
+      playSound('incorrect');
+      setMsg(t('msg_wrong_variable_used') || 'Please use only the exercise variable in every step (e.g. use x, not a or b).');
+      setMsgColor('orange');
+    } else if (notFullySolved) {
       playSound('incorrect');
       setMsg(t('msg_must_solve_for_x') || 'Please solve entirely for the variable (e.g. x = 1).');
       setMsgColor('orange');
@@ -528,11 +542,19 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     let notFullySolved = false;
     let needsSimplification = false;
     let needsSteps = false;
+    let wrongVariable = false;
+
+    const nonEmptyRows = currentRows.filter(r => r.trim() !== '');
+    if (nonEmptyRows.some(r => MathEngine.hasUnexpectedVariable(r, v))) {
+      wrongVariable = true;
+    }
 
     // 1. Core Validation
-    if (id === 'complex') {
+    if (wrongVariable) {
+      isCorrect = false;
+    } else if (id === 'complex') {
       if (lastRow.includes('=')) {
-        isCorrect = MathEngine.checkEquationStep(lastRow, problem.a);
+        isCorrect = MathEngine.checkEquationStep(lastRow, problem.a, v);
         if (isCorrect) {
           if (!MathEngine.isEquationFullySolved(lastRow, v)) {
             isCorrect = false;
@@ -548,13 +570,13 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
         }
       } else {
         isCorrect = MathEngine.checkAlgebraicResult(lastRow, problem.a, v);
-        if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
+        if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345, v)) {
           needsSimplification = true;
         }
       }
     } else {
       isCorrect = MathEngine.checkAlgebraicResult(lastRow, problem.a, v);
-      if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345)) {
+      if (!isCorrect && MathEngine.checkEquationStep(`${lastRow} = ${problem.a}`, 1.2345, v)) {
         needsSimplification = true;
       }
     }
@@ -562,7 +584,6 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     // 2. Step Enforcement (Only if the answer is fundamentally correct/simplified)
     const isStepEnforced = id === 'complex' && problem.steps && problem.steps.length > 1;
     if (isStepEnforced && isCorrect && !needsSimplification && !notFullySolved) {
-      const nonEmptyRows = currentRows.filter(r => r.trim() !== '');
       const uniqueRows = new Set(nonEmptyRows.map(r => r.replace(/\s+/g, '').toLowerCase()));
       
       if (currentRows.length < 2) {
@@ -575,7 +596,8 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     }
 
     let errorMsg = null;
-    if (needsSteps) errorMsg = 'needs_steps';
+    if (wrongVariable) errorMsg = 'wrong_variable';
+    else if (needsSteps) errorMsg = 'needs_steps';
     else if (notFullySolved) errorMsg = 'not_fully_solved';
     else if (needsSimplification) errorMsg = 'needs_simplification';
     else if (!isCorrect) errorMsg = 'incorrect_algebraic';
@@ -584,7 +606,11 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentRows.join(' | '), is_correct: isCorrect, error: errorMsg, lang });
 
     // 4. Feedback Logic
-    if (needsSteps) {
+    if (wrongVariable) {
+      playSound('incorrect');
+      setMsg(t('msg_wrong_variable_used') || 'Please use only the exercise variable in every step (e.g. use x, not a or b).');
+      setMsgColor('orange');
+    } else if (needsSteps) {
       playSound('incorrect');
       setMsg(t('msg_must_show_steps') || 'Multi-step equation: Please show at least one intermediate step.');
       setMsgColor('orange');
