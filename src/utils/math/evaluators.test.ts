@@ -32,6 +32,16 @@ describe('Math Evaluators - Fraction Simplification', () => {
       const result = latexToMathJS('-\\frac{7}{20}y', 'y');
       expect(result).toBe('-(7)/(20)*y');
     });
+    it('should handle LaTeX formatting commands like left/right and Big', () => {
+      expect(latexToMathJS('\\left(x+2\\right)=5', 'x')).toBe('(x+2)=5');
+      expect(latexToMathJS('\\Big(x+2\\Big)=5', 'x')).toBe('(x+2)=5');
+      expect(latexToMathJS('\\left|x\\right|=5', 'x')).toBe('|x|=5');
+    });
+
+    it('should handle LaTeX spaces and backslashes', () => {
+      expect(latexToMathJS('x\\ +\\ 2\\ =\\ 5', 'x')).toBe('x + 2 = 5');
+      expect(latexToMathJS('x\\,y', 'x')).toBe('x y');
+    });
   });
 
   describe('checkFractionSimplification', () => {
@@ -124,6 +134,12 @@ describe('Math Evaluators - Fraction Simplification', () => {
       expect(checkEquationStep('7a = 49', 7, 'x')).toBe(false);
       expect(checkEquationStep('x = 7', 7, 'x')).toBe(true);
       expect(hasUnexpectedVariable('7a = 49', 'x')).toBe(true);
+    });
+
+    it('should reject equation steps that do not contain the variable at all', () => {
+      // 5 = 5 is mathematically true but pedagogically useless for solving for x
+      expect(checkEquationStep('5 = 5', 5, 'x')).toBe(false);
+      expect(checkEquationStep('2 + 3 = 5', 1, 'x')).toBe(false);
     });
   });
 });
