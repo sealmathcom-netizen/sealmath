@@ -739,26 +739,46 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
 
 function WordProblemWindow({ title, generateProblem, t, lang }: any) {
   const [exerciseId, setExerciseId] = useSessionState(`session_algebra_id_wordproblem`, generateExerciseId());
-  const [eq, setEq] = useSessionState(`session_algebra_eq_wordproblem_${exerciseId}`, '');
-  const [sol, setSol] = useSessionState(`session_algebra_sol_wordproblem_${exerciseId}`, '');
-  const [msg, setMsg] = useState('');
-  const [isSolutionShown, setIsSolutionShown] = useState(false);
-
+  const [rows, setRows] = useSessionState<{ id: string; val: string }[]>(`session_algebra_rows_wordproblem_${exerciseId}`, () => [{ id: generateExerciseId(), val: '' }]);
   const [prob, setProb, isLoaded] = useSessionState<any>(`session_algebra_prob_wordproblem`, generateProblem);
-  const [phase, setPhase] = useSessionState<'eq' | 'sol'>(`session_algebra_phase_wordproblem`, 'eq');
-  const eqRef = useRef<HTMLInputElement>(null);
-  const solRef = useRef<HTMLInputElement>(null);
-  const keyRepairAttemptsRef = useRef(0);
+  const [msg, setMsg] = useState('');
+  const [msgColor, setMsgColor] = useState('red');
+  const [isSolutionShown, setIsSolutionShown] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+  const inputRefs = useRef<any[]>([]);
+  const lastSolClick = useRef(0);
 
-  // Autofocus based on phase or new problem
+  const isMac = getIsMac();
+  const shortcutLabel = isMac ? '⌘F12' : 'Ctrl+F12';
+
+  // Autofocus on row change or new problem
   useEffect(() => {
-    if (phase === 'eq' && eqRef.current) {
-      eqRef.current.focus();
-    } else if (phase === 'sol' && solRef.current) {
-      solRef.current.focus();
-    }
-  }, [phase, prob]);
-  const next = () => { setProb(generateProblem()); setPhase('eq'); setEq(''); setSol(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
+    if (isSolutionShown) return;
+    setTimeout(() => {
+      if (!isSolutionShown && inputRefs.current[focusedIndex]) {
+        inputRefs.current[focusedIndex].focus();
+      }
+    }, 100);
+  }, [focusedIndex, rows.length, prob, isSolutionShown]);
+
+  const addRow = (index: number) => {
+    setRows(prev => {
+      const nr = [...prev];
+      nr.splice(index + 1, 0, { id: generateExerciseId(), val: '' });
+      return nr;
+    });
+    setFocusedIndex(index + 1);
+    setMsg('');
+  };
+
+  const next = () => { 
+    setProb(generateProblem()); 
+    setRows([{ id: generateExerciseId(), val: '' }]); 
+    setFocusedIndex(0); 
+    setMsg(''); 
+    setIsSolutionShown(false); 
+    setExerciseId(generateExerciseId()); 
+  };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
@@ -766,7 +786,6 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
 
   const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_wordproblem`, lang);
 
-  // Regenerate question when app language changes so text is localized immediately.
   useEffect(() => {
     if (!isLoaded) return;
     if (sessionLang !== lang) {
@@ -779,18 +798,6 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     }
   }, [lang, isLoaded, sessionLang, prob, t]);
 
-  // Repair stale/corrupted session entries where text is still a translation key (e.g. "word_prob_3").
-  useEffect(() => {
-    if (!isLoaded || !prob?.text) return;
-    if (!/^word_prob_\d+$/.test(String(prob.text))) {
-      keyRepairAttemptsRef.current = 0;
-      return;
-    }
-    if (keyRepairAttemptsRef.current >= 3) return;
-    keyRepairAttemptsRef.current += 1;
-    next();
-  }, [isLoaded, prob]);
-
   useEffect(() => {
     if (prob && exerciseId) {
       const logKey = `logged_exercise_${exerciseId}`;
@@ -801,55 +808,114 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     }
   }, [exerciseId, prob, lang]);
 
-  const check = () => {
-    const currentEq = eqRef.current?.value || '';
-    const currentSol = solRef.current?.value || '';
+  // Repair stale/corrupted session entries where text is still a translation key (e.g. "word_prob_3").
+  useEffect(() => {
+    if (!isLoaded || !prob?.text) return;
+    if (!/^word_prob_\d+$/.test(String(prob.text))) return;
+    next();
+  }, [isLoaded, prob]);
 
-    if (phase === 'eq') {
-      eqRef.current?.focus();
-      if (currentEq.includes('x')) {
-        playSound('correct');
-        logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: true, lang });
-        setPhase('sol');
-      } else {
-        playSound('incorrect');
-        logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: currentEq, is_correct: false, error: 'missing_variable', lang });
-        setMsg(t('error_equation_variable_missing'));
-      }
+  const check = () => {
+    const currentRows = rows.map((r, i) => inputRefs.current[i]?.value || '');
+    if (inputRefs.current[rows.length - 1]) inputRefs.current[rows.length - 1].focus();
+    
+    const v = prob.variable || 'x';
+    const firstRow = currentRows[0] || '';
+    const lastRow = currentRows[currentRows.length - 1] || '';
+
+    // 1. Validate Equation (First Row)
+    const isEqValid = MathEngine.checkEquationStep(firstRow, prob.a, v);
+    if (!isEqValid) {
+      playSound('incorrect');
+      setMsg(t('error_equation_incorrect') || 'The equation does not match the problem.');
+      setMsgColor('red');
+      logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: firstRow, is_correct: false, error: 'incorrect_equation', lang });
+      return;
+    }
+
+    // 2. Validate Final Result (Last Row)
+    let isCorrect = false;
+    if (lastRow.includes('=')) {
+      isCorrect = MathEngine.checkEquationStep(lastRow, prob.a, v) && MathEngine.isEquationFullySolved(lastRow, v);
     } else {
-      const isCorrect = MathEngine.checkNumeric(currentSol, prob.a);
-      const errorMsg = isCorrect ? null : 'incorrect_numeric';
-      solRef.current?.focus();
-      logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: currentSol, is_correct: isCorrect, error: errorMsg, lang });
-      if (isCorrect) {
-        playSound('correct');
-        setMsg(t('algebra_correct'));
-        setTimeout(next, NEXT_PROBLEM_DELAY_MS);
-      } else {
-        playSound('incorrect');
-        setMsg(t('algebra_incorrect'));
-      }
+      isCorrect = MathEngine.checkNumeric(lastRow, prob.a);
+    }
+
+    if (isCorrect) {
+      playSound('correct');
+      setMsg(t('algebra_correct'));
+      setMsgColor('green');
+      logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: currentRows.join(' | '), is_correct: true, lang });
+      setTimeout(next, NEXT_PROBLEM_DELAY_MS);
+    } else {
+      playSound('incorrect');
+      setMsg(t('algebra_incorrect'));
+      setMsgColor('red');
+      logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'solution', input: currentRows.join(' | '), is_correct: false, error: 'incorrect_numeric', lang });
     }
   };
-
 
   if (!prob) return null;
 
   return (
     <div className="rules-box" style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
       <SectionHeader title={title} t={t} />
-      <div className="question" style={{ margin: '20px', fontSize: '1.2rem' }}>{prob.text}</div>
-      <div style={{ margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '10px', width: '100%', maxWidth: '300px' }}>
-        <input ref={eqRef} placeholder={t('placeholder_equation')} value={eq} onChange={e => { setEq(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} disabled={phase === 'sol'} style={{ padding: '10px' }} />
-        {phase === 'sol' && <input ref={solRef} placeholder={t('placeholder_x')} value={sol} onChange={e => { setSol(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px' }} type="number" step="any" />}
+      <div className="question" style={{ margin: '20px', fontSize: '1.2rem', background: '#fff', border: '1px solid #ddd', borderRadius: '12px', padding: '20px' }}>{prob.text}</div>
+      <div style={{ margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', maxWidth: '350px' }}>
+        {rows.map((r, i) => (
+          <div key={r.id} style={{ display: 'flex', flexDirection: 'column', marginBottom: '8px' }}>
+            <span style={{ fontSize: '0.75rem', color: '#7f8c8d', marginBottom: '2px', textAlign: 'left' }}>
+              {i === 0 ? t('placeholder_equation') : (i === rows.length - 1 ? t('algebra_final_result') : `${t('algebra_step_label')} ${i + 1}`)}
+            </span>
+            <div style={{ display: 'flex', gap: '6px', direction: 'ltr' }}>
+              <div style={{ flex: 1, border: '2px solid #ccc', borderRadius: '8px', background: '#fff' }}>
+                <MathInput
+                  ref={el => inputRefs.current[i] = el}
+                  value={r.val}
+                  onChange={v => {
+                    setRows(prev => {
+                      const nr = [...prev];
+                      const idx = nr.findIndex(x => x.id === r.id);
+                      if (idx !== -1) {
+                        nr[idx] = { ...nr[idx], val: v };
+                      }
+                      return nr;
+                    });
+                    if (msgColor !== 'green') setMsg('');
+                    setIsSolutionShown(false);
+                  }}
+                  onEnter={() => isSolutionShown ? next() : check()}
+                  onFocus={() => {
+                    setFocusedIndex(i);
+                    if (Date.now() - lastSolClick.current > 200) setIsSolutionShown(false);
+                  }}
+                />
+              </div>
+              <WithTooltip tip={_removeLabel}>
+                <button onClick={() => { if (rows.length > 1) { setRows(prev => prev.filter(x => x.id !== r.id)); setFocusedIndex(Math.max(0, i - 1)); } setMsg(''); }} className="btn-remove-step" style={{ padding: '8px 14px', margin: 0, background: '#e74c3c', color: '#fff', borderRadius: '4px', border: 'none' }}>×</button>
+              </WithTooltip>
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'stretch' }} className="algebra-add-step-wrapper">
+                <button onClick={() => addRow(i)} className="btn-add-row" style={{ padding: '8px 14px', margin: 0, background: 'var(--accent)', color: '#fff', borderRadius: '4px', border: 'none', cursor: 'pointer' }}>+</button>
+                <span className="algebra-kbd-tooltip" suppressHydrationWarning>{shortcutLabel}</span>
+              </div>
+            </div>
+          </div>
+        ))}
         <div style={{ display: 'flex', gap: '10px', marginTop: '20px', justifyContent: 'center' }}>
           {isSolutionShown ? <button className="btn-check" onClick={next}>{t('algebra_next_exercise')}</button> : <CheckButton label={t('algebra_check_ans')} onClick={check} />}
           <WithTooltip tip={_solLabel}>
-            <button onClick={() => { logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: { equation: prob.equation, answer: prob.a }, lang }); playSound('solution'); setPhase('sol'); setEq(prob.equation); setSol(String(prob.a)); setIsSolutionShown(true); }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', margin: 0 }}>{t('btn_show_sol')}</button>
+            <button onClick={() => { 
+              lastSolClick.current = Date.now(); 
+              logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: { equation: prob.equation, answer: prob.a }, lang }); 
+              playSound('solution'); 
+              setRows([{ id: generateExerciseId(), val: prob.equation }, { id: generateExerciseId(), val: String(prob.a) }]); 
+              setIsSolutionShown(true); 
+              setMsg(''); 
+            }} className="btn-show-sol" style={{ background: '#95a5a6', color: '#fff', border: 'none', padding: '10px 15px', borderRadius: '8px', cursor: 'pointer', margin: 0 }}>{t('btn_show_sol')}</button>
           </WithTooltip>
         </div>
       </div>
-      {msg && <p className="result" style={{ marginTop: '15px', fontWeight: 'bold' }} data-testid="algebra-result">{msg}</p>}
+      {msg && <p className="result" style={{ marginTop: '15px', fontWeight: 'bold', color: msgColor }} data-testid="algebra-result">{msg}</p>}
     </div>
   );
 }
