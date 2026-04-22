@@ -824,6 +824,15 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     const lastRow = currentRows[currentRows.length - 1] || '';
 
     // 1. Validate Equation (First Row)
+    const firstRowClean = (firstRow || '').replace(/\\text\{[^{}]*\}/g, '').toLowerCase();
+    if (!firstRowClean.includes(v.toLowerCase())) {
+        playSound('incorrect');
+        setMsg(t('error_equation_variable_missing'));
+        setMsgColor('orange');
+        logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: firstRow, is_correct: false, error: 'variable_missing', lang });
+        return;
+    }
+
     const isEqValid = MathEngine.checkEquationStep(firstRow, prob.a, v);
     if (!isEqValid) {
       playSound('incorrect');
@@ -832,6 +841,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
       logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, step: 'equation', input: firstRow, is_correct: false, error: 'incorrect_equation', lang });
       return;
     }
+
 
     // 2. Validate Final Result (Last Row)
     let isCorrect = false;

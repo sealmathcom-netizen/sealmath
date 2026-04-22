@@ -80,8 +80,13 @@ export function latexToMathJS(latex: string, variable: string): string {
     .replace(/\\frac\s*([0-9])\s*([0-9])/g, '($1)/($2)')
     .replace(/\\cdot/g, '*')
     .replace(/\\times/g, '*')
+    .replace(/\\left/g, '')
+    .replace(/\\right/g, '')
+    .replace(/\\Big[a-z]?/g, '')
+    .replace(/\\big[a-z]?/g, '')
     .replace(/\{([^{}]+)\}/g, '($1)') 
-    .replace(/\\s*/g, '');
+    .replace(/\\[ ,;!]/g, ' ') 
+    .replace(/\\/g, '');
 
   // Now handle variable multiplications EXTERNALLY to fractions/parens
   // 1. ( ... )x -> ( ... )*x
@@ -96,8 +101,10 @@ function stripLatexCommands(input: string): string {
   return input
     .replace(/\\text\{[^{}]*\}/g, '')
     .replace(/\\[a-zA-Z]+/g, '')
-    .replace(/[{}]/g, '');
+    .replace(/[{}]/g, '')
+    .replace(/\s+/g, '');
 }
+
 
 export function hasUnexpectedVariable(input: string, expectedVariable: string = 'x'): boolean {
   const v = (expectedVariable || 'x').toLowerCase();
@@ -205,11 +212,15 @@ export function evalSide(expr: string, variable: string, val: number): number {
 
 export function checkEquationStep(step: string, targetRoot: number, expectedVariable: string = 'x'): boolean {
   if (!step || !step.includes('=')) return false;
+  
+  const variable = expectedVariable.toLowerCase();
+  // Ensure the variable is actually used in the equation
+  const cleaned = stripLatexCommands(step).toLowerCase();
+  if (!cleaned.includes(variable)) return false;
+
   if (hasUnexpectedVariable(step, expectedVariable)) return false;
   const parts = step.split('=');
   if (parts.length !== 2) return false;
-
-  const variable = expectedVariable.toLowerCase();
 
   const lVal = evalSide(parts[0], variable, targetRoot);
   const rVal = evalSide(parts[1], variable, targetRoot);
@@ -217,6 +228,7 @@ export function checkEquationStep(step: string, targetRoot: number, expectedVari
   if (Number.isNaN(lVal) || Number.isNaN(rVal)) return false;
   return Math.abs(lVal - rVal) < EPSILON;
 }
+
 
 /**
  * Checks the final simplified result of combining like terms (e.g., 8x)

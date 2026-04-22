@@ -124,9 +124,9 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
               text: t('word_prob_7', [c5, total]),
               templateKey: 'word_prob_7',
               params: [c5, total],
-              equation: `${c5} * 5 + 10x = ${total}`,
+              equation: `${c5} \\cdot 5 + 10x = ${total}`,
               variable: 'x',
-              q: `${c5} * 5 + 10x = ${total}`,
+              q: `${c5} \\cdot 5 + 10x = ${total}`,
               a: c10,
               rationalA: { num: c10, den: 1 }
           };
@@ -161,9 +161,9 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
               text: t('word_prob_9', [slice, drink, total]),
               templateKey: 'word_prob_9',
               params: [slice, drink, total],
-              equation: `${slice}x + 4 * ${drink} = ${total}`,
+              equation: `${slice}x + 4 \\cdot ${drink} = ${total}`,
               variable: 'x',
-              q: `${slice}x + 4 * ${drink} = ${total}`,
+              q: `${slice}x + 4 \\cdot ${drink} = ${total}`,
               a: x,
               rationalA: { num: x, den: 1 }
           };
