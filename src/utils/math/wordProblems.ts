@@ -13,6 +13,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
       const sum = 2 * x + diff;
       return {
         text: t('word_prob_1', [diff, sum]),
+        templateKey: 'word_prob_1',
+        params: [diff, sum],
         equation: `x + (x + ${diff}) = ${sum}`,
         variable: 'x',
         q: `x + (x + ${diff}) = ${sum}`,
@@ -29,6 +31,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const sum = 3 * (x + diff) + 2 * x;
           return {
               text: t('word_prob_2', [diff, sum]),
+              templateKey: 'word_prob_2',
+              params: [diff, sum],
               equation: `3(x + ${diff}) + 2x = ${sum}`,
               variable: 'x',
               q: `3(x + ${diff}) + 2x = ${sum}`,
@@ -44,6 +48,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const sum = x + (x + 1) + (x + 2);
           return {
               text: t('word_prob_3', [sum]),
+              templateKey: 'word_prob_3',
+              params: [sum],
               equation: `x + (x + 1) + (x + 2) = ${sum}`,
               variable: 'x',
               q: `x + (x + 1) + (x + 2) = ${sum}`,
@@ -60,6 +66,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const peri = 2 * (w + (w + diff));
           return {
               text: t('word_prob_4', [diff, peri]),
+              templateKey: 'word_prob_4',
+              params: [diff, peri],
               equation: `2(x + (x + ${diff})) = ${peri}`,
               variable: 'x',
               q: `2(x + (x + ${diff})) = ${peri}`,
@@ -77,6 +85,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = start + weekly * weeks;
           return {
               text: t('word_prob_5', [start, weekly, total]),
+              templateKey: 'word_prob_5',
+              params: [start, weekly, total],
               equation: `${start} + ${weekly}x = ${total}`,
               variable: 'x',
               q: `${start} + ${weekly}x = ${total}`,
@@ -86,17 +96,19 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
       }
   },
   {
-      // 6: Trip
+      // 6: Train trip
       generate: (t) => {
           const v1 = Math.floor(Math.random() * 40) + 60;
-          const diff = 20;
+          const speedIncrease = 20;
           const t1 = Math.floor(Math.random() * 3) + 2;
-          const dist = v1 * t1 + (v1 + diff) * 2;
+          const dist = v1 * t1 + (v1 + speedIncrease) * 2;
           return {
-              text: t('word_prob_6', [v1, diff, dist]),
-              equation: `${v1}x + 2(${v1} + ${diff}) = ${dist}`,
+              text: t('word_prob_6', [v1, speedIncrease, dist]),
+              templateKey: 'word_prob_6',
+              params: [v1, speedIncrease, dist],
+              equation: `${v1}x + 2(${v1} + ${speedIncrease}) = ${dist}`,
               variable: 'x',
-              q: `${v1}x + 2(${v1} + ${diff}) = ${dist}`,
+              q: `${v1}x + 2(${v1} + ${speedIncrease}) = ${dist}`,
               a: t1,
               rationalA: { num: t1, den: 1 }
           };
@@ -110,6 +122,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = c5 * 5 + c10 * 10;
           return {
               text: t('word_prob_7', [c5, total]),
+              templateKey: 'word_prob_7',
+              params: [c5, total],
               equation: `${c5} * 5 + 10x = ${total}`,
               variable: 'x',
               q: `${c5} * 5 + 10x = ${total}`,
@@ -121,16 +135,18 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
   {
       // 8: Marbles
       generate: (t) => {
-          const gil = Math.floor(Math.random() * 20) + 5;
+          const tal = Math.floor(Math.random() * 20) + 5;
           const diff = Math.floor(Math.random() * 15) + 5;
-          const total = gil + (gil + diff);
+          const total = tal + (tal + diff);
           return {
               text: t('word_prob_8', [diff, total]),
+              templateKey: 'word_prob_8',
+              params: [diff, total],
               equation: `x + (x + ${diff}) = ${total}`,
               variable: 'x',
               q: `x + (x + ${diff}) = ${total}`,
-              a: gil,
-              rationalA: { num: gil, den: 1 }
+              a: tal,
+              rationalA: { num: tal, den: 1 }
           };
       }
   },
@@ -143,6 +159,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = slice * x + 4 * drink;
           return {
               text: t('word_prob_9', [slice, drink, total]),
+              templateKey: 'word_prob_9',
+              params: [slice, drink, total],
               equation: `${slice}x + 4 * ${drink} = ${total}`,
               variable: 'x',
               q: `${slice}x + 4 * ${drink} = ${total}`,
@@ -159,6 +177,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = boys + (boys + diff);
           return {
               text: t('word_prob_10', [diff, total]),
+              templateKey: 'word_prob_10',
+              params: [diff, total],
               equation: `x + (x + ${diff}) = ${total}`,
               variable: 'x',
               q: `x + (x + ${diff}) = ${total}`,
@@ -175,6 +195,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = p1 + (p1 + diff) + (2 * p1);
           return {
               text: t('word_prob_11', [diff, total]),
+              templateKey: 'word_prob_11',
+              params: [diff, total],
               equation: `x + (x + ${diff}) + 2x = ${total}`,
               variable: 'x',
               q: `x + (x + ${diff}) + 2x = ${total}`,
@@ -186,15 +208,17 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
   {
       // 12: Salary
       generate: (t) => {
-          const hourly = 45;
+          const hourlyRate = 45;
           const bonus = 500;
           const hours = Math.floor(Math.random() * 50) + 100;
-          const total = hourly * hours + bonus;
+          const total = hourlyRate * hours + bonus;
           return {
-              text: t('word_prob_12', [hourly, bonus, total]),
-              equation: `${hourly}x + ${bonus} = ${total}`,
+              text: t('word_prob_12', [hourlyRate, bonus, total]),
+              templateKey: 'word_prob_12',
+              params: [hourlyRate, bonus, total],
+              equation: `${hourlyRate}x + ${bonus} = ${total}`,
               variable: 'x',
-              q: `${hourly}x + ${bonus} = ${total}`,
+              q: `${hourlyRate}x + ${bonus} = ${total}`,
               a: hours,
               rationalA: { num: hours, den: 1 }
           };
@@ -208,6 +232,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const totalLegs = cows * 4 + (cows + diff) * 2;
           return {
               text: t('word_prob_13', [diff, totalLegs]),
+              templateKey: 'word_prob_13',
+              params: [diff, totalLegs],
               equation: `4x + 2(x + ${diff}) = ${totalLegs}`,
               variable: 'x',
               q: `4x + 2(x + ${diff}) = ${totalLegs}`,
@@ -225,6 +251,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = blue + red;
           return {
               text: t('word_prob_14', [diff, total]),
+              templateKey: 'word_prob_14',
+              params: [diff, total],
               equation: `x + (3x - ${diff}) = ${total}`,
               variable: 'x',
               q: `x + (3x - ${diff}) = ${total}`,
@@ -244,6 +272,8 @@ export const WORD_PROBLEMS: WordProblemTemplate[] = [
           const total = x + x2 + x3;
           return {
               text: t('word_prob_15', [d1, d2, total]),
+              templateKey: 'word_prob_15',
+              params: [d1, d2, total],
               equation: `x + (x + ${d1}) + (x + ${d1} + ${d2}) = ${total}`,
               variable: 'x',
               q: `x + (x + ${d1}) + (x + ${d1} + ${d2}) = ${total}`,

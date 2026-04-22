@@ -1,4 +1,6 @@
 
+import { WORD_PROBLEMS } from './wordProblems';
+
 export type Rational = { num: number; den: number };
 
 export function normalizeRational(num: number, den: number): Rational {
@@ -95,18 +97,26 @@ export function generateComplexEquationProblem(): any {
 }
 
 export function generateWordProblem(t?: any): any {
-  const x = Math.floor(Math.random() * 10) + 1;
-  const a = Math.floor(Math.random() * 8) + 2;
-  const b = Math.floor(Math.random() * 10) + 2;
-  const c = a * x + b;
-  const text = typeof t === 'function' ? t('word_prob_simple', { a, b, c }) : `If ${a}x + ${b} = ${c}, what is x?`;
-  return { text, a: x, coeff: a, b, c, rationalA: x, x, equation: `${a}x+${b}=${c}` };
+  const template = WORD_PROBLEMS[Math.floor(Math.random() * WORD_PROBLEMS.length)];
+
+  const translate = (key: string, params: any[]) => {
+    if (typeof t === 'function') {
+      return t(key, params);
+    }
+    return key;
+  };
+
+  return template.generate(translate);
 }
 
 export function getProblemGenerator(type: string, t?: any) {
   if (type === 'complex-equation') return generateComplexEquationProblem;
   if (type === 'word-problem' || type === 'word-problems') return () => generateWordProblem(t);
-  if (type === 'final-exam') return () => ({ q: "Solve for x: 3x = 9", a: 3 });
+  if (type === 'final-exam') return () => {
+    const templateKey = 'algebra_final_exam_solve_for_x';
+    const q = typeof t === 'function' ? t(templateKey) : "Solve for x: 3x = 9";
+    return { q, a: 3, templateKey, params: {} };
+  };
 
   return () => {
     if (type === 'add-sub') {
@@ -122,7 +132,12 @@ export function getProblemGenerator(type: string, t?: any) {
     }
     if (type === 'rounding') {
       const num = Math.random() * 100;
-      return { q: `Round ${num.toFixed(3)} to 2 decimal places`, a: parseFloat(num.toFixed(2)) };
+      const templateKey = 'algebra_rounding_prompt';
+      const params = [num.toFixed(3), 2];
+      const q = typeof t === 'function' 
+        ? t(templateKey, params)
+        : `Round ${num.toFixed(3)} to 2 decimal places`;
+      return { q, a: parseFloat(num.toFixed(2)), templateKey, params };
     }
     if (type === 'two-step') {
       const a = Math.floor(Math.random() * 8) + 2;

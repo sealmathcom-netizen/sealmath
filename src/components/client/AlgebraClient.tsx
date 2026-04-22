@@ -37,7 +37,7 @@ function WithTooltip({ tip, children }: { tip: string; children: React.ReactNode
   );
 }
 function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: string }) {
-  const isMath = q.includes('\\') || q.includes('{');
+  const isMath = q.includes('\\frac') || q.includes('\\sqrt') || q.includes('^') || q.includes('_') || (q.includes('\\') && !q.includes('\\n'));
   const mfRef = useRef<any>(null);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ function QuestionDisplay({ q, fontSize = '2rem' }: { q: string, fontSize?: strin
       </div>
     );
   }
-  return <span style={{ direction: 'ltr', fontSize, display: 'inline-block', color: 'var(--foreground, #2c3e50)' }}>{q}</span>;
+  return <span style={{ fontSize, display: 'inline-block', color: 'var(--foreground, #2c3e50)' }}>{q}</span>;
 }
 
 type Props = {
@@ -138,11 +138,13 @@ function SimpleWindow({ id, title, generateProblem, t, exampleContent, lang }: a
     }
   }, [prob]);
 
+  const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_${id}`, lang);
   const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
   }, [isLoaded, prob, generateProblem]);
+
 
   useEffect(() => {
     if (prob && exerciseId) {
@@ -219,11 +221,30 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
     }
   }, [prob]);
 
+  const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_${id}`, lang);
   const next = () => { setProb(generateProblem()); setVal(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
   }, [isLoaded, prob, generateProblem]);
+
+  useEffect(() => {
+    if (isLoaded && sessionLang !== lang) {
+      setSessionLang(lang);
+      if (prob?.templateKey) {
+        setProb({ ...prob, q: t(prob.templateKey, prob.params) });
+      } else {
+        next();
+      }
+    }
+  }, [isLoaded, lang, sessionLang, prob, t]);
+
+  // Fix stale session data with unreplaced placeholders
+  useEffect(() => {
+    if (isLoaded && prob?.q && (prob.q.includes('{num}') || prob.q.includes('{0}')) && prob.templateKey) {
+      setProb({ ...prob, q: t(prob.templateKey, prob.params) });
+    }
+  }, [isLoaded, prob, t, setProb]);
 
   useEffect(() => {
     if (prob && exerciseId) {
@@ -285,6 +306,7 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   const [exerciseId, setExerciseId] = useSessionState<string>(`session_algebra_id_${id}`, generateExerciseId());
   const [steps, setSteps] = useSessionState<string[]>(`session_algebra_steps_${id}_${exerciseId}`, []);
   const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, generateProblem);
+  const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_${id}`, lang);
   const [showExample, setShowExample] = useState(false);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
@@ -304,6 +326,12 @@ function FixedStepWindow({ id, title, generateProblem, t, exampleContent, lang }
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
   }, [isLoaded, problem, generateProblem]);
+
+  useEffect(() => {
+    if (isLoaded && sessionLang !== lang) {
+      setSessionLang(lang);
+    }
+  }, [isLoaded, lang, sessionLang]);
 
   useEffect(() => {
     if (problem && exerciseId) {
@@ -451,6 +479,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
     }
   }, [rows, setRows]);
   const [problem, setProblem, isLoaded] = useSessionState<any>(`session_algebra_prob_${id}`, generateProblem);
+  const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_${id}`, lang);
   const [msg, setMsg] = useState('');
   const [msgColor, setMsgColor] = useState('red');
   const [isSolutionShown, setIsSolutionShown] = useState(false);
@@ -520,6 +549,12 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   useEffect(() => {
     if (isLoaded && !problem) nextProb();
   }, [isLoaded, problem, generateProblem]);
+
+  useEffect(() => {
+    if (isLoaded && sessionLang !== lang) {
+      setSessionLang(lang);
+    }
+  }, [isLoaded, lang, sessionLang]);
 
   useEffect(() => {
     if (problem && exerciseId) {
@@ -713,6 +748,7 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
   const [phase, setPhase] = useSessionState<'eq' | 'sol'>(`session_algebra_phase_wordproblem`, 'eq');
   const eqRef = useRef<HTMLInputElement>(null);
   const solRef = useRef<HTMLInputElement>(null);
+  const keyRepairAttemptsRef = useRef(0);
 
   // Autofocus based on phase or new problem
   useEffect(() => {
@@ -727,6 +763,33 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
   useEffect(() => {
     if (isLoaded && !prob) next();
   }, [isLoaded, prob, generateProblem]);
+
+  const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_wordproblem`, lang);
+
+  // Regenerate question when app language changes so text is localized immediately.
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (sessionLang !== lang) {
+      setSessionLang(lang);
+      if (prob?.templateKey) {
+        setProb({ ...prob, text: t(prob.templateKey, prob.params) });
+      } else {
+        next();
+      }
+    }
+  }, [lang, isLoaded, sessionLang, prob, t]);
+
+  // Repair stale/corrupted session entries where text is still a translation key (e.g. "word_prob_3").
+  useEffect(() => {
+    if (!isLoaded || !prob?.text) return;
+    if (!/^word_prob_\d+$/.test(String(prob.text))) {
+      keyRepairAttemptsRef.current = 0;
+      return;
+    }
+    if (keyRepairAttemptsRef.current >= 3) return;
+    keyRepairAttemptsRef.current += 1;
+    next();
+  }, [isLoaded, prob]);
 
   useEffect(() => {
     if (prob && exerciseId) {
@@ -806,11 +869,23 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
     }
   }, [prob]);
 
+  const [sessionLang, setSessionLang] = useSessionState(`session_algebra_lang_finalexam`, lang);
   const next = () => { setProb(generateProblem()); setAns(''); setMsg(''); setIsSolutionShown(false); setExerciseId(generateExerciseId()); };
 
   useEffect(() => {
     if (isLoaded && !prob) next();
   }, [isLoaded, prob, generateProblem]);
+
+  useEffect(() => {
+    if (isLoaded && sessionLang !== lang) {
+      setSessionLang(lang);
+      if (prob?.templateKey) {
+        setProb({ ...prob, q: t(prob.templateKey, prob.params) });
+      } else {
+        next();
+      }
+    }
+  }, [isLoaded, lang, sessionLang, prob, t]);
 
   useEffect(() => {
     if (prob && exerciseId) {
@@ -844,7 +919,7 @@ function FinalExamWindow({ title, generateProblem, t, lang }: any) {
   return (
     <div className="rules-box" style={{ textAlign: 'center', minHeight: '400px', display: 'flex', flexDirection: 'column', padding: '25px' }}>
       <SectionHeader title={title} t={t} />
-      <div className="question" style={{ fontSize: '1.7rem', margin: '30px', direction: 'ltr' }}>{prob.q}</div>
+      <div className="question" style={{ fontSize: '1.7rem', margin: '30px', direction: lang === 'he' ? 'rtl' : 'ltr' }}>{prob.q}</div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', alignItems: 'center' }}>
           <input ref={inputRef} value={ans} onChange={e => { setAns(e.target.value); setMsg(''); }} onFocus={() => { setMsg(''); setIsSolutionShown(false); }} style={{ padding: '10px', width: '120px', textAlign: 'center' }} type="number" step="any" />
@@ -952,9 +1027,18 @@ export default function AlgebraClient({ lang, dict, children, initialTab }: Prop
     }
   };
 
-  const t = (key: string, params: Record<string, string | number> = {}) => {
+  const t = (key: string, params: any[] | Record<string, any> = {}) => {
     let str = dict[key] ?? key;
-    for (const [k, v] of Object.entries(params)) str = str.replace(`{${k}}`, String(v));
+    const safeParams = params || {};
+    if (Array.isArray(safeParams)) {
+      safeParams.forEach((value, idx) => {
+        str = str.split(`{${idx}}`).join(String(value));
+      });
+    } else if (typeof safeParams === 'object') {
+      for (const [k, v] of Object.entries(safeParams)) {
+        str = str.split(`{${k}}`).join(String(v));
+      }
+    }
     return str;
   };
   const tabs = [
@@ -976,15 +1060,33 @@ export default function AlgebraClient({ lang, dict, children, initialTab }: Prop
       {dict[`algebra_${id}_ex3`] && <p dangerouslySetInnerHTML={{ __html: t(`algebra_${id}_ex3`) }} />}
     </div>
   );
-  const addSubGenerator = React.useMemo(() => MathGen.getProblemGenerator('add-sub'), []);
-  const mulDivGenerator = React.useMemo(() => MathGen.getProblemGenerator('mul-div'), []);
-  const roundingGenerator = React.useMemo(() => MathGen.getProblemGenerator('rounding'), []);
-  const twoStepGenerator = React.useMemo(() => MathGen.getProblemGenerator('two-step'), []);
-  const combineLikeGenerator = React.useMemo(() => MathGen.getProblemGenerator('combining-like-terms'), []);
-  const fractionLikeGenerator = React.useMemo(() => MathGen.getProblemGenerator('fractions-like-terms'), []);
-  const complexGenerator = React.useMemo(() => MathGen.getProblemGenerator('complex-equation'), []);
-  const wordProblemGenerator = React.useMemo(() => MathGen.getProblemGenerator('word-problems'), []);
-  const finalExamGenerator = React.useMemo(() => MathGen.getProblemGenerator('final-exam'), []);
+  const generatorT = React.useMemo(() => (key: string, params: any[] | Record<string, any> = []) => {
+    let str = dict[key] ?? key;
+    const safeParams = params || {};
+    if (Array.isArray(safeParams)) {
+      safeParams.forEach((value, idx) => {
+        str = str.split(`{${idx}}`).join(String(value));
+      });
+    } else if (typeof safeParams === 'object') {
+      for (const [k, v] of Object.entries(safeParams)) {
+        str = str.split(`{${k}}`).join(String(v));
+      }
+    }
+    return str;
+  }, [dict]);
+
+  const addSubGenerator = React.useMemo(() => MathGen.getProblemGenerator('add-sub', generatorT), [generatorT]);
+  const mulDivGenerator = React.useMemo(() => MathGen.getProblemGenerator('mul-div', generatorT), [generatorT]);
+  const roundingGenerator = React.useMemo(() => MathGen.getProblemGenerator('rounding', generatorT), [generatorT]);
+  const twoStepGenerator = React.useMemo(() => MathGen.getProblemGenerator('two-step', generatorT), [generatorT]);
+  const combineLikeGenerator = React.useMemo(() => MathGen.getProblemGenerator('combining-like-terms', generatorT), [generatorT]);
+  const fractionLikeGenerator = React.useMemo(() => MathGen.getProblemGenerator('fractions-like-terms', generatorT), [generatorT]);
+  const complexGenerator = React.useMemo(() => MathGen.getProblemGenerator('complex-equation', generatorT), [generatorT]);
+  const wordProblemGenerator = React.useMemo(
+    () => MathGen.getProblemGenerator('word-problems', generatorT),
+    [generatorT]
+  );
+  const finalExamGenerator = React.useMemo(() => MathGen.getProblemGenerator('final-exam', generatorT), [generatorT]);
 
   return (
     <section className="page active" id="algebra-page" data-testid="algebra-page" style={{ paddingBottom: '60px' }} onKeyDownCapture={handleGlobalEnter}>

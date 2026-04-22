@@ -11,7 +11,9 @@ export type ExerciseCategory =
 
 export interface BaseProblem {
   q: string; // The question text / LaTeX
-  a: number; // The target answer (numeric)
+  a: number | string; // The target answer
+  templateKey?: string;
+  params?: any[] | Record<string, any>;
 }
 
 export interface TwoStepProblem extends BaseProblem {
