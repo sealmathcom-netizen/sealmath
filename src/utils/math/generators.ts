@@ -137,7 +137,12 @@ export function getProblemGenerator(type: string, t?: any) {
       const q = typeof t === 'function' 
         ? t(templateKey, params)
         : `Round ${num.toFixed(3)} to 2 decimal places`;
-      return { q, a: parseFloat(num.toFixed(2)), templateKey, params };
+      
+      // Use Math.round to avoid toFixed() floating point issues with ties (e.g. 94.785 rounding down)
+      const valToRound = parseFloat(num.toFixed(3));
+      const rounded = Math.round(valToRound * 100) / 100;
+      
+      return { q, a: rounded, templateKey, params };
     }
     if (type === 'two-step') {
       const a = Math.floor(Math.random() * 8) + 2;

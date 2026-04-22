@@ -275,4 +275,35 @@ describe('Algebra Problem Generators', () => {
     });
   });
 
+  describe('Rounding Generator', () => {
+    it('should round 94.785 to 94.79 through the generator', () => {
+      // Mock Math.random to return a value that results in 94.785
+      const originalRandom = Math.random;
+      Math.random = () => 0.94785;
+      
+      try {
+        const gen = getProblemGenerator('rounding');
+        const p = gen() as any;
+        
+        // Question should be "Round 94.785 to 2 decimal places"
+        expect(p.params[0]).toBe('94.785');
+        // Answer should be 94.79
+        expect(p.a).toBe(94.79);
+      } finally {
+        Math.random = originalRandom;
+      }
+    });
+
+    it('should follow the pedagogical rule: 5 or more rounds up', () => {
+      const gen = getProblemGenerator('rounding');
+      for (let i = 0; i < 100; i++) {
+        const p = gen() as any;
+        const num = parseFloat(p.params[0]);
+        const expected = p.a;
+        const factor = Math.pow(10, 2);
+        const manual = Math.round(num * factor) / factor;
+        expect(expected).toBe(manual);
+      }
+    });
+  });
 });

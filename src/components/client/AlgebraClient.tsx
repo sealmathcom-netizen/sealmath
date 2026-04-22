@@ -259,7 +259,7 @@ function RoundingWindow({ id, title, generateProblem, t, exampleContent, lang }:
   const check = () => {
     inputRef.current?.focus();
     const currentVal = inputRef.current?.value || '';
-    const isCorrect = MathEngine.checkNumeric(currentVal, prob.a);
+    const isCorrect = MathEngine.checkNumeric(currentVal, prob.a, 0.001);
     const errorMsg = isCorrect ? null : 'incorrect_numeric';
     logToAxiom({ event: 'exercise_attempt', exercise_id: exerciseId, input: currentVal, is_correct: isCorrect, error: errorMsg, lang });
 
