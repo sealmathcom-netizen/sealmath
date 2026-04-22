@@ -1315,3 +1315,4 @@ export default function AlgebraClient({ lang, dict, children, initialTab }: Prop
     </section>
   );
 }
+
