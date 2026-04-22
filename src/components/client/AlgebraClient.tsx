@@ -504,12 +504,14 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
   // Global keyboard shortcuts (Cmd/Ctrl + F12/F11)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isModifier = isMac ? e.metaKey : e.ctrlKey;
-      if (isModifier && e.key === 'F12') {
+      const isModifier = e.metaKey || e.ctrlKey;
+      if (!isModifier) return;
+
+      if (e.key === 'F12') {
         e.preventDefault();
         addRow(focusedIndex);
       }
-      if (isModifier && e.key === 'F11') {
+      if (e.key === 'F11') {
         e.preventDefault();
         if (rows.length > 1) {
           setRows(prev => prev.filter((_, idx) => idx !== focusedIndex));
@@ -517,7 +519,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
           setMsg('');
         }
       }
-      if (isModifier && e.key === '/') {
+      if (e.key === '/') {
         e.preventDefault();
         if (!isSolutionShown) {
           logToAxiom({ event: 'exercise_show_solution', exercise_id: exerciseId, solution: problem.steps, lang });
@@ -525,7 +527,7 @@ function AdvancedAlgebraWindow({ id, title, generateProblem, t, exampleContent, 
           setIsSolutionShown(true); setMsg('');
         }
       }
-      if (isModifier && (e.key === 'e' || e.key === 'E')) {
+      if (e.key === 'e' || e.key === 'E') {
         e.preventDefault();
         setShowExample(prev => !prev);
       }
@@ -770,6 +772,30 @@ function WordProblemWindow({ title, generateProblem, t, lang }: any) {
     setFocusedIndex(index + 1);
     setMsg('');
   };
+
+  // Global keyboard shortcuts (Cmd/Ctrl + F12/F11)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isModifier = e.metaKey || e.ctrlKey;
+      if (!isModifier) return;
+
+      if (e.key === 'F12') {
+        e.preventDefault();
+        addRow(focusedIndex);
+      }
+      if (e.key === 'F11') {
+        e.preventDefault();
+        if (rows.length > 1) {
+          setRows(prev => prev.filter((_, idx) => idx !== focusedIndex));
+          setFocusedIndex(Math.max(0, focusedIndex - 1));
+          setMsg('');
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [focusedIndex, rows]);
+
 
   const next = () => { 
     setProb(generateProblem()); 
